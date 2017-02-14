@@ -26,9 +26,8 @@ public class PageGridView extends CustomGridView {
     private OnItemLongClickListener mOnItemLongClickListener = new OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            drawFloatingItemView();
             view.getParent().requestDisallowInterceptTouchEvent(true);
-            return true;
+            return drawFloatingItemView();
         }
     };
     private OnItemDragListener mOnItemDragListener = new OnItemDragListener() {
@@ -39,29 +38,26 @@ public class PageGridView extends CustomGridView {
     };
     private OnItemDropListener mOnItemDropListener = new OnItemDropListener() {
         @Override
-        public boolean onItemDrop(View view, int fromPosition, int toPosition) {
-            return dropFloatingItemView(fromPosition, toPosition);
+        public boolean onItemDrop(View view, int fromPosition, int toPosition, int toRawX, int toRawY) {
+            return dropFloatingItemView();
         }
     };
     private OnItemCancelListener mOnItemCancelListener = new OnItemCancelListener() {
         @Override
-        public boolean onItemCancel(View view, int x, int y) {
-            return removeFloatingItemView();
+        public void onItemCancel(View view, int x, int y) {
+            removeFloatingItemView();
         }
     };
 
     public PageGridView(Context context) {
         this(context, null);
     }
-
     public PageGridView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
-
     public PageGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
-
     public PageGridView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
@@ -84,17 +80,17 @@ public class PageGridView extends CustomGridView {
         setOnItemCancelListener(mOnItemCancelListener);
     }
 
-    public void drawFloatingItemView()
+    public boolean drawFloatingItemView()
     {
         if (mSelectedItemPosition < 0) {
-            return;
+            return false;
         }
 
         View item = getChildAt(mSelectedItemPosition - getFirstVisiblePosition()); //  getFirstVisiblePosition()이 없으면 스크롤 시 문제 생김
         item.setDrawingCacheEnabled(true);
         Bitmap bitmap = Bitmap.createBitmap(item.getDrawingCache());
 
-        ImageView tempFloatingItemView = new ImageView(mContext);
+        ImageView tempFloatingItemView = new ImageView(getContext());
         tempFloatingItemView.setBackgroundColor(Color.parseColor("#FFE400"));
         tempFloatingItemView.setImageBitmap(bitmap);
 
@@ -105,6 +101,8 @@ public class PageGridView extends CustomGridView {
         mWindowParams.y = mTouchPoint.y - mTouchPointOffset.y;
         mWindowManager.addView(tempFloatingItemView, mWindowParams);
         mFloatingItemView = tempFloatingItemView;
+
+        return true;
     }
 
     public boolean moveFloatingItemView(int rawX, int rawY)
@@ -120,13 +118,12 @@ public class PageGridView extends CustomGridView {
         return true;
     }
 
-    private boolean dropFloatingItemView(int fromPosition, int toPosition)
+    private boolean dropFloatingItemView()
     {
         if (mFloatingItemView == null) {
             return false;
         }
 
-        ((PageGridAdapter) getAdapter()).reorderItem(fromPosition, toPosition);
         removeFloatingItemView();
 
         return true;

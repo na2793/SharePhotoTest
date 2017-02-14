@@ -9,8 +9,6 @@ import android.widget.GridView;
 
 public class CustomGridView extends GridView {
 
-    protected Context mContext;
-
     protected Point mTouchPoint = new Point(0, 0);
     protected int mSelectedItemPosition = -1;
 
@@ -29,10 +27,8 @@ public class CustomGridView extends GridView {
     public CustomGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
-
     public CustomGridView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        mContext = context;
     }
 
     @Override
@@ -80,13 +76,13 @@ public class CustomGridView extends GridView {
             case MotionEvent.ACTION_UP:
                 if (mOnItemDropListener != null) {
                     int dropPosition = getItemPosition(x, y);
-                    return mOnItemDropListener.onItemDrop(this, mSelectedItemPosition, dropPosition);
+                    return mOnItemDropListener.onItemDrop(this, mSelectedItemPosition, dropPosition, rawX, rawY);
                 }
                 break;
 
             case MotionEvent.ACTION_CANCEL:
                 if (mOnItemCancelListener != null) {
-                    return mOnItemCancelListener.onItemCancel(this, x, y);
+                    mOnItemCancelListener.onItemCancel(this, x, y);
                 }
                 break;
 
@@ -124,11 +120,11 @@ public class CustomGridView extends GridView {
 
     public interface OnItemDropListener
     {
-        boolean onItemDrop(View view, int fromPosition, int toPosition);
+        boolean onItemDrop(View view, int fromPosition, int toPosition, int toRawX, int toRawY);
     }
 
     public interface OnItemCancelListener
     {
-        boolean onItemCancel(View view, int x, int y);
+        void onItemCancel(View view, int x, int y);
     }
 }
