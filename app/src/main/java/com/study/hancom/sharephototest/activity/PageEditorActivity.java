@@ -1,8 +1,9 @@
-package com.study.hancom.sharephototest;
+package com.study.hancom.sharephototest.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.view.PageElementListAdapter;
 import com.study.hancom.sharephototest.view.PageElementListView;
 
@@ -10,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PageEditorActivity extends AppCompatActivity {
-
-    private PageElementListView pageElementListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +32,9 @@ public class PageEditorActivity extends AppCompatActivity {
             dataList3.add(Integer.toString(i));
         }
 
+        final PageElementListView pageElementListView = (PageElementListView) findViewById(R.id.page_list_view);
         final PageElementListAdapter pageElementListAdapter = new PageElementListAdapter(this);
-        pageElementListView = (PageElementListView) findViewById(R.id.page_list_view);
+
         pageElementListView.setAdapter(pageElementListAdapter);
         pageElementListAdapter.addItem(dataList);
         pageElementListAdapter.addItem(dataList2);
