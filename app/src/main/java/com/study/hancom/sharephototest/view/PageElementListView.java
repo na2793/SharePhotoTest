@@ -2,25 +2,24 @@ package com.study.hancom.sharephototest.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ListView;
 
-public class PageListView extends ListView {
+public class PageElementListView extends ListView {
 
     private boolean mIsEditMode = false;
     private int mUpEventItemPosition = -1;
 
-    public PageListView(Context context) {
+    public PageElementListView(Context context) {
         this(context, null);
     }
-    public PageListView(Context context, AttributeSet attrs) {
+    public PageElementListView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
-    public PageListView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PageElementListView(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
-    public PageListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public PageElementListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

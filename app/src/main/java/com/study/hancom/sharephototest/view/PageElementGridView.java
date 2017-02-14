@@ -15,7 +15,7 @@ import android.widget.ImageView;
 
 import com.study.hancom.sharephototest.view.base.CustomGridView;
 
-public class PageGridView extends CustomGridView {
+public class PageElementGridView extends CustomGridView {
 
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWindowParams;
@@ -49,16 +49,16 @@ public class PageGridView extends CustomGridView {
         }
     };
 
-    public PageGridView(Context context) {
+    public PageElementGridView(Context context) {
         this(context, null);
     }
-    public PageGridView(Context context, AttributeSet attrs) {
+    public PageElementGridView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
-    public PageGridView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PageElementGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
-    public PageGridView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public PageElementGridView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
     }

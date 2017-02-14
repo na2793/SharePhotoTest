@@ -8,15 +8,16 @@ import android.widget.TextView;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.view.base.CustomGridAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class PageGridAdapter extends CustomGridAdapter<String> {
+public class PageElementGridAdapter extends CustomGridAdapter<String> {
 
-    public PageGridAdapter(Context context) {
-        super(context);
+    public PageElementGridAdapter(Context context) {
+        this(context, new ArrayList<String>());
     }
 
-    public PageGridAdapter(Context context, List<String> itemList) {
+    public PageElementGridAdapter(Context context, List<String> itemList) {
         super(context, itemList);
     }
 
@@ -26,7 +27,7 @@ public class PageGridAdapter extends CustomGridAdapter<String> {
 
         if (convertView == null)
         {
-            convertView = mInflater.inflate(R.layout.item_grid_custom, parent, false);
+            convertView = mInflater.inflate(R.layout.page_editor_page_element_list_item_grid_item, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.textView = (TextView) convertView.findViewById(R.id.item_grid_custom_text);
 

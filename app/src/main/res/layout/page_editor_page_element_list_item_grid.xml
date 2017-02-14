@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/page_editor_page_element_grid_font_size"
+        android:id="@+id/textView" />
+
+    <com.study.hancom.sharephototest.view.PageElementGridView
+        android:id="@+id/custom_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="auto_fit"
+        android:columnWidth="@dimen/page_editor_page_element_grid_column_width">
+    </com.study.hancom.sharephototest.view.PageElementGridView>
+
+</LinearLayout>
