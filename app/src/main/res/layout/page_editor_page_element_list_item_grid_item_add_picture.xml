@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/item_grid_add_picture"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:background="@color/colorLightGray"
+        android:text="@string/page_editor_page_element_list_item_grid_item_add_picture_text"
+        android:textSize="@dimen/page_editor_page_element_list_item_grid_item_add_picture_font_size"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"/>
+
+</FrameLayout>

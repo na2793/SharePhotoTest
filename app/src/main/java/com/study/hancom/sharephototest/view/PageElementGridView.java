@@ -13,7 +13,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
-import com.study.hancom.sharephototest.view.base.CustomGridView;
+import com.study.hancom.sharephototest.base.CustomGridView;
 
 public class PageElementGridView extends CustomGridView {
 

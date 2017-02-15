@@ -9,7 +9,7 @@ public class Album {
     private List<Page> mPageList;
 
     public Album() {
-        this("test");
+        this("tempAlbumName");
     }
 
     public Album(String name) {

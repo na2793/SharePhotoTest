@@ -1,4 +1,4 @@
-package com.study.hancom.sharephototest.view;
+package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.view.View;
@@ -7,18 +7,23 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.view.base.CustomGridView;
-import com.study.hancom.sharephototest.view.base.CustomListAdapter;
+import com.study.hancom.sharephototest.model.Page;
+import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.view.PageElementGridView;
+import com.study.hancom.sharephototest.view.PageElementListView;
+import com.study.hancom.sharephototest.base.CustomGridView;
+import com.study.hancom.sharephototest.base.CustomListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageElementListAdapter extends CustomListAdapter<List<String>> {
+public class PageElementListAdapter extends CustomListAdapter<Page> {
 
     public PageElementListAdapter(Context context) {
-        this(context, new ArrayList<List<String>>());
+        this(context, new ArrayList<Page>());
     }
-    public PageElementListAdapter(Context context, List<List<String>> itemList) {
+
+    public PageElementListAdapter(Context context, List<Page> itemList) {
         super(context, itemList);
     }
 
@@ -38,8 +43,19 @@ public class PageElementListAdapter extends CustomListAdapter<List<String>> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
+        String pageName = Integer.toString(position + 1) + " 페이지";
+        viewHolder.textView.setText(pageName);
+
         final PageElementGridView pageElementGridView = viewHolder.pageElementGridView;
-        final PageElementGridAdapter pageElementGridAdapter = new PageElementGridAdapter(parentView.getContext(), mItemList.get(position));
+        final PageElementGridAdapter pageElementGridAdapter = new PageElementGridAdapter(parentView.getContext());
+
+        final Page page = mItemList.get(position);
+        int elementCount = page.getPictureCount();
+
+        for (int i = 0; i < elementCount; i++) {
+            pageElementGridAdapter.addItem(page.getPicture(i));
+        }
+
         pageElementGridView.setAdapter(pageElementGridAdapter);
         pageElementGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -54,12 +70,12 @@ public class PageElementListAdapter extends CustomListAdapter<List<String>> {
             public boolean onItemDrop(View view, int fromPosition, int toPosition, int toRawX, int toRawY) {
                 if (fromPosition > -1) {
                     if (toPosition > -1) {
-                        pageElementGridAdapter.reorderItem(fromPosition, toPosition);
+                        page.reorderPicture(fromPosition, toPosition);
                     } else {
                         int toListPosition = ((PageElementListView) parentView).getUpEventItemPosition();
                         if (toListPosition > -1) {
-                            String item = pageElementGridAdapter.removeItem(fromPosition);
-                            getItem(toListPosition).add(item);
+                            Picture targetItem = page.removePicture(fromPosition);
+                            getItem(toListPosition).addPicture(targetItem);
                         }
                     }
                     notifyDataSetChanged();

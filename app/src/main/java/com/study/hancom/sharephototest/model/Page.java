@@ -1,7 +1,5 @@
 package com.study.hancom.sharephototest.model;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,25 +29,23 @@ public class Page {
         return mPictureList.get(position);
     }
 
-    public void addPicture(Picture picture) throws Exception {
+    public int getPictureCount() {
+        return mPictureList.size();
+    }
+
+    public void addPicture(Picture picture) {
         addPicture(mPictureList.size(), picture);
     }
 
-    public void addPicture(int position, Picture picture) throws Exception {
-        if (mLayout.getElementCount() > mPictureList.size()) {
-            mPictureList.add(position, picture);
-        } else {
-            //** exception
-            Log.v("tag", "더이상 사진을 넣을 수 없습니다.");
-            throw new Exception();
-        }
+    public void addPicture(int position, Picture picture) {
+        mPictureList.add(position, picture);
     }
 
     public Picture removePicture(int position) {
         return mPictureList.remove(position);
     }
 
-    public void reorderPicture(int fromPosition, int toPosition) throws Exception {
+    public void reorderPicture(int fromPosition, int toPosition) {
         Picture tempPicture = removePicture(fromPosition);
         addPicture(toPosition, tempPicture);
     }

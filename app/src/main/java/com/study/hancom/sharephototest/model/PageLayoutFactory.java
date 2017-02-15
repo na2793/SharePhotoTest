@@ -3,6 +3,8 @@ package com.study.hancom.sharephototest.model;
 import android.os.Environment;
 import android.util.Log;
 
+import com.study.hancom.sharephototest.util.MathUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,8 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.study.hancom.sharephototest.util.MathUtil.getRandomMath;
 
 class PageLayoutFactory {
 
@@ -39,7 +39,7 @@ class PageLayoutFactory {
         }
 
         if (pageLayoutList.size() > 0) {
-            pageLayout = pageLayoutList.get(getRandomMath(pageLayoutList.size() - 1, 0));
+            pageLayout = pageLayoutList.get(MathUtil.getRandomMath(pageLayoutList.size() - 1, 0));
         }
 
         return pageLayout;

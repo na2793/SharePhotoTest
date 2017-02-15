@@ -8,7 +8,7 @@ import android.widget.ListView;
 public class PageElementListView extends ListView {
 
     private boolean mIsEditMode = false;
-    private int mUpEventItemPosition = -1;
+    private int mTargetItemPosition = -1;
 
     public PageElementListView(Context context) {
         this(context, null);
@@ -24,7 +24,7 @@ public class PageElementListView extends ListView {
     }
 
     public int getUpEventItemPosition() {
-        return mUpEventItemPosition;
+        return mTargetItemPosition;
     }
 
     public void startEditMode() {
@@ -58,7 +58,7 @@ public class PageElementListView extends ListView {
 
                 break;
             case MotionEvent.ACTION_UP:
-                mUpEventItemPosition = pointToPosition(x, y);
+                mTargetItemPosition = pointToPosition(x, y);
 
                 break;
         }

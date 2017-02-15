@@ -1,4 +1,4 @@
-package com.study.hancom.sharephototest.view.base;
+package com.study.hancom.sharephototest.base;
 
 public interface CustomGridAdapterInterface<T> {
     void addItem(T item);

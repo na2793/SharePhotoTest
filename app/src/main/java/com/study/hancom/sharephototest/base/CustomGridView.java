@@ -1,4 +1,4 @@
-package com.study.hancom.sharephototest.view.base;
+package com.study.hancom.sharephototest.base;
 
 import android.content.Context;
 import android.graphics.Point;
