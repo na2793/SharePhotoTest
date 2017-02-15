@@ -32,17 +32,8 @@ public class PageEditorActivity extends AppCompatActivity {
         List<Picture> pictureList = new ArrayList<>();
 
         for (String eachPicturePath : picturePathList) {
-            Picture picture = null;
-            /*try {
-                picture = picturePathToPicture(eachPicturePath);
-            } catch (Exception e) {
-                e.printStackTrace();
-                wrongPictureNum++;
-            }*/
-            picture = new Picture(eachPicturePath, 0, 0);
-            if (picture != null) {
-                pictureList.add(picture);
-            }
+            Picture picture = new Picture(eachPicturePath, 0, 0);
+            pictureList.add(picture);
         }
 
         /* 앨범 페이지 구성 */
@@ -98,34 +89,4 @@ public class PageEditorActivity extends AppCompatActivity {
 
         return intent.getStringArrayListExtra(extraName);
     }
-
-    /*private Picture picturePathToPicture(final String picturePath) throws Exception {
-
-        Picture picture = null;
-
-        FileInputStream fileInputStream = null;
-        try {
-            String pathForStream = picturePath.replace("file:/", "");
-            fileInputStream = new FileInputStream(pathForStream);
-            BufferedInputStream bufferedInputStream = null;
-            try {
-                bufferedInputStream = new BufferedInputStream(fileInputStream);
-
-                Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream);
-                int width = bitmap.getWidth();
-                int height = bitmap.getHeight();
-                picture = new Picture(bitmap, picturePath, width, height);
-            } finally {
-                if (bufferedInputStream != null) {
-                    bufferedInputStream.close();
-                }
-            }
-        } finally {
-            if (fileInputStream != null) {
-                fileInputStream.close();
-            }
-        }
-
-        return picture;
-    }*/
 }

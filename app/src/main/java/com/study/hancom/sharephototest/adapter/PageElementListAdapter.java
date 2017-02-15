@@ -19,16 +19,27 @@ import java.util.List;
 
 public class PageElementListAdapter extends CustomListAdapter<Page> {
 
+    private int mSelectedIndex;
+
     public PageElementListAdapter(Context context) {
         this(context, new ArrayList<Page>());
     }
 
     public PageElementListAdapter(Context context, List<Page> itemList) {
         super(context, itemList);
+        mSelectedIndex = -1;
+    }
+
+    public void setSelectedIndex(int position) {
+        mSelectedIndex = position;
+    }
+
+    public int getSelectedIndex() {
+        return mSelectedIndex;
     }
 
     @Override
-    public View getView(int position, View convertView, final ViewGroup parentView) {
+    public View getView(final int position, View convertView, final ViewGroup parentView) {
 
         ViewHolder viewHolder;
 
@@ -41,6 +52,13 @@ public class PageElementListAdapter extends CustomListAdapter<Page> {
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        //** 임시
+        if (position == mSelectedIndex) {
+            convertView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLightGray));
+        } else {
+            convertView.setBackgroundColor(mContext.getResources().getColor(R.color.colorWhite));
         }
 
         String pageName = Integer.toString(position + 1) + " 페이지";
