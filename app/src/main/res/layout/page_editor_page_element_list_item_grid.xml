@@ -17,7 +17,8 @@
         android:numColumns="auto_fit"
         android:verticalSpacing="4dp"
         android:horizontalSpacing="4dp"
-        android:columnWidth="@dimen/page_editor_page_element_grid_column_width">
+        android:columnWidth="@dimen/page_editor_page_element_grid_column_width"
+        android:drawSelectorOnTop="true">
     </com.study.hancom.sharephototest.view.PageElementGridView>
 
 </LinearLayout>

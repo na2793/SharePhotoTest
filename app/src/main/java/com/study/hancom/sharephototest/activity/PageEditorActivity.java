@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.PageElementListAdapter;
@@ -69,8 +67,6 @@ public class PageEditorActivity extends AppCompatActivity {
                 usedPictureCount++;
             }
         }
-
-        Log.v("tag", album.getPageCount() + "count" + album.getPage(0).getPictureCount());
 
         /* 뷰 어댑터 처리 */
         final PageElementListView pageElementListView = (PageElementListView) findViewById(R.id.page_list_view);

@@ -13,7 +13,6 @@
         android:layout_gravity="end"
         android:text="선택" />
 
-
         <GridView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/gallery_image_grid_view"
             android:layout_width="wrap_content"

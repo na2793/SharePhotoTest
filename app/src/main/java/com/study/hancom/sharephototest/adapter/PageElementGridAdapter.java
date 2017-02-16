@@ -36,6 +36,7 @@ public class PageElementGridAdapter extends CustomGridAdapter<Picture> {
 
     public PageElementGridAdapter(Context context, List<Picture> itemList) {
         super(context, itemList);
+        mImageLoader.init(ImageLoaderConfiguration.createDefault(mContext));
     }
 
     @Override
@@ -58,7 +59,6 @@ public class PageElementGridAdapter extends CustomGridAdapter<Picture> {
         String elementNum = Integer.toString(position + 1);
 
         viewHolder.textView.setText(elementNum);
-        mImageLoader.init(ImageLoaderConfiguration.createDefault(mContext));
         mImageLoader.displayImage(getItem(position).getPath(), viewHolder.imageView, mImageOptions);
 
         return convertView;
