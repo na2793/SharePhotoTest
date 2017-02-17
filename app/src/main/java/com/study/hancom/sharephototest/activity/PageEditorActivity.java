@@ -50,7 +50,7 @@ public class PageEditorActivity extends AppCompatActivity {
                     break;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
         }
 

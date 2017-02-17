@@ -10,6 +10,14 @@
         android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
 
+    <CheckBox
+        android:id="@+id/item_grid_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:focusable="false"
+        android:clickable="false" />
+
     <TextView
         android:background="@color/colorWhite"
         android:text="@string/page_editor_page_element_grid_default_text"

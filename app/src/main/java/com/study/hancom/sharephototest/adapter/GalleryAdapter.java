@@ -39,7 +39,9 @@ public class GalleryAdapter extends BaseAdapter {
         this.checkedPicturePaths = checkedPicturePaths;
 
         imageLoader = ImageLoader.getInstance();
-        imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        if (!imageLoader.isInited()) {
+            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        }
 
         options = new DisplayImageOptions.Builder()
                 .showImageOnLoading(R.drawable.place_holder)
