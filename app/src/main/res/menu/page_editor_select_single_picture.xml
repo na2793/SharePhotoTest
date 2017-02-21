@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_multiple_edit"
+        android:icon="@drawable/edit"
+        android:title="@string/action_multiple_edit"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_multiple_move"
+        android:icon="@drawable/move"
+        android:title="@string/action_multiple_move"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_multiple_delete"
+        android:icon="@drawable/delete"
+        android:title="@string/action_multiple_delete"
+        app:showAsAction="always"/>
+
+</menu>

@@ -33,6 +33,8 @@ public class PageEditorAdapter extends SectionableAdapter {
     private Set<Integer> mMultipleSelectedItemPositionSet;
 
     private OnItemTouchListener mOnItemTouchListener;
+    private OnItemSelectListener mOnItemSelectListener;
+    private OnMultipleItemSelectionModeListener mOnMultipleItemSelectionModeListener;
 
     private static ImageLoader mImageLoader = ImageLoader.getInstance();
     private static DisplayImageOptions mImageOptions = new DisplayImageOptions.Builder()
@@ -57,10 +59,8 @@ public class PageEditorAdapter extends SectionableAdapter {
         }
         mOnItemTouchListener = new OnItemTouchListener() {
             @Override
-            public boolean onItemTouch(int sectionNum) {
+            public void onItemTouch(int sectionNum) {
                 mSelectedSection = sectionNum;
-
-                return false;
             }
         };
     }
@@ -153,13 +153,19 @@ public class PageEditorAdapter extends SectionableAdapter {
             @Override
             public void onClick(View v) {
                 if (mIsMultipleItemSelectionMode) {
-                    mMultipleSelectedItemPositionSet.add(position);
+                    if (!mMultipleSelectedItemPositionSet.contains(position)) {
+                        mMultipleSelectedItemPositionSet.add(position);
+                    } else {
+                        mMultipleSelectedItemPositionSet.remove(position);
+                    }
                 } else {
                     if (mSelectedItemPosition != position) {
                         mSelectedItemPosition = position;
                         mOnItemTouchListener.onItemTouch(getTypeFor(position));
+                        mOnItemSelectListener.onItemSelect();
                     } else {
                         mSelectedItemPosition = -1;
+                        mOnItemSelectListener.onItemSelectCancel();
                     }
                 }
                 notifyDataSetChanged();
@@ -185,6 +191,10 @@ public class PageEditorAdapter extends SectionableAdapter {
             @Override
             public void onClick(View v) {
                 mOnItemTouchListener.onItemTouch(getSectionByIndex(index));
+                if (!mIsMultipleItemSelectionMode) {
+                    mSelectedItemPosition = -1;
+                    mOnItemSelectListener.onItemSelectCancel();
+                }
                 notifyDataSetChanged();
             }
         });
@@ -217,11 +227,17 @@ public class PageEditorAdapter extends SectionableAdapter {
         if (position != -1) {
             mMultipleSelectedItemPositionSet.add(position);
         }
+        if (mOnMultipleItemSelectionModeListener != null) {
+            mOnMultipleItemSelectionModeListener.onStart();
+        }
     }
 
     public void stopMultipleSelectionMode() {
         mIsMultipleItemSelectionMode = false;
         mMultipleSelectedItemPositionSet.clear();
+        if (mOnMultipleItemSelectionModeListener != null) {
+            mOnMultipleItemSelectionModeListener.onStop();
+        }
     }
 
     private int getPositionInSection(int position) {
@@ -274,9 +290,29 @@ public class PageEditorAdapter extends SectionableAdapter {
         return false;
     }
 
+    public void setOnItemSelectListener(OnItemSelectListener listener) {
+        mOnItemSelectListener = listener;
+    }
+
+    public void setOnMultipleItemSelectionModeListener(OnMultipleItemSelectionModeListener listener) {
+        mOnMultipleItemSelectionModeListener = listener;
+    }
+
     /* 리스너 인터페이스 */
     public interface OnItemTouchListener
     {
-        boolean onItemTouch(int sectionNum);
+        void onItemTouch(int sectionNum);
+    }
+
+    public interface OnItemSelectListener
+    {
+        void onItemSelect();
+        void onItemSelectCancel();
+    }
+
+    public interface OnMultipleItemSelectionModeListener
+    {
+        void onStart();
+        void onStop();
     }
 }
