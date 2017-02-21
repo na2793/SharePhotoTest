@@ -4,14 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.adapter.PageElementListAdapter;
+import com.study.hancom.sharephototest.adapter.PageEditorAdapter;
+import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.MathUtil;
-import com.study.hancom.sharephototest.view.PageElementListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +22,8 @@ import java.util.List;
 public class PageEditorActivity extends AppCompatActivity {
 
     private static final int MAX_ELEMENT_OF_PAGE_NUM = 4;
+
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +39,7 @@ public class PageEditorActivity extends AppCompatActivity {
             pictureList.add(picture);
         }
 
-        /* 앨범 페이지 구성 */
+        /* 앨범 구성 */
         int pictureNum = pictureList.size();
         Album album = new Album("testAlbumName");
         int temp = 0;
@@ -68,15 +73,12 @@ public class PageEditorActivity extends AppCompatActivity {
             }
         }
 
-        /* 뷰 어댑터 처리 */
-        final PageElementListView pageElementListView = (PageElementListView) findViewById(R.id.page_list_view);
-        final PageElementListAdapter pageElementListAdapter = new PageElementListAdapter(this);
-        pageElementListView.setAdapter(pageElementListAdapter);
-
-        /* 어댑터에 데이터 전달 */
-        for (int i = 0 ; i < pageNum ; i++) {
-            pageElementListAdapter.addItem(album.getPage(i));
-        }
+        mListView = (ListView) findViewById(R.id.page_list_view);
+        PageEditorAdapter adapter = new PageEditorAdapter(this, album,
+                R.layout.page_editor_list_row, R.id.row_header,
+                R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
+        mListView.setAdapter(adapter);
+        mListView.setDividerHeight(0);
     }
 
 

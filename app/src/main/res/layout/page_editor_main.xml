@@ -4,6 +4,9 @@
     android:layout_height="wrap_content"
     android:id="@+id/activity_main">
 
-    <include layout="@layout/page_editor_page_element_list" />
+    <ListView
+        android:id="@+id/page_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
