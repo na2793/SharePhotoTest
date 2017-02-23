@@ -51,10 +51,10 @@
         android:orientation="horizontal"
         android:padding="3dp">
 
-        <include layout="@layout/page_editor_list_item" />
+        <include layout="@layout/page_editor_element_list_item" />
 
-        <include layout="@layout/page_editor_list_item" />
+        <include layout="@layout/page_editor_element_list_item" />
 
-        <include layout="@layout/page_editor_list_item" />
+        <include layout="@layout/page_editor_element_list_item" />
     </LinearLayout>
 </LinearLayout>

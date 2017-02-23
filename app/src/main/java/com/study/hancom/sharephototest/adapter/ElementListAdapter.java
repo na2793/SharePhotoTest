@@ -1,9 +1,6 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -24,7 +21,7 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PageEditorAdapter extends SectionableAdapter implements PageEditorAdapterInterface {
+public class ElementListAdapter extends SectionableAdapter implements ElementListAdapterInterface {
 
     private Album mAlbum;
 
@@ -42,7 +39,7 @@ public class PageEditorAdapter extends SectionableAdapter implements PageEditorA
 
     private static ImageLoader mImageLoader = ImageLoader.getInstance();
 
-    public PageEditorAdapter(Context context, Album album, int rowLayoutID, int headerID, int itemHolderID, int resizeMode) {
+    public ElementListAdapter(Context context, Album album, int rowLayoutID, int headerID, int itemHolderID, int resizeMode) {
         super(context, rowLayoutID, headerID, itemHolderID, resizeMode);
         mAlbum = album;
         mSelectedSection = 0;
@@ -184,6 +181,7 @@ public class PageEditorAdapter extends SectionableAdapter implements PageEditorA
             @Override
             public boolean onLongClick(View v) {
                 startMultipleSelectMode(position);
+                mSelectedItemPosition = -1;
                 mOnItemTouchListener.onItemTouch(getTypeFor(position));
                 notifyDataSetChanged();
                 return false;

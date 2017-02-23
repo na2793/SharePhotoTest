@@ -1,8 +1,9 @@
 package com.study.hancom.sharephototest.model;
 
-import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Picture {
+public class Picture implements Parcelable {
     //final private Bitmap mBitmap;
     final private String mPath;
     final private int mWidth;
@@ -21,6 +22,24 @@ public class Picture {
         mHeight = height;
     }*/
 
+    private Picture(Parcel in) {
+        mPath = in.readString();
+        mWidth = in.readInt();
+        mHeight = in.readInt();
+    }
+
+    public static final Creator<Picture> CREATOR = new Creator<Picture>() {
+        @Override
+        public Picture createFromParcel(Parcel in) {
+            return new Picture(in);
+        }
+
+        @Override
+        public Picture[] newArray(int size) {
+            return new Picture[size];
+        }
+    };
+
     public String getPath() {
         return mPath;
     }
@@ -35,5 +54,17 @@ public class Picture {
 
     public int getHeight() {
         return mHeight;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mPath);
+        dest.writeInt(mWidth);
+        dest.writeInt(mHeight);
     }
 }

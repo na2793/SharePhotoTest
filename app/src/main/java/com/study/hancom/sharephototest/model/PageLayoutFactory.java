@@ -1,6 +1,8 @@
 package com.study.hancom.sharephototest.model;
 
 import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.study.hancom.sharephototest.util.MathUtil;
@@ -15,19 +17,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class PageLayoutFactory {
-
-    private Map<Integer, List<PageLayout>> mLayoutMap;
+class PageLayoutFactory implements Parcelable {
 
     //** 임시 xml로 뺄 것
-    final private String mLayoutFrameFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
+    final static private String mLayoutFrameFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
             + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "frame" + File.separator;
-    final private String mLayoutStyleFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
+    final static private String mLayoutStyleFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
             + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "style" + File.separator;
 
+    private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();
+
     PageLayoutFactory() {
-        mLayoutMap = new HashMap<>();
     }
+
+    private PageLayoutFactory(Parcel in) {
+        int keyCount = in.readInt();
+        for (int i = 0; i < keyCount; i++) {
+            List<PageLayout> eachList = new ArrayList<>();
+            in.readList(eachList, PageLayout.class.getClassLoader());
+            mLayoutMap.put(i, eachList);
+        }
+    }
+
+    public static final Creator<PageLayoutFactory> CREATOR = new Creator<PageLayoutFactory>() {
+        @Override
+        public PageLayoutFactory createFromParcel(Parcel in) {
+            return new PageLayoutFactory(in);
+        }
+
+        @Override
+        public PageLayoutFactory[] newArray(int size) {
+            return new PageLayoutFactory[size];
+        }
+    };
 
     PageLayout getPageLayout(int elementNum) throws Exception {
         PageLayout pageLayout = null;
@@ -55,9 +77,8 @@ class PageLayoutFactory {
             int styleListLength = styleList.length;
 
             if (styleListLength > 0) {
-                for (int i = 0; i < styleListLength; i++) {
-                    File styleFile = styleList[i];
-                    String pageLayoutData = injectStyleIntoFrame(frameFile, styleFile).toString();
+                for (File eachFile : styleList) {
+                    String pageLayoutData = injectStyleIntoFrame(frameFile, eachFile).toString();
                     pageLayoutList.add(new PageLayout(pageLayoutData, elementNum));
                 }
             } else {
@@ -75,14 +96,10 @@ class PageLayoutFactory {
     }
 
     private StringBuffer injectStyleIntoFrame(File frameFile, File styleFile) throws IOException {
-        StringBuffer content = null;
+        StringBuffer content;
 
-        try {
-            content = readFile(frameFile);
-            content.insert(content.indexOf("</head>"), "<link rel=\"stylesheet\" href=\"" + styleFile.getCanonicalPath() + "\">\n");
-        } catch (IOException e) {
-            throw e;
-        }
+        content = readFile(frameFile);
+        content.insert(content.indexOf("</head>"), "<link rel=\"stylesheet\" href=\"" + styleFile.getCanonicalPath() + "\">\n");
 
         return content;
     }
@@ -114,5 +131,18 @@ class PageLayoutFactory {
         }
 
         return stringBuffer;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mLayoutMap.size());
+        for (int eachKey : mLayoutMap.keySet()) {
+            dest.writeTypedList(mLayoutMap.get(eachKey));
+        }
     }
 }

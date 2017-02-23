@@ -1,12 +1,15 @@
 package com.study.hancom.sharephototest.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Album {
+public class Album implements Parcelable {
 
     private String mName;
-    private List<Page> mPageList;
+    private List<Page> mPageList = new ArrayList<>();
 
     public Album() {
         this("tempAlbumName");
@@ -14,8 +17,24 @@ public class Album {
 
     public Album(String name) {
         mName = name;
-        mPageList = new ArrayList<>();
     }
+
+    private Album(Parcel in) {
+        mName = in.readString();
+        mPageList = in.createTypedArrayList(Page.CREATOR);
+    }
+
+    public static final Creator<Album> CREATOR = new Creator<Album>() {
+        @Override
+        public Album createFromParcel(Parcel in) {
+            return new Album(in);
+        }
+
+        @Override
+        public Album[] newArray(int size) {
+            return new Album[size];
+        }
+    };
 
     public String getName() {
         return mName;
@@ -44,5 +63,16 @@ public class Album {
     public void reorderPage(int fromIndex, int toIndex) {
         Page tempPage = removePage(fromIndex);
         addPage(toIndex, tempPage);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mName);
+        dest.writeTypedList(mPageList);
     }
 }

@@ -3,7 +3,7 @@ package com.study.hancom.sharephototest.adapter;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 
-interface PageEditorAdapterInterface {
+interface ElementListAdapterInterface {
     void addPage(Page page);
     void addPage(int index, Page page);
     Page removePage(int index);
