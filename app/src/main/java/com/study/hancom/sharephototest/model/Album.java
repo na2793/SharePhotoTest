@@ -21,28 +21,28 @@ public class Album {
         return mName;
     }
 
-    public Page getPage(int position) {
-        return mPageList.get(position);
+    public Page getPage(int index) {
+        return mPageList.get(index);
     }
 
     public void addPage(Page page) {
         addPage(mPageList.size(), page);
     }
 
-    public void addPage(int position, Page page) {
-        mPageList.add(position, page);
+    public void addPage(int index, Page page) {
+        mPageList.add(index, page);
     }
 
-    public Page removePage(int position) {
-        return mPageList.remove(position);
+    public Page removePage(int index) {
+        return mPageList.remove(index);
     }
 
     public int getPageCount() {
         return mPageList.size();
     }
 
-    public void reorderPage(int fromPosition, int toPosition) {
-        Page tempPage = removePage(fromPosition);
-        addPage(toPosition, tempPage);
+    public void reorderPage(int fromIndex, int toIndex) {
+        Page tempPage = removePage(fromIndex);
+        addPage(toIndex, tempPage);
     }
 }

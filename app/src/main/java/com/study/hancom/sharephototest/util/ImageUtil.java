@@ -2,8 +2,12 @@ package com.study.hancom.sharephototest.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.study.hancom.sharephototest.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +15,16 @@ import java.util.List;
 public class ImageUtil {
 
     private static String TAG = ImageUtil.class.getName();
+
+    public static DisplayImageOptions options = new DisplayImageOptions.Builder()
+            .showImageOnLoading(R.drawable.place_holder)
+            .showImageForEmptyUri(R.drawable.place_holder)
+            .showImageOnFail(R.drawable.place_holder)
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .considerExifParams(false)
+            .bitmapConfig(Bitmap.Config.RGB_565)
+            .build();
 
     public static List<String> getMediaImage(Context context) {
 
@@ -42,5 +56,9 @@ public class ImageUtil {
         imageCursor.close();
 
         return galleryPictures;
+    }
+
+    public static String drawableResourceToURI(int drawableResourceId) {
+        return "drawable://" + drawableResourceId;
     }
 }

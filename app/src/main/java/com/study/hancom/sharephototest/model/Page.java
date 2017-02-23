@@ -17,6 +17,10 @@ public class Page {
         mPictureList = new ArrayList<>();
     }
 
+    public void setLayout(int elementNum) throws Exception {
+        mLayout = pageLayoutFactory.getPageLayout(elementNum);
+    }
+
     public void setLayout(PageLayout layout) {
         mLayout = layout;
     }

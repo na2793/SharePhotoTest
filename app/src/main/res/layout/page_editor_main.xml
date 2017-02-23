@@ -5,6 +5,7 @@
     android:id="@+id/activity_main">
 
     <ListView
+        android:scrollingCache="false"
         android:id="@+id/page_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

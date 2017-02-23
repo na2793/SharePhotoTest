@@ -2,7 +2,6 @@ package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,18 +12,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
+import com.study.hancom.sharephototest.util.ImageUtil;
 
 import java.util.List;
 
 public class GalleryAdapter extends BaseAdapter {
 
     private static String TAG = GalleryAdapter.class.getName();
-    private static DisplayImageOptions options;
     private static ImageLoader imageLoader;
 
     private Context context;
@@ -42,16 +40,6 @@ public class GalleryAdapter extends BaseAdapter {
         if (!imageLoader.isInited()) {
             imageLoader.init(ImageLoaderConfiguration.createDefault(context));
         }
-
-        options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.place_holder)
-                .showImageForEmptyUri(R.drawable.place_holder)
-                .showImageOnFail(R.drawable.place_holder)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(false)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
     }
 
     @Override
@@ -103,7 +91,7 @@ public class GalleryAdapter extends BaseAdapter {
         }
 
         final String ImagePath = galleryPicturePaths.get(position);
-        imageLoader.displayImage(ImagePath, galleryPictureHolder.imageView, options);
+        imageLoader.displayImage(ImagePath, galleryPictureHolder.imageView, ImageUtil.options);
 
         galleryPictureHolder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override

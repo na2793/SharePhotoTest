@@ -48,7 +48,8 @@
         android:id="@+id/row_itemHolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="3dp">
 
         <include layout="@layout/page_editor_list_item" />
 

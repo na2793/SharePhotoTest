@@ -1,7 +1,9 @@
 package com.study.hancom.sharephototest.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -27,16 +29,24 @@ public class PageEditorActivity extends AppCompatActivity {
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
     private static final int MENU_MODE_MULTIPLE_SELECT = 3;
+    private static final int MENU_MODE_EMPTY_PICTURE = 4;
 
     private Menu mMenu;
+    private int mMenuMode = MENU_MODE_MAIN;
+    private MenuInflater mMenuInflater;
+
     private ListView mPageListView;
-    PageEditorAdapter mPageListAdapter;
+    private PageEditorAdapter mPageListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.page_editor_main);
 
+        /* 메뉴 인플레이터 얻기 */
+        mMenuInflater = getMenuInflater();
+
+        /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /* 데이터 변환 (path -> picture) */
@@ -72,25 +82,32 @@ public class PageEditorActivity extends AppCompatActivity {
         int pageNum = album.getPageCount();
         int usedPictureCount = 0;
 
-        for (int i = 0 ; i < pageNum ; i++) {
+        for (int i = 0; i < pageNum; i++) {
             Page page = album.getPage(i);
             int elementNum = page.getLayout().getElementNum();
 
-            for (int j = 0 ; j < elementNum ; j++) {
+            for (int j = 0; j < elementNum; j++) {
                 page.addPicture(pictureList.get(usedPictureCount));
                 usedPictureCount++;
             }
         }
 
+        /* 리스트뷰에 어댑터 붙이기 */
         mPageListView = (ListView) findViewById(R.id.page_list_view);
         mPageListAdapter = new PageEditorAdapter(this, album,
                 R.layout.page_editor_list_row, R.id.row_header,
                 R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
-        mPageListAdapter.setOnMultipleItemSelectionModeListener(new PageEditorAdapter.OnMultipleItemSelectionModeListener() {
+        mPageListAdapter.setOnMultipleItemSelectModeListener(new PageEditorAdapter.OnMultipleItemSelectModeListener() {
             @Override
             public void onStart() {
                 onChangeActionBar(MENU_MODE_MULTIPLE_SELECT);
             }
+
+            @Override
+            public void onSelect() {
+                setTitle(String.format(getResources().getString(R.string.title_page_editor_multiple_select), mPageListAdapter.getSelectedItemCount(), mPageListAdapter.getDataCount()));
+            }
+
             @Override
             public void onStop() {
                 onChangeActionBar(MENU_MODE_MAIN);
@@ -98,9 +115,14 @@ public class PageEditorActivity extends AppCompatActivity {
         });
         mPageListAdapter.setOnItemSelectListener(new PageEditorAdapter.OnItemSelectListener() {
             @Override
-            public void onItemSelect() {
-                onChangeActionBar(MENU_MODE_SINGLE_SELECT);
+            public void onItemSelect(Object item) {
+                if (item != null) {
+                    onChangeActionBar(MENU_MODE_SINGLE_SELECT);
+                } else {
+                    onChangeActionBar(MENU_MODE_EMPTY_PICTURE);
+                }
             }
+
             @Override
             public void onItemSelectCancel() {
                 onChangeActionBar(MENU_MODE_MAIN);
@@ -129,9 +151,69 @@ public class PageEditorActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                switch (mMenuMode) {
+                    case MENU_MODE_MAIN:
+                        this.finish();
+                        break;
+                    case MENU_MODE_EMPTY_PICTURE:
+                        // pass ; MENU_MODE_SINGLE_SELECT와 동일
+                    case MENU_MODE_SINGLE_SELECT:
+                        mPageListAdapter.setSelectedItem(-1);
+                        mPageListAdapter.notifyDataSetChanged();
+                        break;
+                    case MENU_MODE_MULTIPLE_SELECT:
+                        mPageListAdapter.stopMultipleSelectMode();
+                        mPageListAdapter.notifyDataSetChanged();
+                        break;
+                }
+                return true;
+            case R.id.action_confirm:
                 this.finish();
                 return true;
-            case R.id.action_next:
+            case R.id.action_single_edit:
+                return true;
+            case R.id.action_single_move:
+                return true;
+            case R.id.action_single_delete:
+                createDialog(getString(R.string.dialog_title_action_single_delete), getString(R.string.dialog_message_action_single_delete))
+                        .setPositiveButton(getString(R.string.dialog_button_remain), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int index = mPageListAdapter.getSelectedSection();
+                                int position = mPageListAdapter.getPositionInSection(mPageListAdapter.getSelectedItem());
+                                mPageListAdapter.setPictureEmpty(index, position);
+                                mPageListAdapter.setSelectedItem(-1);
+                                mPageListAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int index = mPageListAdapter.getSelectedSection();
+                                int position = mPageListAdapter.getPositionInSection(mPageListAdapter.getSelectedItem());
+                                try {
+                                    mPageListAdapter.removePicture(index, position);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                mPageListAdapter.setSelectedItem(-1);
+                                mPageListAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();     // 닫기
+                            }
+                        })
+                        .create().show();
+                return true;
+            case R.id.action_multiple_select_all:
+                int dataCount = mPageListAdapter.getDataCount();
+                for (int i = 0; i < dataCount; i++) {
+                    mPageListAdapter.setSelectedItem(i);
+                }
+                mPageListAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_multiple_edit:
                 return true;
@@ -139,33 +221,41 @@ public class PageEditorActivity extends AppCompatActivity {
                 return true;
             case R.id.action_multiple_delete:
                 return true;
-            case R.id.action_single_edit:
+            case R.id.action_empty_set_picture:
                 return true;
-            case R.id.action_single_move:
-                return true;
-            case R.id.action_single_delete:
+            case R.id.action_empty_delete:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public void onChangeActionBar(int mode){
-        MenuInflater menuInFlater = getMenuInflater();
+    public void onChangeActionBar(int mode) {
+        mMenuMode = mode;
         mMenu.clear();
-        switch (mode) {
+        switch (mMenuMode) {
             case MENU_MODE_MAIN:
-                setTitle("page editor");
-                menuInFlater.inflate(R.menu.page_editor_main, mMenu);
+                setTitle(R.string.title_page_editor_main);
+                mMenuInflater.inflate(R.menu.page_editor_main, mMenu);
                 break;
             case MENU_MODE_SINGLE_SELECT:
-                setTitle("single select");
-                menuInFlater.inflate(R.menu.page_editor_select_single_picture, mMenu);
+                setTitle(R.string.title_page_editor_single_select);
+                mMenuInflater.inflate(R.menu.page_editor_select_single_picture, mMenu);
                 break;
             case MENU_MODE_MULTIPLE_SELECT:
-                setTitle("multiple select");
-                menuInFlater.inflate(R.menu.page_editor_select_multiple_picture, mMenu);
+                setTitle(String.format(getResources().getString(R.string.title_page_editor_multiple_select), mPageListAdapter.getSelectedItemCount(), mPageListAdapter.getDataCount()));
+                mMenuInflater.inflate(R.menu.page_editor_select_multiple_picture, mMenu);
+                break;
+            case MENU_MODE_EMPTY_PICTURE:
+                setTitle(R.string.title_page_editor_empty_picture);
+                mMenuInflater.inflate(R.menu.page_editor_select_empty_picture, mMenu);
                 break;
         }
+    }
+
+    private AlertDialog.Builder createDialog(String title, String message) {
+        return new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message);
     }
 }

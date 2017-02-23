@@ -2,21 +2,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_single_edit"
-        android:icon="@drawable/edit"
-        android:title="@string/action_single_edit"
-        app:showAsAction="always"/>
+        android:id="@+id/action_multiple_select_all"
+        android:title="@string/action_page_editor_multiple_select_all" />
 
     <item
-        android:id="@+id/action_single_move"
-        android:icon="@drawable/move"
-        android:title="@string/action_single_move"
-        app:showAsAction="always"/>
+        android:id="@+id/action_multiple_edit"
+        android:title="@string/action_page_editor_multiple_edit"
+        app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_single_delete"
-        android:icon="@drawable/delete"
-        android:title="@string/action_single_delete"
+        android:id="@+id/action_multiple_move"
+        android:title="@string/action_page_editor_multiple_move"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_multiple_delete"
+        android:title="@string/action_page_editor_multiple_delete"
         app:showAsAction="always"/>
 
 </menu>

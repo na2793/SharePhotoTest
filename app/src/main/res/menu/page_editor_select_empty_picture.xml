@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_single_edit"
-        android:title="@string/action_page_editor_single_edit"
+        android:id="@+id/action_empty_set_picture"
+        android:title="@string/action_page_editor_empty_set_picture"
         app:showAsAction="ifRoom"/>
 
     <item
@@ -11,7 +11,7 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_single_delete"
+        android:id="@+id/action_empty_delete"
         android:title="@string/action_page_editor_single_delete"
         app:showAsAction="always"/>
 

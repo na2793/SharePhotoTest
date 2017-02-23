@@ -2,9 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_publish"
-        android:icon="@drawable/publish"
-        android:title="@string/action_publish"
+        android:id="@+id/action_confirm"
+        android:title="@string/action_page_editor_confirm"
         app:showAsAction="always"/>
 
 </menu>
