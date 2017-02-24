@@ -4,25 +4,25 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
-import com.study.hancom.sharephototest.listener.AlbumDataChangeInterface;
-import com.study.hancom.sharephototest.listener.AlbumDataChangedListener;
+import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 
-public class PageEditorElementListFragment extends Fragment implements AlbumDataChangeInterface {
+public class PageEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
@@ -132,7 +132,7 @@ public class PageEditorElementListFragment extends Fragment implements AlbumData
                             public void onClick(DialogInterface dialog, int which) {
                                 int index = mElementListAdapter.getSelectedSection();
                                 int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                onPictureRemove(index, position, true);
+                                mElementListAdapter.removePicture(index, position, true);
                             }
                         })
                         .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
@@ -140,7 +140,7 @@ public class PageEditorElementListFragment extends Fragment implements AlbumData
                             public void onClick(DialogInterface dialog, int which) {
                                 int index = mElementListAdapter.getSelectedSection();
                                 int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                onPictureRemove(index, position, false);
+                                mElementListAdapter.removePicture(index, position, false);
                             }
                         })
                         .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
@@ -167,6 +167,22 @@ public class PageEditorElementListFragment extends Fragment implements AlbumData
             case R.id.action_empty_set_picture:
                 return true;
             case R.id.action_empty_delete:
+                createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
+                        .setPositiveButton(getString(R.string.dialog_button_continue), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int index = mElementListAdapter.getSelectedSection();
+                                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                                mElementListAdapter.removePicture(index, position, false);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -203,68 +219,7 @@ public class PageEditorElementListFragment extends Fragment implements AlbumData
     }
 
     @Override
-    public void onPageAdd(Page page) {
-        onPageAdd(mAlbum.getPageCount(), page);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPageAdd(int index, Page page) {
-        mAlbum.addPage(index, page);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPageRemove(int index) {
-        mAlbum.removePage(index);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPageReorder(int fromIndex, int toIndex) {
-        mAlbum.reorderPage(fromIndex, toIndex);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPictureAdd(int index, Picture picture) {
-        onPictureAdd(index, mAlbum.getPage(index).getPictureCount(), picture);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPictureAdd(int index, int position, Picture picture) {
-        mAlbum.getPage(index).addPicture(position, picture);
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPictureRemove(int index, int position, boolean nullable) {
-        if (nullable) {
-            mAlbum.getPage(index).removePicture(position);
-            mAlbum.getPage(index).addPicture(position, null);
-        } else {
-            Page page = mAlbum.getPage(index);
-            int pictureCount = page.getPictureCount();
-            if (pictureCount > 1) {
-                try {
-                    page.setLayout(pictureCount - 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                mAlbum.removePage(index);
-                mElementListAdapter.setSelectedSection(-1);
-            }
-            page.removePicture(position);
-            mElementListAdapter.setSelectedItem(-1);
-        }
-        mElementListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPictureReorder(int index, int fromPosition, int toPosition) {
-        mAlbum.getPage(index).reorderPicture(fromPosition, toPosition);
+    public void onDataChanged() {
         mElementListAdapter.notifyDataSetChanged();
     }
 }

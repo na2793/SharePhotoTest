@@ -2,17 +2,13 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.listener.AlbumDataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
@@ -27,15 +23,15 @@ public class PageEditorActivity extends AppCompatActivity {
 
     private Album mAlbum;
 
-    private PageEditorElementListFragment mPageEditorElementListFragment;
+    private PageEditorFrameFragment mPageEditorFrameFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.page_editor_main);
 
-        /* 데이터 초기화 */
-        init();
+        /* 데이터 파싱 */
+        parseIntentData();
 
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -43,7 +39,7 @@ public class PageEditorActivity extends AppCompatActivity {
         /* 프래그먼트 생성 */
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        setElementListFragment(fragmentTransaction);
+        setFrameFragment(fragmentTransaction);
     }
 
     @Override
@@ -55,8 +51,8 @@ public class PageEditorActivity extends AppCompatActivity {
         return true;
     }
 
-    private void init() {
-        /* 데이터 처리 */
+    private void parseIntentData() {
+        /* 인텐트 처리 */
         Intent intent = getIntent();
         List<String> picturePathList = intent.getStringArrayListExtra("selectedImage");
         List<Picture> pictureList = new ArrayList<>();
@@ -101,15 +97,13 @@ public class PageEditorActivity extends AppCompatActivity {
         }
     }
 
-    private void setElementListFragment(FragmentTransaction fragmentTransaction) {
-        mPageEditorElementListFragment = new PageEditorElementListFragment();
-        fragmentTransaction.add(R.id.element_list_fragment_container, mPageEditorElementListFragment);
-        // 액션바를 가짐
-        mPageEditorElementListFragment.setHasOptionsMenu(true);
+    private void setFrameFragment(FragmentTransaction fragmentTransaction) {
+        mPageEditorFrameFragment = new PageEditorFrameFragment();
+        fragmentTransaction.add(R.id.page_editor_main_frame, mPageEditorFrameFragment);
         // 데이터 전달
         Bundle bundle = new Bundle();
         bundle.putParcelable("temp", mAlbum);
-        mPageEditorElementListFragment.setArguments(bundle);
+        mPageEditorFrameFragment.setArguments(bundle);
         // 완료
         fragmentTransaction.commit();
     }

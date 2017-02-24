@@ -1,8 +1,10 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,7 +14,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
+import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.AlbumDataChangeInterface;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.AnimationUtil;
@@ -21,7 +25,7 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ElementListAdapter extends SectionableAdapter {
+public class ElementListAdapter extends SectionableAdapter implements AlbumDataChangeInterface {
 
     private Album mAlbum;
 
@@ -203,6 +207,28 @@ public class ElementListAdapter extends SectionableAdapter {
             }
         });
 
+        /* 페이지 컨텍스트 메뉴 버튼 처리 */
+        Button buttonPreview = (Button) convertView.findViewById(R.id.button_preview);
+        buttonPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        Button buttonChangeLayout = (Button) convertView.findViewById(R.id.button_change_layout);
+        buttonChangeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        Button buttonDelete = (Button) convertView.findViewById(R.id.button_delete);
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removePage(getSelectedSection());
+                setSelectedSection(-1);
+            }
+        });
+
         LinearLayout linearLayout = (LinearLayout) convertView.findViewById(R.id.row_menu);
         if (mIsMultipleItemSelectMode) {
             linearLayout.setVisibility(View.GONE);
@@ -346,6 +372,69 @@ public class ElementListAdapter extends SectionableAdapter {
 
     public void setOnMultipleItemSelectModeListener(OnMultipleItemSelectModeListener listener) {
         mOnMultipleItemSelectModeListener = listener;
+    }
+
+    @Override
+    public void addPage(Page page) {
+        addPage(mAlbum.getPageCount(), page);
+    }
+
+    @Override
+    public void addPage(int index, Page page) {
+        mAlbum.addPage(index, page);
+        DataChangedListener.notifyChanged();
+    }
+
+    @Override
+    public void removePage(int index) {
+        mAlbum.removePage(index);
+        DataChangedListener.notifyChanged();
+    }
+
+    @Override
+    public void reorderPage(int fromIndex, int toIndex) {
+        mAlbum.reorderPage(fromIndex, toIndex);
+        DataChangedListener.notifyChanged();
+    }
+
+    @Override
+    public void addPicture(int index, Picture picture) {
+        addPicture(index, mAlbum.getPage(index).getPictureCount(), picture);
+    }
+
+    @Override
+    public void addPicture(int index, int position, Picture picture) {
+        mAlbum.getPage(index).addPicture(position, picture);
+        DataChangedListener.notifyChanged();
+    }
+
+    public void removePicture(int index, int position, boolean nullable) {
+        if (nullable) {
+            mAlbum.getPage(index).removePicture(position);
+            mAlbum.getPage(index).addPicture(position, null);
+        } else {
+            Page page = mAlbum.getPage(index);
+            int pictureCount = page.getPictureCount();
+            if (pictureCount > 1) {
+                try {
+                    page.setLayout(pictureCount - 1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                mAlbum.removePage(index);
+                setSelectedSection(-1);
+            }
+            page.removePicture(position);
+        }
+        setSelectedItem(-1);
+        DataChangedListener.notifyChanged();
+    }
+
+    @Override
+    public void reorderPicture(int index, int fromPosition, int toPosition) {
+        mAlbum.getPage(index).reorderPicture(fromPosition, toPosition);
+        DataChangedListener.notifyChanged();
     }
 
     /* 리스너 인터페이스 */
