@@ -16,9 +16,13 @@ import android.widget.ListView;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
+import com.study.hancom.sharephototest.listener.AlbumDataChangeInterface;
+import com.study.hancom.sharephototest.listener.AlbumDataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.Page;
+import com.study.hancom.sharephototest.model.Picture;
 
-public class PageEditorElementListFragment extends Fragment {
+public class PageEditorElementListFragment extends Fragment implements AlbumDataChangeInterface {
 
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
@@ -35,14 +39,16 @@ public class PageEditorElementListFragment extends Fragment {
     private Album mAlbum;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        /* 뷰 생성 */
-        View view = inflater.inflate(R.layout.page_editor_element_list, container, false);
-
-        /* 데이터 받아오기 */
+    public void setArguments(Bundle args) {
+        super.setArguments(args);
         Bundle extra = getArguments();
         mAlbum = extra.getParcelable("temp");
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        /* 뷰 생성 */
+        View view = inflater.inflate(R.layout.page_editor_element_list, container, false);
 
         /* 리스트뷰에 어댑터 붙이기 */
         mElementListView = (ListView) view.findViewById(R.id.page_list_view);
@@ -126,9 +132,7 @@ public class PageEditorElementListFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 int index = mElementListAdapter.getSelectedSection();
                                 int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                mElementListAdapter.setPictureEmpty(index, position);
-                                mElementListAdapter.setSelectedItem(-1);
-                                mElementListAdapter.notifyDataSetChanged();
+                                onPictureRemove(index, position, true);
                             }
                         })
                         .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
@@ -136,19 +140,13 @@ public class PageEditorElementListFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 int index = mElementListAdapter.getSelectedSection();
                                 int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                try {
-                                    mElementListAdapter.removePicture(index, position);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                mElementListAdapter.setSelectedItem(-1);
-                                mElementListAdapter.notifyDataSetChanged();
+                                onPictureRemove(index, position, false);
                             }
                         })
                         .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();     // 닫기
+                                dialog.dismiss();
                             }
                         })
                         .create().show();
@@ -202,5 +200,71 @@ public class PageEditorElementListFragment extends Fragment {
         return new AlertDialog.Builder(getActivity())
                 .setTitle(title)
                 .setMessage(message);
+    }
+
+    @Override
+    public void onPageAdd(Page page) {
+        onPageAdd(mAlbum.getPageCount(), page);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPageAdd(int index, Page page) {
+        mAlbum.addPage(index, page);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPageRemove(int index) {
+        mAlbum.removePage(index);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPageReorder(int fromIndex, int toIndex) {
+        mAlbum.reorderPage(fromIndex, toIndex);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPictureAdd(int index, Picture picture) {
+        onPictureAdd(index, mAlbum.getPage(index).getPictureCount(), picture);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPictureAdd(int index, int position, Picture picture) {
+        mAlbum.getPage(index).addPicture(position, picture);
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPictureRemove(int index, int position, boolean nullable) {
+        if (nullable) {
+            mAlbum.getPage(index).removePicture(position);
+            mAlbum.getPage(index).addPicture(position, null);
+        } else {
+            Page page = mAlbum.getPage(index);
+            int pictureCount = page.getPictureCount();
+            if (pictureCount > 1) {
+                try {
+                    page.setLayout(pictureCount - 1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                mAlbum.removePage(index);
+                mElementListAdapter.setSelectedSection(-1);
+            }
+            page.removePicture(position);
+            mElementListAdapter.setSelectedItem(-1);
+        }
+        mElementListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPictureReorder(int index, int fromPosition, int toPosition) {
+        mAlbum.getPage(index).reorderPicture(fromPosition, toPosition);
+        mElementListAdapter.notifyDataSetChanged();
     }
 }

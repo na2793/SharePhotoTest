@@ -21,7 +21,7 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ElementListAdapter extends SectionableAdapter implements ElementListAdapterInterface {
+public class ElementListAdapter extends SectionableAdapter {
 
     private Album mAlbum;
 
@@ -52,7 +52,7 @@ public class ElementListAdapter extends SectionableAdapter implements ElementLis
         mOnItemTouchListener = new OnItemTouchListener() {
             @Override
             public void onItemTouch(int sectionNum) {
-                mSelectedSection = sectionNum;
+                setSelectedSection(sectionNum);
             }
         };
         mAnimationUtil = new AnimationUtil();
@@ -222,23 +222,6 @@ public class ElementListAdapter extends SectionableAdapter implements ElementLis
         return convertView;
     }
 
-    public void setSelectedItem(int position) {
-        if (mIsMultipleItemSelectMode) {
-            if (position > -1) {
-                mMultipleSelectedItemPositionSet.add(position);
-            }
-        } else {
-            mSelectedItemPosition = position;
-            if (mOnItemSelectListener != null) {
-                if (position > -1) {
-                    mOnItemSelectListener.onItemSelect(getItem(position));
-                } else {
-                    mOnItemSelectListener.onItemSelectCancel();
-                }
-            }
-        }
-    }
-
     public void startMultipleSelectMode() {
         this.startMultipleSelectMode(-1);
     }
@@ -262,12 +245,33 @@ public class ElementListAdapter extends SectionableAdapter implements ElementLis
         }
     }
 
+    public void setSelectedItem(int position) {
+        if (mIsMultipleItemSelectMode) {
+            if (position > -1) {
+                mMultipleSelectedItemPositionSet.add(position);
+            }
+        } else {
+            mSelectedItemPosition = position;
+            if (mOnItemSelectListener != null) {
+                if (position > -1) {
+                    mOnItemSelectListener.onItemSelect(getItem(position));
+                } else {
+                    mOnItemSelectListener.onItemSelectCancel();
+                }
+            }
+        }
+    }
+
     public int getSelectedItem() {
         return mSelectedItemPosition;
     }
 
     public Integer[] getMultipleSelectedItem() {
         return mMultipleSelectedItemPositionSet.toArray(new Integer[mMultipleSelectedItemPositionSet.size()]);
+    }
+
+    public void setSelectedSection(int index) {
+        mSelectedSection = index;
     }
 
     public int getSelectedSection() {
@@ -342,61 +346,6 @@ public class ElementListAdapter extends SectionableAdapter implements ElementLis
 
     public void setOnMultipleItemSelectModeListener(OnMultipleItemSelectModeListener listener) {
         mOnMultipleItemSelectModeListener = listener;
-    }
-
-    @Override
-    public void addPage(Page page) {
-        addPage(mAlbum.getPageCount(), page);
-    }
-
-    @Override
-    public void addPage(int index, Page page) {
-        mAlbum.addPage(index, page);
-    }
-
-    @Override
-    public Page removePage(int index) {
-        return mAlbum.removePage(index);
-    }
-
-    @Override
-    public void reorderPage(int fromIndex, int toIndex) {
-        mAlbum.reorderPage(fromIndex, toIndex);
-    }
-
-    @Override
-    public void addPicture(int index, Picture picture) {
-        addPicture(index, mAlbum.getPage(index).getPictureCount(), picture);
-    }
-
-    @Override
-    public void addPicture(int index, int position, Picture picture) {
-        mAlbum.getPage(index).addPicture(position, picture);
-    }
-
-    @Override
-    public Picture removePicture(int index, int position) throws Exception {
-        Page page = mAlbum.getPage(index);
-        int pictureCount = page.getPictureCount();
-        if (pictureCount > 1) {
-            page.setLayout(pictureCount - 1);
-        } else {
-            mAlbum.removePage(index);
-        }
-
-        return page.removePicture(position);
-    }
-
-    @Override
-    public Picture setPictureEmpty(int index, int position) {
-        Picture oldPicture = mAlbum.getPage(index).removePicture(position);
-        mAlbum.getPage(index).addPicture(position, null);
-        return oldPicture;
-    }
-
-    @Override
-    public void reorderPicture(int index, int fromPosition, int toPosition) {
-        mAlbum.getPage(index).reorderPicture(fromPosition, toPosition);
     }
 
     /* 리스너 인터페이스 */

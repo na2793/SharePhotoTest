@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.study.hancom.sharephototest.R;
+import com.study.hancom.sharephototest.listener.AlbumDataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
@@ -25,6 +26,8 @@ public class PageEditorActivity extends AppCompatActivity {
     private static final int MAX_ELEMENT_OF_PAGE_NUM = 4;
 
     private Album mAlbum;
+
+    private PageEditorElementListFragment mPageEditorElementListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +82,7 @@ public class PageEditorActivity extends AppCompatActivity {
                     break;
                 }
             } catch (Exception e) {
-                // e.printStackTrace();
+                e.printStackTrace();
             }
         }
 
@@ -99,14 +102,14 @@ public class PageEditorActivity extends AppCompatActivity {
     }
 
     private void setElementListFragment(FragmentTransaction fragmentTransaction) {
-        PageEditorElementListFragment pageEditorElementListFragment = new PageEditorElementListFragment();
-        fragmentTransaction.add(R.id.element_list_fragment_container, pageEditorElementListFragment);
+        mPageEditorElementListFragment = new PageEditorElementListFragment();
+        fragmentTransaction.add(R.id.element_list_fragment_container, mPageEditorElementListFragment);
+        // 액션바를 가짐
+        mPageEditorElementListFragment.setHasOptionsMenu(true);
         // 데이터 전달
         Bundle bundle = new Bundle();
         bundle.putParcelable("temp", mAlbum);
-        pageEditorElementListFragment.setArguments(bundle);
-        // 액션바를 가짐
-        pageEditorElementListFragment.setHasOptionsMenu(true);
+        mPageEditorElementListFragment.setArguments(bundle);
         // 완료
         fragmentTransaction.commit();
     }
