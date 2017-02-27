@@ -22,8 +22,13 @@ import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.AnimationUtil;
 import com.study.hancom.sharephototest.util.ImageUtil;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeSet;
+
+import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class ElementListAdapter extends SectionableAdapter implements AlbumDataChangeInterface {
 
@@ -88,17 +93,20 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     @Override
-    protected int getSectionsCount() {
+    public int getSectionsCount() {
         return mAlbum.getPageCount();
     }
 
     @Override
-    protected int getCountInSection(int index) {
+    public int getCountInSection(int index) {
+        if (index >= getSectionsCount()) {
+            return -1;
+        }
         return mAlbum.getPage(index).getPictureCount();
     }
 
     @Override
-    protected int getTypeFor(int position) {
+    public int getTypeFor(int position) {
         int runningTotal = 0;
         int pageNum = mAlbum.getPageCount();
         for (int i = 0; i < pageNum; ++i) {
@@ -112,7 +120,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     @Override
-    protected String getHeaderForSection(int section) {
+    public String getHeaderForSection(int section) {
         return context.getResources().getString(R.string.page_editor_section_header, section + 1);
     }
 
@@ -164,10 +172,8 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
             @Override
             public void onClick(View v) {
                 if (mIsMultipleItemSelectMode) {
-                    if (!mMultipleSelectedItemPositionSet.contains(position)) {
-                        mMultipleSelectedItemPositionSet.add(position);
-                    } else {
-                        mMultipleSelectedItemPositionSet.remove(position);
+                    if (!removeMultipleSelectedItem(position)) {
+                        addMultipleSelectedItem(position);
                     }
                     mOnMultipleItemSelectModeListener.onSelect();
                 } else {
@@ -255,7 +261,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     public void startMultipleSelectMode(int position) {
         mIsMultipleItemSelectMode = true;
         if (position > -1) {
-            mMultipleSelectedItemPositionSet.add(position);
+            addMultipleSelectedItem(position);
         }
         if (mOnMultipleItemSelectModeListener != null) {
             mOnMultipleItemSelectModeListener.onStart();
@@ -265,43 +271,35 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     public void stopMultipleSelectMode() {
         mAnimationUtil.stopWobbleAll();
         mIsMultipleItemSelectMode = false;
-        mMultipleSelectedItemPositionSet.clear();
+        clearMultipleSelectedItem();
         if (mOnMultipleItemSelectModeListener != null) {
             mOnMultipleItemSelectModeListener.onStop();
         }
     }
 
     public void setSelectedItem(int position) {
-        if (mIsMultipleItemSelectMode) {
+        mSelectedItemPosition = position;
+        if (mOnItemSelectListener != null) {
             if (position > -1) {
-                mMultipleSelectedItemPositionSet.add(position);
-            }
-        } else {
-            mSelectedItemPosition = position;
-            if (mOnItemSelectListener != null) {
-                if (position > -1) {
-                    mOnItemSelectListener.onItemSelect(getItem(position));
-                } else {
-                    mOnItemSelectListener.onItemSelectCancel();
-                }
+                mOnItemSelectListener.onItemSelect(getItem(position));
+            } else {
+                mOnItemSelectListener.onItemSelectCancel();
             }
         }
     }
 
-    public int getSelectedItem() {
-        return mSelectedItemPosition;
+    public void addMultipleSelectedItem(int position) {
+        if (position > -1) {
+            mMultipleSelectedItemPositionSet.add(position);
+        }
     }
 
-    public Integer[] getMultipleSelectedItem() {
-        return mMultipleSelectedItemPositionSet.toArray(new Integer[mMultipleSelectedItemPositionSet.size()]);
+    public boolean removeMultipleSelectedItem(int position) {
+        return mMultipleSelectedItemPositionSet.remove(position);
     }
 
-    public void setSelectedSection(int index) {
-        mSelectedSection = index;
-    }
-
-    public int getSelectedSection() {
-        return mSelectedSection;
+    public void clearMultipleSelectedItem() {
+        mMultipleSelectedItemPositionSet.clear();
     }
 
     public int getSelectedItemCount() {
@@ -314,6 +312,30 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
                 return 0;
             }
         }
+    }
+
+    public int getSelectedItem() {
+        return mSelectedItemPosition;
+    }
+
+    public Integer[] getMultipleSelectedItem() {
+        return getMultipleSelectedItem(false);
+    }
+
+    public Integer[] getMultipleSelectedItem(boolean isSort) {
+        Integer[] multipleSelectedItemArray = mMultipleSelectedItemPositionSet.toArray(new Integer[mMultipleSelectedItemPositionSet.size()]);
+        if (isSort) {
+            Arrays.sort(multipleSelectedItemArray);
+        }
+        return multipleSelectedItemArray;
+    }
+
+    public void setSelectedSection(int index) {
+        mSelectedSection = index;
+    }
+
+    public int getSelectedSection() {
+        return mSelectedSection;
     }
 
     public int getPositionInSection(int position) {
@@ -432,8 +454,25 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     @Override
-    public void reorderPicture(int index, int fromPosition, int toPosition) {
-        mAlbum.getPage(index).reorderPicture(fromPosition, toPosition);
+    public void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception {
+        if (toIndex >= getSectionsCount()) {
+            mAlbum.addPage(new Page(1));
+        } else if (MAX_ELEMENT_OF_PAGE_NUM < getCountInSection(toIndex) + 1) {
+            //** 사용 가능한 요소 갯수를 넘음
+            throw new Exception();
+        }
+        if (fromIndex == toIndex) {
+            mAlbum.getPage(fromIndex).reorderPicture(fromPosition, toPosition);
+        } else {
+            Picture target;
+            if (getCountInSection(fromIndex) > 1) {
+                target = mAlbum.getPage(fromIndex).removePicture(fromPosition);
+            } else {
+                target = mAlbum.getPage(fromIndex).removePicture(fromPosition);
+                mAlbum.getPage(fromIndex).addPicture(fromPosition, null);
+            }
+            mAlbum.getPage(toIndex).addPicture(toPosition, target);
+        }
         DataChangedListener.notifyChanged();
     }
 

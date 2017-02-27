@@ -70,8 +70,8 @@ public class Page implements Parcelable {
     }
 
     public void reorderPicture(int fromPosition, int toPosition) {
-        Picture tempPicture = removePicture(fromPosition);
-        addPicture(toPosition, tempPicture);
+        Picture target = removePicture(fromPosition);
+        addPicture(toPosition, target);
     }
 
     public void clear() {

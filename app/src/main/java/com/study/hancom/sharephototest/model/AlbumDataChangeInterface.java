@@ -15,5 +15,5 @@ public interface AlbumDataChangeInterface {
 
     void removePicture(int index, int position, boolean nullable);
 
-    void reorderPicture(int index, int fromPosition, int toPosition);
+    void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception;
 }

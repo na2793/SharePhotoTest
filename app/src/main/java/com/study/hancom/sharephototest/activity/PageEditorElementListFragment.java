@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,12 +12,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.NumberPicker;
+import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+
+import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class PageEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
@@ -120,6 +125,40 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
             case R.id.action_single_edit:
                 return true;
             case R.id.action_single_move:
+                final NumberPicker pageNumberPicker = new NumberPicker(getActivity());
+                pageNumberPicker.setMinValue(1);
+                pageNumberPicker.setMaxValue(mElementListAdapter.getSectionsCount() + 1);
+                pageNumberPicker.setValue(mElementListAdapter.getSelectedSection() + 1);
+                createDialog(getString(R.string.dialog_title_action_single_move), getString(R.string.dialog_message_action_single_move))
+                        .setView(pageNumberPicker)
+                        .setPositiveButton(getString(R.string.dialog_button_confirm), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int fromIndex = mElementListAdapter.getSelectedSection();
+                                int fromPosition = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                                int toIndex = pageNumberPicker.getValue() - 1;
+                                int toPosition = mElementListAdapter.getCountInSection(toIndex) - 1;
+                                if (toPosition < 0) {
+                                    toPosition = 0;
+                                }
+                                try {
+                                    mElementListAdapter.reorderPicture(fromIndex, fromPosition, toIndex, toPosition);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
+                                }
+                                mElementListAdapter.setSelectedSection(toIndex);
+                                mElementListAdapter.setSelectedItem(toPosition);
+                                mElementListAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
                 return true;
             case R.id.action_single_delete:
                 createDialog(getString(R.string.dialog_title_action_single_delete), getString(R.string.dialog_message_action_single_delete))
@@ -149,16 +188,51 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
                 return true;
             case R.id.action_multiple_select_all:
                 int dataCount = mElementListAdapter.getDataCount();
-                for (int i = 0; i < dataCount; i++) {
-                    mElementListAdapter.setSelectedItem(i);
+                for (int eachPosition = 0; eachPosition < dataCount; eachPosition++) {
+                    mElementListAdapter.addMultipleSelectedItem(eachPosition);
                 }
                 mElementListAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_multiple_edit:
                 return true;
             case R.id.action_multiple_move:
+                if (mElementListAdapter.getMultipleSelectedItem().length > MAX_ELEMENT_OF_PAGE_NUM) {
+                    Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG);
+                }
                 return true;
             case R.id.action_multiple_delete:
+                createDialog(getString(R.string.dialog_title_action_multiple_delete), getString(R.string.dialog_message_action_multiple_delete))
+                        .setPositiveButton(getString(R.string.dialog_button_remain), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                for (int eachSelectedItemPosition : mElementListAdapter.getMultipleSelectedItem()) {
+                                    int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
+                                    int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
+                                    mElementListAdapter.removePicture(index, position, true);
+                                }
+                                mElementListAdapter.stopMultipleSelectMode();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Integer[] sortedMultipleSelectedItemArray = mElementListAdapter.getMultipleSelectedItem(true);
+                                for (int i = sortedMultipleSelectedItemArray.length - 1; i > -1; i--) {
+                                    int eachSelectedItemPosition = sortedMultipleSelectedItemArray[i];
+                                    int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
+                                    int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
+                                    mElementListAdapter.removePicture(index, position, false);
+                                }
+                                mElementListAdapter.stopMultipleSelectMode();
+                            }
+                        })
+                        .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .create().show();
                 return true;
             case R.id.action_empty_set_picture:
                 return true;

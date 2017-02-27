@@ -17,9 +17,9 @@ import com.study.hancom.sharephototest.util.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageEditorActivity extends AppCompatActivity {
+import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
-    private static final int MAX_ELEMENT_OF_PAGE_NUM = 4;
+public class PageEditorActivity extends AppCompatActivity {
 
     private Album mAlbum;
 

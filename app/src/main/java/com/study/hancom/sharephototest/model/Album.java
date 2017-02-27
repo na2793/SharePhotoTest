@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Album implements Parcelable {
 
+    public static final int MAX_ELEMENT_OF_PAGE_NUM = 4;
+
     private String mName;
     private List<Page> mPageList = new ArrayList<>();
 
