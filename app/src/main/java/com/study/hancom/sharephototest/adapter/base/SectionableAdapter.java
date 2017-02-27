@@ -6,7 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.nostra13.universalimageloader.utils.L;
+import com.study.hancom.sharephototest.R;
 
 /**
  * An Adapter that populates a grid of 1-n columns. Unlike a standard Android GridView,
@@ -27,29 +31,31 @@ public abstract class SectionableAdapter<T> extends BaseAdapter {
     protected Context context;
     private LayoutInflater inflater;
     private int rowResID;
-    private int headerID;
+    protected int headerMenuHolderID;
+    private int headerTextID;
     private int itemHolderID;
     private int colCount;
     private int resizeMode;
     private ViewGroup measuredRow;
 
-    public SectionableAdapter(Context context, int rowLayoutID, int headerID, int itemHolderID) {
-        this(context, rowLayoutID, headerID, itemHolderID, MODE_VARY_WIDTHS);
+    public SectionableAdapter(Context context, int rowLayoutID, int headerMenuHolderID, int headerTextID, int itemHolderID) {
+        this(context, rowLayoutID, headerMenuHolderID, headerTextID, itemHolderID, MODE_VARY_WIDTHS);
     }
 
     /**
      * Constructor.
      *
      * @param rowLayoutID  layout resource ID for each row within the grid.
-     * @param headerID     resource ID for the header element contained within the grid row.
+     * @param headerTextID     resource ID for the header element contained within the grid row.
      * @param itemHolderID resource ID for the cell wrapper contained within the grid row. This View must only contain cells.
      */
-    public SectionableAdapter(Context context, int rowLayoutID, int headerID, int itemHolderID, int resizeMode) {
+    public SectionableAdapter(Context context, int rowLayoutID, int headerMenuHolderID, int headerTextID, int itemHolderID, int resizeMode) {
         super();
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.rowResID = rowLayoutID;
-        this.headerID = headerID;
+        this.headerMenuHolderID = headerMenuHolderID;
+        this.headerTextID = headerTextID;
         this.itemHolderID = itemHolderID;
         this.resizeMode = resizeMode;
         // Determine how many columns our row holds.
@@ -136,25 +142,6 @@ public abstract class SectionableAdapter<T> extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int realPosition = 0;
-        int viewsToDraw = 0;
-        int rows = 0;
-        int totalCount = 0;
-        int setionsCount = getSectionsCount();
-        for (int i = 0; i < setionsCount; ++i) {
-            int sectionCount = getCountInSection(i);
-            totalCount += sectionCount;
-            if (sectionCount > 0 && position <= rows + (sectionCount - 1) / colCount) {
-                realPosition += (position - rows) * colCount;
-                viewsToDraw = (int) (totalCount - realPosition);
-                break;
-            } else {
-                if (sectionCount > 0) {
-                    rows += (int) ((sectionCount - 1) / colCount + 1);
-                }
-                realPosition += sectionCount;
-            }
-        }
         if (convertView == null) {
             convertView = inflater.inflate(rowResID, parent, false);
             if (measuredRow == null && resizeMode == MODE_VARY_COUNT) {
@@ -166,20 +153,48 @@ public abstract class SectionableAdapter<T> extends BaseAdapter {
                 measuredRow.getViewTreeObserver().addOnGlobalLayoutListener(layoutObserver);
             }
         }
-        int lastType = -1;
-        if (realPosition > 0)
-            lastType = getTypeFor(realPosition - 1);
-        if (getDataCount() > 0) {
-            TextView header = (TextView) convertView.findViewById(headerID);
-            int newType = getTypeFor(realPosition);
-            if (newType != lastType) {
-                header.setVisibility(View.VISIBLE);
-                header.setText(getHeaderForSection(newType));
 
+        int realPosition = 0;
+        int viewsToDraw = 0;
+        int rows = 0;
+        int totalCount = 0;
+        int sectionsCount = getSectionsCount();
+
+        for (int i = 0; i < sectionsCount; ++i) {
+            int sectionCount = getCountInSection(i);
+            totalCount += sectionCount;
+            if (sectionCount > 0 && position <= rows + (sectionCount - 1) / colCount) {
+                realPosition += (position - rows) * colCount;
+                viewsToDraw = totalCount - realPosition;
+                break;
             } else {
-                header.setVisibility(View.GONE);
+                if (sectionCount > 0) {
+                    rows += (sectionCount - 1) / colCount + 1;
+                }
+                realPosition += sectionCount;
             }
         }
+
+        int lastType = -1;
+
+        if (realPosition > 0) {
+            lastType = getTypeFor(realPosition - 1);
+        }
+
+        if (getDataCount() > 0) {
+            LinearLayout headerMenu = (LinearLayout) convertView.findViewById(headerMenuHolderID);
+            TextView headerText = (TextView) convertView.findViewById(headerTextID);
+            int newType = getTypeFor(realPosition);
+            if (newType != lastType) {
+                headerMenu.setVisibility(View.VISIBLE);
+                headerText.setVisibility(View.VISIBLE);
+                headerText.setText(getHeaderForSection(newType));
+            } else {
+                headerMenu.setVisibility(View.GONE);
+                headerText.setVisibility(View.GONE);
+            }
+        }
+
         customizeRow(position, convertView);
 
         ViewGroup itemHolder = (ViewGroup) convertView.findViewById(itemHolderID);
@@ -192,6 +207,7 @@ public abstract class SectionableAdapter<T> extends BaseAdapter {
                 child.setVisibility(View.INVISIBLE);
             }
         }
+
         return convertView;
     }
 

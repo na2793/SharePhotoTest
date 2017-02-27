@@ -62,7 +62,11 @@ public class Page implements Parcelable {
     }
 
     public void addPicture(int position, Picture picture) {
-        mPictureList.add(position, picture);
+        if (position < getPictureCount()) {
+            mPictureList.add(position, picture);
+        } else {
+            mPictureList.add(picture);
+        }
     }
 
     public Picture removePicture(int position) {

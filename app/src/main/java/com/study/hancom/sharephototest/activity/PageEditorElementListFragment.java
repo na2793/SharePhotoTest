@@ -54,7 +54,7 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
         /* 리스트뷰에 어댑터 붙이기 */
         mElementListView = (ListView) view.findViewById(R.id.page_list_view);
         mElementListAdapter = new ElementListAdapter(getActivity(), mAlbum,
-                R.layout.page_editor_element_list_row, R.id.row_header,
+                R.layout.page_editor_element_list_row, R.id.row_menuHolder, R.id.row_header_text,
                 R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
         mElementListAdapter.setOnMultipleItemSelectModeListener(new ElementListAdapter.OnMultipleItemSelectModeListener() {
             @Override
@@ -137,19 +137,16 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
                                 int fromIndex = mElementListAdapter.getSelectedSection();
                                 int fromPosition = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
                                 int toIndex = pageNumberPicker.getValue() - 1;
-                                int toPosition = mElementListAdapter.getCountInSection(toIndex) - 1;
-                                if (toPosition < 0) {
-                                    toPosition = 0;
-                                }
+                                int toPosition = mElementListAdapter.getCountInSection(toIndex);
                                 try {
                                     mElementListAdapter.reorderPicture(fromIndex, fromPosition, toIndex, toPosition);
+                                    mElementListAdapter.setSelectedSection(toIndex);
+                                    mElementListAdapter.setSelectedItem(-1);
+                                    mElementListAdapter.notifyDataSetChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
                                 }
-                                mElementListAdapter.setSelectedSection(toIndex);
-                                mElementListAdapter.setSelectedItem(toPosition);
-                                mElementListAdapter.notifyDataSetChanged();
                             }
                         })
                         .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {

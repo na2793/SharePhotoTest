@@ -24,9 +24,7 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.NavigableSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
@@ -48,8 +46,8 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
 
     private static ImageLoader mImageLoader = ImageLoader.getInstance();
 
-    public ElementListAdapter(Context context, Album album, int rowLayoutID, int headerID, int itemHolderID, int resizeMode) {
-        super(context, rowLayoutID, headerID, itemHolderID, resizeMode);
+    public ElementListAdapter(Context context, Album album, int rowLayoutID, int headerMenuHolderID, int headerTextID, int itemHolderID, int resizeMode) {
+        super(context, rowLayoutID, headerMenuHolderID, headerTextID, itemHolderID, resizeMode);
         mAlbum = album;
         mSelectedSection = 0;
         mSelectedItemPosition = -1;
@@ -200,12 +198,11 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     @Override
-    public View getView(final int index, View convertView, final ViewGroup parent) {
-        convertView = super.getView(index, convertView, parent);
-        convertView.setOnClickListener(new View.OnClickListener() {
+    protected void customizeRow(final int row, View rowView) {
+        rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemTouchListener.onItemTouch(getSectionByIndex(index));
+                mOnItemTouchListener.onItemTouch(getSectionByIndex(row));
                 if (!mIsMultipleItemSelectMode) {
                     setSelectedItem(-1);
                 }
@@ -213,20 +210,33 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
             }
         });
 
+        LinearLayout menuHolder = (LinearLayout) rowView.findViewById(headerMenuHolderID);
+        if (mIsMultipleItemSelectMode) {
+            menuHolder.setVisibility(View.GONE);
+            rowView.setAlpha(1);
+        } else {
+            if (mSelectedSection == getSectionByIndex(row)) {
+                rowView.setAlpha(1);
+            } else {
+                menuHolder.setVisibility(View.GONE);
+                rowView.setAlpha(0.5f);
+            }
+        }
+
         /* 페이지 컨텍스트 메뉴 버튼 처리 */
-        Button buttonPreview = (Button) convertView.findViewById(R.id.button_preview);
+        Button buttonPreview = (Button) rowView.findViewById(R.id.button_preview);
         buttonPreview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }
         });
-        Button buttonChangeLayout = (Button) convertView.findViewById(R.id.button_change_layout);
+        Button buttonChangeLayout = (Button) rowView.findViewById(R.id.button_change_layout);
         buttonChangeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }
         });
-        Button buttonDelete = (Button) convertView.findViewById(R.id.button_delete);
+        Button buttonDelete = (Button) rowView.findViewById(R.id.button_delete);
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,24 +244,6 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
                 setSelectedSection(-1);
             }
         });
-
-        LinearLayout linearLayout = (LinearLayout) convertView.findViewById(R.id.row_menu);
-        if (mIsMultipleItemSelectMode) {
-            linearLayout.setVisibility(View.GONE);
-            convertView.setAlpha(1);
-        } else {
-            if (mSelectedSection == getSectionByIndex(index)) {
-                if (isSectionHeader(index)) {
-                    linearLayout.setVisibility(View.VISIBLE);
-                }
-                convertView.setAlpha(1);
-            } else {
-                linearLayout.setVisibility(View.GONE);
-                convertView.setAlpha(0.5f);
-            }
-        }
-
-        return convertView;
     }
 
     public void startMultipleSelectMode() {
@@ -369,25 +361,6 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
         return -1;
     }
 
-    private boolean isSectionHeader(int index) {
-        int runningTotal = 0;
-        int pageCount = mAlbum.getPageCount();
-        int colCount = getColCount();
-
-        for (int i = 0; i < pageCount; ++i) {
-            int eachItemCount = mAlbum.getPage(i).getPictureCount();
-            int eachRowCount = (int) Math.ceil((double) eachItemCount / (double) colCount);
-            if (eachRowCount == runningTotal + eachRowCount - index) {
-                return true;
-            } else if (index < 0) {
-                return false;
-            }
-            runningTotal += eachRowCount;
-        }
-        // This will never happen.
-        return false;
-    }
-
     public void setOnItemSelectListener(OnItemSelectListener listener) {
         mOnItemSelectListener = listener;
     }
@@ -455,15 +428,19 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
 
     @Override
     public void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception {
-        if (toIndex >= getSectionsCount()) {
-            mAlbum.addPage(new Page(1));
-        } else if (MAX_ELEMENT_OF_PAGE_NUM < getCountInSection(toIndex) + 1) {
-            //** 사용 가능한 요소 갯수를 넘음
-            throw new Exception();
-        }
         if (fromIndex == toIndex) {
             mAlbum.getPage(fromIndex).reorderPicture(fromPosition, toPosition);
         } else {
+            if (toIndex >= getSectionsCount()) {
+                mAlbum.addPage(new Page(1));
+                if (toPosition < 0) {
+                    toPosition = 0;
+                }
+            } else if (MAX_ELEMENT_OF_PAGE_NUM < getCountInSection(toIndex) + 1) {
+                //** 사용 가능한 요소 갯수를 넘음
+                throw new Exception();
+            }
+
             Picture target;
             if (getCountInSection(fromIndex) > 1) {
                 target = mAlbum.getPage(fromIndex).removePicture(fromPosition);
