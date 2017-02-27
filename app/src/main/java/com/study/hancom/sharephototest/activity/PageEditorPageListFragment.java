@@ -12,7 +12,7 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 
-public class PageEditorFrameFragment extends Fragment {
+public class PageEditorPageListFragment extends Fragment {
 
     private Album mAlbum;
 

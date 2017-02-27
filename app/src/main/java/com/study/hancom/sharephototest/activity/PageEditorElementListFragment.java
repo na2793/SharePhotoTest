@@ -10,17 +10,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.Page;
-import com.study.hancom.sharephototest.model.Picture;
 
 public class PageEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
