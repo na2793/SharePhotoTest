@@ -90,7 +90,7 @@ public class GalleryAdapter extends BaseAdapter {
             galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
         }
 
-        final String ImagePath = galleryPicturePaths.get(position);
+        final String ImagePath = "file://" + galleryPicturePaths.get(position);
         imageLoader.displayImage(ImagePath, galleryPictureHolder.imageView, ImageUtil.options);
 
         galleryPictureHolder.imageView.setOnClickListener(new View.OnClickListener() {

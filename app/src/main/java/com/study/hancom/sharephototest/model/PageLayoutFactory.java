@@ -21,9 +21,9 @@ class PageLayoutFactory implements Parcelable {
 
     //** 임시 xml로 뺄 것
     final static private String mLayoutFrameFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "frame" + File.separator;
+            + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "frame" + File.separator;
     final static private String mLayoutStyleFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "style" + File.separator;
+            + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "style" + File.separator;
 
     private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();
 
@@ -71,15 +71,14 @@ class PageLayoutFactory implements Parcelable {
         List<PageLayout> pageLayoutList = new ArrayList<>();
         File frameFile = new File(mLayoutFrameFolderPath + elementNum + ".html");
 
-        if (frameFile.exists()) {
+        if (frameFile.exists()) {   //** 이렇게 하지 말 것 (동기화 X)
             File styleFolder = new File(mLayoutStyleFolderPath + elementNum);
             File[] styleList = styleFolder.listFiles();
             int styleListLength = styleList.length;
 
             if (styleListLength > 0) {
-                for (File eachFile : styleList) {
-                    String pageLayoutData = injectStyleIntoFrame(frameFile, eachFile).toString();
-                    pageLayoutList.add(new PageLayout(pageLayoutData, elementNum));
+                for (File eachStyleFile : styleList) {
+                    pageLayoutList.add(new PageLayout(elementNum, frameFile.getAbsolutePath(), eachStyleFile.getAbsolutePath()));
                 }
             } else {
                 //** exception style not found
@@ -93,44 +92,6 @@ class PageLayoutFactory implements Parcelable {
         }
 
         return pageLayoutList;
-    }
-
-    private StringBuffer injectStyleIntoFrame(File frameFile, File styleFile) throws IOException {
-        StringBuffer content;
-
-        content = readFile(frameFile);
-        content.insert(content.indexOf("</head>"), "<link rel=\"stylesheet\" href=\"" + styleFile.getCanonicalPath() + "\">\n");
-
-        return content;
-    }
-
-    private StringBuffer readFile(File file) throws IOException {
-
-        StringBuffer stringBuffer = new StringBuffer();
-        FileInputStream fileInputStream = null;
-
-        try {
-            fileInputStream = new FileInputStream(file);
-            Reader reader = null;
-            try {
-                reader = new InputStreamReader(fileInputStream);
-                int size = fileInputStream.available();
-                char[] buffer = new char[size];
-                reader.read(buffer);
-
-                stringBuffer.append(buffer);
-            } finally {
-                if (reader != null) {
-                    reader.close();
-                }
-            }
-        } finally {
-            if (fileInputStream != null) {
-                fileInputStream.close();
-            }
-        }
-
-        return stringBuffer;
     }
 
     @Override

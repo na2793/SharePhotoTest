@@ -142,7 +142,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
         /* 이미지뷰 처리 */
         Picture picture = (Picture) getItem(position);
         if (picture != null) {
-            mImageLoader.displayImage(picture.getPath(), imageView, ImageUtil.options);
+            mImageLoader.displayImage("file://" + picture.getPath(), imageView, ImageUtil.options);
         } else {
             mImageLoader.displayImage(ImageUtil.drawableResourceToURI(R.drawable.place_holder), imageView, ImageUtil.options);
         }

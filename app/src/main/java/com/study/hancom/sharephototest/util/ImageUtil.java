@@ -50,7 +50,7 @@ public class ImageUtil {
             String fileName = imageCursor.getString(dataColumnIndex);
             Log.d(TAG, "fileName--->" + fileName);
 
-            galleryPictures.add(i, "file:/" + imageCursor.getString(dataColumnIndex));
+            galleryPictures.add(i, imageCursor.getString(dataColumnIndex));
 
         }
         imageCursor.close();

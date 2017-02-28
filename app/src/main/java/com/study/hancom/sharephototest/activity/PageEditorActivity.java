@@ -31,7 +31,11 @@ public class PageEditorActivity extends AppCompatActivity {
         setContentView(R.layout.page_editor_main);
 
         /* 데이터 파싱 */
-        parseIntentData();
+        try {
+            parseIntentData();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -51,7 +55,7 @@ public class PageEditorActivity extends AppCompatActivity {
         return true;
     }
 
-    private void parseIntentData() {
+    private void parseIntentData() throws Exception {
         /* 인텐트 처리 */
         Intent intent = getIntent();
         List<String> picturePathList = intent.getStringArrayListExtra("selectedImage");
@@ -67,6 +71,8 @@ public class PageEditorActivity extends AppCompatActivity {
         mAlbum = new Album("testAlbumName");
         int temp = 0;
 
+        int errorCount = 0;
+
         while (temp < pictureNum) {
             try {
                 int elementCount = MathUtil.getRandomMath(MAX_ELEMENT_OF_PAGE_NUM, 1);
@@ -79,6 +85,10 @@ public class PageEditorActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                errorCount++;
+            }
+            if (errorCount > 10) {
+                throw new Exception();
             }
         }
 
