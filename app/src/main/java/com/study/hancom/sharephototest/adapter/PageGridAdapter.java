@@ -103,11 +103,10 @@ public class PageGridAdapter extends BaseAdapter {
     }
 
     private void injectImageByScript(WebView view, String elementId, String picturePath) {
-        Log.v("tag", elementId + " " + picturePath);
         view.loadUrl("javascript:(function() {" +
                 "var target = document.getElementById('" + elementId + "');" +
                 "var img = document.createElement('img');" +
-                "img.src = '" + picturePath.replace("file://", "file:///") + "';" +
+                "img.src = '" + picturePath + "';" +
                 "target.appendChild(img);" +
                 "})()");
     }
