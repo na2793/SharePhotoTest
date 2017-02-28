@@ -21,9 +21,9 @@ class PageLayoutFactory implements Parcelable {
 
     //** 임시 xml로 뺄 것
     final static private String mLayoutFrameFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "frame" + File.separator;
+            + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "frame" + File.separator;
     final static private String mLayoutStyleFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "SharePhoto" + File.separator + "layout" + File.separator + "style" + File.separator;
+            + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "style" + File.separator;
 
     private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();
 

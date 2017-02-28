@@ -23,7 +23,7 @@ public class PageEditorActivity extends AppCompatActivity {
 
     private Album mAlbum;
 
-    private PageEditorPageListFragment mPageEditorPageListFragment;
+    private PageEditorFrameFragment mPageEditorFrameFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +98,12 @@ public class PageEditorActivity extends AppCompatActivity {
     }
 
     private void setFrameFragment(FragmentTransaction fragmentTransaction) {
-        mPageEditorPageListFragment = new PageEditorPageListFragment();
-        fragmentTransaction.add(R.id.page_editor_main_frame, mPageEditorPageListFragment);
+        mPageEditorFrameFragment = new PageEditorFrameFragment();
+        fragmentTransaction.add(R.id.page_editor_main_frame, mPageEditorFrameFragment);
         // 데이터 전달
         Bundle bundle = new Bundle();
         bundle.putParcelable("temp", mAlbum);
-        mPageEditorPageListFragment.setArguments(bundle);
+        mPageEditorFrameFragment.setArguments(bundle);
         // 완료
         fragmentTransaction.commit();
     }

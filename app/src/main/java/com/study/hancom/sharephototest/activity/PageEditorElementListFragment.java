@@ -52,7 +52,7 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
         View view = inflater.inflate(R.layout.page_editor_element_list, container, false);
 
         /* 리스트뷰에 어댑터 붙이기 */
-        mElementListView = (ListView) view.findViewById(R.id.page_list_view);
+        mElementListView = (ListView) view.findViewById(R.id.element_list_view);
         mElementListAdapter = new ElementListAdapter(getActivity(), mAlbum,
                 R.layout.page_editor_element_list_row, R.id.row_menuHolder, R.id.row_header_text,
                 R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
