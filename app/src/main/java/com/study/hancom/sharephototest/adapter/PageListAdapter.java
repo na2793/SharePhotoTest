@@ -1,11 +1,15 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -19,8 +23,6 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
 
     private Context mContext;
     private Album mAlbum;
-
-    private int parentHeight;
 
     public PageListAdapter(Context context, Album album){
         mContext = context;
@@ -41,10 +43,11 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(mContext).inflate(R.layout.page_editor_page_list_item, parent, false);
 
-        parentHeight = parent.getHeight();
-
         return new ViewHolder(view);
     }
+
+    boolean loadingFinished = true;
+    boolean redirect = false;
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
@@ -58,24 +61,49 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         holder.webView.setVerticalScrollBarEnabled(false);
         holder.webView.getSettings().setBuiltInZoomControls(false);
         holder.webView.getSettings().setSupportZoom(false);
+        holder.webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+        holder.webView.setPadding(0, 0, 0, 0);
+        holder.webView.setScrollbarFadingEnabled(false);
+        holder.webView.setInitialScale(1);
+        holder.webView.setWebChromeClient(new WebChromeClient());
+
 
         // Add a WebViewClient
         holder.webView.setWebViewClient(new WebViewClient() {
             @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (!loadingFinished) {
+                    redirect = true;
+                }
+                loadingFinished = false;
+                view.loadUrl(request.getUrl().toString());
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                loadingFinished = false;
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
+                if(!redirect){
+                    loadingFinished = true;
+                }
 
-                double realRate = (double)view.getContentHeight() / (double)view.getHeight();
-                double realHeight = (double)view.getHeight() * realRate;
-                double realWidth = (double)view.getWidth() * realRate;
+                if(loadingFinished && !redirect){
+                    // inject data
+                    for (int i = 0 ; i < page.getPictureCount() ; i++) {
+                        injectStyleByScript(view, page.getLayout().getStylePath());
+                        //injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
+                    }
 
-                Log.v("tag", view.getContentHeight() + " " + view.getHeight() + " " + view.getWidth());
-
-                //view.setLayoutParams(new LinearLayout.LayoutParams((int)realWidth, (int)realHeight));
-
-                for (int i = 0 ; i < page.getPictureCount() ; i++) {
-                    injectStyleByScript(view, page.getLayout().getStylePath());
-                    injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
+                    int height = view.getHeight();
+                    int width = (210 * height / 297);
+                    view.setLayoutParams(new LinearLayout.LayoutParams(width, height));
+                } else{
+                    redirect = false;
                 }
             }
         });

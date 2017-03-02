@@ -61,7 +61,7 @@ class PageLayoutFactory implements Parcelable {
         }
 
         if (pageLayoutList.size() > 0) {
-            pageLayout = pageLayoutList.get(MathUtil.getRandomMath(pageLayoutList.size() - 1, 0));
+            pageLayout = pageLayoutList.get(MathUtil.getRandomMath(pageLayoutList.size(), 0));
         }
 
         return pageLayout;

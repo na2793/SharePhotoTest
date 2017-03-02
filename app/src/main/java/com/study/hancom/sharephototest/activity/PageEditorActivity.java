@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 
@@ -75,10 +76,10 @@ public class PageEditorActivity extends AppCompatActivity {
 
         while (temp < pictureNum) {
             try {
-                int elementCount = MathUtil.getRandomMath(MAX_ELEMENT_OF_PAGE_NUM, 1);
-                if (pictureNum > temp + elementCount) {
-                    mAlbum.addPage(new Page(elementCount));
-                    temp += elementCount;
+                int elementNum = MathUtil.getRandomMath(MAX_ELEMENT_OF_PAGE_NUM, 1);
+                if (pictureNum > temp + elementNum) {
+                    mAlbum.addPage(new Page(elementNum));
+                    temp += elementNum;
                 } else {
                     mAlbum.addPage(new Page(pictureNum - temp));
                     break;
