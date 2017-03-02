@@ -24,6 +24,9 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
     private Context mContext;
     private Album mAlbum;
 
+    private boolean mLoadingFinished = true;
+    private boolean mRedirect = false;
+
     public PageListAdapter(Context context, Album album){
         mContext = context;
         mAlbum = album;
@@ -46,9 +49,6 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         return new ViewHolder(view);
     }
 
-    boolean loadingFinished = true;
-    boolean redirect = false;
-
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         final Page page = mAlbum.getPage(position);
@@ -62,20 +62,16 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         holder.webView.getSettings().setBuiltInZoomControls(false);
         holder.webView.getSettings().setSupportZoom(false);
         holder.webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        holder.webView.setPadding(0, 0, 0, 0);
-        holder.webView.setScrollbarFadingEnabled(false);
         holder.webView.setInitialScale(1);
-        holder.webView.setWebChromeClient(new WebChromeClient());
-
 
         // Add a WebViewClient
         holder.webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if (!loadingFinished) {
-                    redirect = true;
+                if (!mLoadingFinished) {
+                    mRedirect = true;
                 }
-                loadingFinished = false;
+                mLoadingFinished = false;
                 view.loadUrl(request.getUrl().toString());
                 return true;
             }
@@ -83,27 +79,27 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                loadingFinished = false;
+                mLoadingFinished = false;
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if(!redirect){
-                    loadingFinished = true;
+                if(!mRedirect){
+                    mLoadingFinished = true;
                 }
 
-                if(loadingFinished && !redirect){
+                if(mLoadingFinished && !mRedirect){
                     // inject data
                     for (int i = 0 ; i < page.getPictureCount() ; i++) {
                         injectStyleByScript(view, page.getLayout().getStylePath());
-                        //injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
+                        injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
                     }
 
                     int height = view.getHeight();
                     int width = (210 * height / 297);
                     view.setLayoutParams(new LinearLayout.LayoutParams(width, height));
                 } else{
-                    redirect = false;
+                    mRedirect = false;
                 }
             }
         });
