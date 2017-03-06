@@ -60,8 +60,7 @@ public class GalleryActivity extends AppCompatActivity {
                     mSelectedPictures.add(mSelectedPicturePaths.get(i));
                 }
 
-                //** 임시 인텐트 위치
-                Intent intent = new Intent(getApplicationContext(), PageEditorActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AlbumOverviewActivity.class);
                 intent.putExtra("selectedImage", mSelectedPictures);
                 startActivity(intent);
                 return true;

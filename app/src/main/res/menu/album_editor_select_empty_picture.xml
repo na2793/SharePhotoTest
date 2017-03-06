@@ -2,17 +2,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_empty_set_picture"
-        android:title="@string/action_page_editor_empty_set_picture"
+        android:title="@string/action_album_editor_empty_set_picture"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_single_move"
-        android:title="@string/action_page_editor_single_move"
+        android:title="@string/action_album_editor_single_move"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_empty_delete"
-        android:title="@string/action_page_editor_single_delete"
+        android:title="@string/action_album_editor_single_delete"
         app:showAsAction="always"/>
 
 </menu>

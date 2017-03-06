@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +22,7 @@ import com.study.hancom.sharephototest.model.Album;
 
 import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
-public class PageEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
+public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
@@ -43,18 +42,18 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
     public void setArguments(Bundle args) {
         super.setArguments(args);
         Bundle extra = getArguments();
-        mAlbum = extra.getParcelable("temp");
+        mAlbum = extra.getParcelable("album");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /* 뷰 생성 */
-        View view = inflater.inflate(R.layout.page_editor_element_list, container, false);
+        View view = inflater.inflate(R.layout.album_editor_element_list, container, false);
 
         /* 리스트뷰에 어댑터 붙이기 */
         mElementListView = (ListView) view.findViewById(R.id.element_list_view);
         mElementListAdapter = new ElementListAdapter(getActivity(), mAlbum,
-                R.layout.page_editor_element_list_row, R.id.row_menuHolder, R.id.row_header_text,
+                R.layout.album_editor_element_list_row, R.id.row_menuHolder, R.id.row_header_text,
                 R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
         mElementListAdapter.setOnMultipleItemSelectModeListener(new ElementListAdapter.OnMultipleItemSelectModeListener() {
             @Override
@@ -64,7 +63,7 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
 
             @Override
             public void onSelect() {
-                getActivity().setTitle(String.format(getResources().getString(R.string.title_page_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
+                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
             }
 
             @Override
@@ -120,6 +119,7 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
                 }
                 return true;
             case R.id.action_confirm:
+                Toast.makeText(getActivity(), "epub으로 저장하였습니다.", Toast.LENGTH_LONG).show();
                 getActivity().finish();
                 return true;
             case R.id.action_single_edit:
@@ -261,20 +261,20 @@ public class PageEditorElementListFragment extends Fragment implements DataChang
         mMenu.clear();
         switch (mMenuMode) {
             case MENU_MODE_MAIN:
-                getActivity().setTitle(R.string.title_page_editor_main);
-                mMenuInflater.inflate(R.menu.page_editor_main, mMenu);
+                getActivity().setTitle(R.string.title_album_editor_main);
+                mMenuInflater.inflate(R.menu.album_editor_main, mMenu);
                 break;
             case MENU_MODE_SINGLE_SELECT:
-                getActivity().setTitle(R.string.title_page_editor_single_select);
-                mMenuInflater.inflate(R.menu.page_editor_select_single_picture, mMenu);
+                getActivity().setTitle(R.string.title_album_editor_single_select);
+                mMenuInflater.inflate(R.menu.album_editor_select_single_picture, mMenu);
                 break;
             case MENU_MODE_MULTIPLE_SELECT:
-                getActivity().setTitle(String.format(getResources().getString(R.string.title_page_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
-                mMenuInflater.inflate(R.menu.page_editor_select_multiple_picture, mMenu);
+                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
+                mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
                 break;
             case MENU_MODE_EMPTY_PICTURE:
-                getActivity().setTitle(R.string.title_page_editor_empty_picture);
-                mMenuInflater.inflate(R.menu.page_editor_select_empty_picture, mMenu);
+                getActivity().setTitle(R.string.title_album_editor_empty_picture);
+                mMenuInflater.inflate(R.menu.album_editor_select_empty_picture, mMenu);
                 break;
         }
     }

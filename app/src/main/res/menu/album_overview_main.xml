@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_album_edit"
+        android:title="@string/action_album_overview_edit"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_album_relayout"
+        android:title="@string/action_album_overview_relayout"
+        app:showAsAction="always"/>
+
+
+    <item
+        android:id="@+id/action_album_confirm"
+        android:title="@string/action_album_overview_confirm"
+        app:showAsAction="always"/>
+
+</menu>

@@ -12,7 +12,7 @@ import com.study.hancom.sharephototest.adapter.PageListAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 
-public class PageEditorPageListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
+public class AlbumEditorPageListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
     HorizontalGridView mPageListView;
     PageListAdapter mPageListAdapter;
@@ -23,13 +23,13 @@ public class PageEditorPageListFragment extends Fragment implements DataChangedL
     public void setArguments(Bundle args) {
         super.setArguments(args);
         Bundle extra = getArguments();
-        mAlbum = extra.getParcelable("temp");
+        mAlbum = extra.getParcelable("album");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /* 뷰 생성 */
-        View view = inflater.inflate(R.layout.page_editor_page_list, container, false);
+        View view = inflater.inflate(R.layout.album_editor_page_list, container, false);
 
         mPageListView = (HorizontalGridView) view.findViewById(R.id.page_grid_view);
         mPageListAdapter = new PageListAdapter(getActivity(), mAlbum);

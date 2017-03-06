@@ -3,27 +3,25 @@ package com.study.hancom.sharephototest.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.WebViewUtil;
 
 public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
 
     private Context mContext;
     private Album mAlbum;
+
+    private WebViewUtil mWebViewUtil = new WebViewUtil();
 
     private boolean mLoadingFinished = true;
     private boolean mRedirect = false;
@@ -45,7 +43,7 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.page_editor_page_list_item, parent, false);
+        final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_page_list_item, parent, false);
 
         return new ViewHolder(view);
     }
@@ -92,18 +90,14 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
                 if(mLoadingFinished && !mRedirect){
                     // inject data
                     for (int i = 0 ; i < page.getPictureCount() ; i++) {
-                        injectStyleByScript(view, page.getLayout().getStylePath());
+                        mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
                         Picture eachPicture = page.getPicture(i);
                         if (eachPicture != null) {
-                            injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
-                        } else {
-                            /*** 디폴트 이미지 삽입할 것 ***/
+                            mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
                         }
                     }
 
-                    int height = view.getHeight();
-                    int width = (210 * height / 297);
-                    view.setLayoutParams(new LinearLayout.LayoutParams(width, height));
+                    mWebViewUtil.setA4SizeByHeight(view, view.getHeight());
                 } else{
                     mRedirect = false;
                 }
@@ -113,26 +107,7 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         holder.webView.loadUrl("file://" + page.getLayout().getFramePath());
     }
 
-    private void injectStyleByScript(WebView view, String stylePath) {
-        view.loadUrl("javascript:(function() {" +
-                "var parent = document.getElementsByTagName('head').item(0);" +
-                "var link = document.createElement('link');" +
-                "link.rel = 'stylesheet';" +
-                "link.href = '" + stylePath + "';" +
-                "parent.appendChild(link)" +
-                "})()");
-    }
-
-    private void injectImageByScript(WebView view, String elementId, String picturePath) {
-        view.loadUrl("javascript:(function() {" +
-                "var target = document.getElementById('" + elementId + "');" +
-                "var img = document.createElement('img');" +
-                "img.src = '" + picturePath + "';" +
-                "target.appendChild(img);" +
-                "})()");
-    }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         WebView webView;
 
         ViewHolder(View itemView) {

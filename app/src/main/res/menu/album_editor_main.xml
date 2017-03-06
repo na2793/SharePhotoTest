@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/action_confirm"
-        android:title="@string/action_page_editor_confirm"
+        android:title="@string/action_album_editor_confirm"
         app:showAsAction="always"/>
 
 </menu>

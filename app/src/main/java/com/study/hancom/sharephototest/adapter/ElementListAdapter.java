@@ -119,7 +119,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
 
     @Override
     public String getHeaderForSection(int section) {
-        return context.getResources().getString(R.string.page_editor_section_header, section + 1);
+        return context.getResources().getString(R.string.album_editor_section_header, section + 1);
     }
 
     @Override

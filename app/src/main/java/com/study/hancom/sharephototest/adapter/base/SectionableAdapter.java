@@ -124,8 +124,8 @@ public abstract class SectionableAdapter<T> extends BaseAdapter {
     @Override
     public int getCount() {
         int totalCount = 0;
-        int setionsCount = getSectionsCount();
-        for (int i = 0; i < setionsCount; ++i) {
+        int sectionCount = getSectionsCount();
+        for (int i = 0; i < sectionCount; ++i) {
             int count = getCountInSection(i);
             if (count > 0)
                 totalCount += (getCountInSection(i) - 1) / colCount + 1;

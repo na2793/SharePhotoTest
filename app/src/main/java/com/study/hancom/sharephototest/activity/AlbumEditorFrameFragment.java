@@ -12,24 +12,24 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 
-public class PageEditorFrameFragment extends Fragment {
+public class AlbumEditorFrameFragment extends Fragment {
 
     private Album mAlbum;
 
-    private PageEditorElementListFragment mPageEditorElementListFragment;
-    private PageEditorPageListFragment mPageEditorPageListFragment;
+    private AlbumEditorElementListFragment mAlbumEditorElementListFragment;
+    private AlbumEditorPageListFragment mAlbumEditorPageListFragment;
 
     @Override
     public void setArguments(Bundle args) {
         super.setArguments(args);
         Bundle extra = getArguments();
-        mAlbum = extra.getParcelable("temp");
+        mAlbum = extra.getParcelable("album");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /* 뷰 생성 */
-        View view = inflater.inflate(R.layout.page_editor_frame, container, false);
+        View view = inflater.inflate(R.layout.album_editor_frame, container, false);
 
         /* 프래그먼트 생성 */
         FragmentManager fragmentManager = getFragmentManager();
@@ -39,29 +39,29 @@ public class PageEditorFrameFragment extends Fragment {
         fragmentTransaction.commit(); // 완료
 
         /* 리스너에 등록 */
-        DataChangedListener.addDataChangeListener(mPageEditorElementListFragment);
-        DataChangedListener.addDataChangeListener(mPageEditorPageListFragment);
+        DataChangedListener.addDataChangeListener(mAlbumEditorElementListFragment);
+        DataChangedListener.addDataChangeListener(mAlbumEditorPageListFragment);
 
         return view;
     }
 
     private void setElementListFragment(FragmentTransaction fragmentTransaction) {
-        mPageEditorElementListFragment = new PageEditorElementListFragment();
-        fragmentTransaction.add(R.id.element_list_fragment_container, mPageEditorElementListFragment);
+        mAlbumEditorElementListFragment = new AlbumEditorElementListFragment();
+        fragmentTransaction.add(R.id.element_list_fragment_container, mAlbumEditorElementListFragment);
         // 액션바를 가짐
-        mPageEditorElementListFragment.setHasOptionsMenu(true);
+        mAlbumEditorElementListFragment.setHasOptionsMenu(true);
         // 데이터 전달
         Bundle bundle = new Bundle();
-        bundle.putParcelable("temp", mAlbum);
-        mPageEditorElementListFragment.setArguments(bundle);
+        bundle.putParcelable("album", mAlbum);
+        mAlbumEditorElementListFragment.setArguments(bundle);
     }
 
     private void setPageListFragment(FragmentTransaction fragmentTransaction) {
-        mPageEditorPageListFragment = new PageEditorPageListFragment();
-        fragmentTransaction.add(R.id.page_list_fragment_container, mPageEditorPageListFragment);
+        mAlbumEditorPageListFragment = new AlbumEditorPageListFragment();
+        fragmentTransaction.add(R.id.page_list_fragment_container, mAlbumEditorPageListFragment);
         // 데이터 전달
         Bundle bundle = new Bundle();
-        bundle.putParcelable("temp", mAlbum);
-        mPageEditorPageListFragment.setArguments(bundle);
+        bundle.putParcelable("album", mAlbum);
+        mAlbumEditorPageListFragment.setArguments(bundle);
     }
 }
