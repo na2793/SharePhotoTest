@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
+import com.study.hancom.sharephototest.model.Picture;
 
 public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
 
@@ -92,7 +93,12 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
                     // inject data
                     for (int i = 0 ; i < page.getPictureCount() ; i++) {
                         injectStyleByScript(view, page.getLayout().getStylePath());
-                        injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
+                        Picture eachPicture = page.getPicture(i);
+                        if (eachPicture != null) {
+                            injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+                        } else {
+                            /*** 디폴트 이미지 삽입할 것 ***/
+                        }
                     }
 
                     int height = view.getHeight();
