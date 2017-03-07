@@ -60,7 +60,6 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         holder.webView.setVerticalScrollBarEnabled(false);
         holder.webView.getSettings().setBuiltInZoomControls(false);
         holder.webView.getSettings().setSupportZoom(false);
-        holder.webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         holder.webView.setInitialScale(1);
 
         // Add a WebViewClient

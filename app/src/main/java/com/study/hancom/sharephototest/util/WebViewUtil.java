@@ -27,7 +27,7 @@ public class WebViewUtil {
     public void injectImageByScript(WebView view, String elementId, String picturePath) {
         view.loadUrl("javascript:(function() {" +
                 "var target = document.getElementById('" + elementId + "');" +
-                "target.style.background = \"url('" + picturePath + "')\";" +
+                "target.setAttribute('style', \"background-image:url('" + picturePath + "')\");" +
                 "})()");
     }
 }

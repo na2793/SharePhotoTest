@@ -18,8 +18,7 @@ import java.util.List;
 public class GalleryActivity extends AppCompatActivity {
 
     private List<String> mGalleryPicturePaths = new ArrayList<>();
-    private List<String> mSelectedPicturePaths = new ArrayList<>();
-    private ArrayList<String> mSelectedPictures = new ArrayList<>();
+    private ArrayList<String> mSelectedPicturePaths = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +31,19 @@ public class GalleryActivity extends AppCompatActivity {
         mGalleryPicturePaths = ImageUtil.getMediaImage(this);
         GalleryAdapter myGalleryAdapter = new GalleryAdapter(this, mGalleryPicturePaths, mSelectedPicturePaths);
         gridView.setAdapter(myGalleryAdapter);
+        myGalleryAdapter.setOnMultipleItemSelectListener(new GalleryAdapter.OnMultipleItemSelectListener() {
+            @Override
+            public void onSelect() {
+                setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedPicturePaths.size(), mGalleryPicturePaths.size()));
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.gallery_action_bar, menu);
+        inflater.inflate(R.menu.gallery_main, menu);
+        setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedPicturePaths.size(), mGalleryPicturePaths.size()));
 
         return true;
     }
@@ -52,16 +58,12 @@ public class GalleryActivity extends AppCompatActivity {
 
             case R.id.action_next:
                 // @임시 뒤로 가기 버튼으로 다시 수행될 때
-                if (mSelectedPictures != null) {
+                /*if (mSelectedPictures != null) {
                     mSelectedPictures.clear();
-                }
-
-                for (int i = 0; i < mSelectedPicturePaths.size(); i++) {
-                    mSelectedPictures.add(mSelectedPicturePaths.get(i));
-                }
+                }*/
 
                 Intent intent = new Intent(getApplicationContext(), AlbumOverviewActivity.class);
-                intent.putExtra("selectedImage", mSelectedPictures);
+                intent.putExtra("selectedImage", mSelectedPicturePaths);
                 startActivity(intent);
                 return true;
 

@@ -241,7 +241,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
             @Override
             public void onClick(View v) {
                 removePage(getSelectedSection());
-                setSelectedSection(-1);
+                setSelectedItem(-1);
             }
         });
     }
@@ -428,27 +428,33 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
 
     @Override
     public void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception {
+        Page fromPage = mAlbum.getPage(fromIndex);
+        Page toPage;
+
         if (fromIndex == toIndex) {
-            mAlbum.getPage(fromIndex).reorderPicture(fromPosition, toPosition);
+            fromPage.reorderPicture(fromPosition, toPosition);
         } else {
             if (toIndex >= getSectionsCount()) {
-                mAlbum.addPage(new Page(1));
+                toPage = new Page(1);
+                mAlbum.addPage(toPage);
                 if (toPosition < 0) {
                     toPosition = 0;
                 }
-            } else if (MAX_ELEMENT_OF_PAGE_NUM < getCountInSection(toIndex) + 1) {
-                //** 사용 가능한 요소 갯수를 넘음
-                throw new Exception();
+            } else {
+                toPage = mAlbum.getPage(toIndex);
+                toPage.setLayout(toPage.getPictureCount() + 1);
             }
 
             Picture target;
             if (getCountInSection(fromIndex) > 1) {
-                target = mAlbum.getPage(fromIndex).removePicture(fromPosition);
+                target = fromPage.removePicture(fromPosition);
             } else {
-                target = mAlbum.getPage(fromIndex).removePicture(fromPosition);
-                mAlbum.getPage(fromIndex).addPicture(fromPosition, null);
+                target = fromPage.removePicture(fromPosition);
+                fromPage.addPicture(fromPosition, null);
             }
-            mAlbum.getPage(toIndex).addPicture(toPosition, target);
+
+            toPage.addPicture(toPosition, target);
+            fromPage.setLayout(fromPage.getPictureCount());
         }
         DataChangedListener.notifyChanged();
     }

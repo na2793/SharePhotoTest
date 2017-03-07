@@ -31,6 +31,8 @@ public class GalleryAdapter extends BaseAdapter {
 
     private GalleryPictureHolder galleryPictureHolder;
 
+    private OnMultipleItemSelectListener mOnMultipleItemSelectListener;
+
     public GalleryAdapter(Context context, List<String> galleryPicturePaths, List<String> checkedPicturePaths) {
         this.context = context;
         this.galleryPicturePaths = galleryPicturePaths;
@@ -113,6 +115,7 @@ public class GalleryAdapter extends BaseAdapter {
                 if (!isSelectedBefore) {
                     checkedPicturePaths.add(getItem(position));
                 }
+                mOnMultipleItemSelectListener.onSelect();
                 notifyDataSetChanged();
             }
         });
@@ -133,6 +136,14 @@ public class GalleryAdapter extends BaseAdapter {
         });
 
         return convertView;
+    }
+
+    public void setOnMultipleItemSelectListener(OnMultipleItemSelectListener listener) {
+        mOnMultipleItemSelectListener = listener;
+    }
+
+    public interface OnMultipleItemSelectListener {
+        void onSelect();
     }
 
     private static class GalleryPictureHolder {
