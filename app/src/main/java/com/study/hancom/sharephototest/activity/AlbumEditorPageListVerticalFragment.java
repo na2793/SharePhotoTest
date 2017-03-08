@@ -11,9 +11,10 @@ import android.view.ViewGroup;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.PageListAdapter;
+import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 
-public class AlbumEditorPageListVerticalFragment extends Fragment{
+public class AlbumEditorPageListVerticalFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
     private Album mAlbum;
     private RecyclerView mVerticalPageListView;
@@ -37,5 +38,10 @@ public class AlbumEditorPageListVerticalFragment extends Fragment{
         super.setArguments(args);
         Bundle extra = getArguments();
         mAlbum = extra.getParcelable("album");
+    }
+
+    @Override
+    public void onDataChanged() {
+        mPageListAdapter.notifyDataSetChanged();
     }
 }

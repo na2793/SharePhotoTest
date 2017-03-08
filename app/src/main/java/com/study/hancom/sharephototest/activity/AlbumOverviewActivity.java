@@ -50,7 +50,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "뭔가 잘못됨", Toast.LENGTH_LONG).show();
-            finish();
         }
     }
 

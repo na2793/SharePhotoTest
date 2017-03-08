@@ -110,11 +110,11 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         // pass ; MENU_MODE_SINGLE_SELECT와 동일
                     case MENU_MODE_SINGLE_SELECT:
                         mElementListAdapter.setSelectedItem(-1);
-                        mElementListAdapter.notifyDataSetChanged();
+                        DataChangedListener.notifyChanged();
                         break;
                     case MENU_MODE_MULTIPLE_SELECT:
                         mElementListAdapter.stopMultipleSelectMode();
-                        mElementListAdapter.notifyDataSetChanged();
+                        DataChangedListener.notifyChanged();
                         break;
                 }
                 return true;
@@ -142,7 +142,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                     mElementListAdapter.reorderPicture(fromIndex, fromPosition, toIndex, toPosition);
                                     mElementListAdapter.setSelectedSection(toIndex);
                                     mElementListAdapter.setSelectedItem(-1);
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
@@ -166,7 +166,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                     int index = mElementListAdapter.getSelectedSection();
                                     int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
                                     mElementListAdapter.removePicture(index, position, true);
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
@@ -180,7 +180,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                     int index = mElementListAdapter.getSelectedSection();
                                     int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
                                     mElementListAdapter.removePicture(index, position, false);
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
@@ -200,7 +200,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 for (int eachPosition = 0; eachPosition < dataCount; eachPosition++) {
                     mElementListAdapter.addMultipleSelectedItem(eachPosition);
                 }
-                mElementListAdapter.notifyDataSetChanged();
+                DataChangedListener.notifyChanged();
                 return true;
             case R.id.action_multiple_edit:
                 return true;
@@ -221,7 +221,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                         mElementListAdapter.removePicture(index, position, true);
                                     }
                                     mElementListAdapter.stopMultipleSelectMode();
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
@@ -240,7 +240,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                         mElementListAdapter.removePicture(index, position, false);
                                     }
                                     mElementListAdapter.stopMultipleSelectMode();
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
@@ -266,7 +266,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                     int index = mElementListAdapter.getSelectedSection();
                                     int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
                                     mElementListAdapter.removePicture(index, position, false);
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();

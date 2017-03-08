@@ -23,9 +23,9 @@ public class AlbumEditorFrameFragment extends Fragment {
     private AlbumEditorPageListFragment mAlbumEditorPageListFragment;
     private AlbumEditorPageListVerticalFragment mAlbumEditorPageListVerticalFragment;
 
-    private FragmentManager fragmentManager;
+    private FragmentManager mFragmentManager;
 
-    private Button handlerButton;
+    private Button mHandlerButton;
 
     @Override
     public void setArguments(Bundle args) {
@@ -40,32 +40,26 @@ public class AlbumEditorFrameFragment extends Fragment {
         View view = inflater.inflate(R.layout.album_editor_frame, container, false);
 
         /* 프래그먼트 생성 */
-        fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        mFragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         setElementListFragment(fragmentTransaction);
         setPageListFragment(fragmentTransaction);
         setVerticalFragment(fragmentTransaction);
-        fragmentManager.beginTransaction()
-                .hide(mAlbumEditorPageListVerticalFragment)
-                .commit();
         fragmentTransaction.commit(); // 완료
 
         /* 핸들 처리 */
-        handlerButton = (Button) view.findViewById(R.id.page_list_fragment_handle);
-        handlerButton.setOnClickListener(new View.OnClickListener() {
+        mHandlerButton = (Button) view.findViewById(R.id.page_list_fragment_handle);
+        mHandlerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean visible = mAlbumEditorPageListVerticalFragment.isVisible();
-                if (visible) {
-                    fragmentManager.beginTransaction()
-                            .show(mAlbumEditorPageListFragment)
-                            .hide(mAlbumEditorPageListVerticalFragment)
-                            .commit();
-                } else {
-                    fragmentManager.beginTransaction()
-                            .show(mAlbumEditorPageListVerticalFragment)
-                            .hide(mAlbumEditorPageListFragment)
-                            .commit();
+                View albumEditorPageListFragmentContainer = ((ViewGroup) mAlbumEditorPageListFragment.getView().getParent());
+                View albumEditorPageListVerticalFragmentContainer = ((ViewGroup) mAlbumEditorPageListVerticalFragment.getView().getParent());
+                if (albumEditorPageListFragmentContainer.getVisibility() == View.GONE) {
+                    albumEditorPageListFragmentContainer.setVisibility(View.VISIBLE);
+                    albumEditorPageListVerticalFragmentContainer.setVisibility(View.GONE);
+                } else if (albumEditorPageListFragmentContainer.getVisibility() == View.VISIBLE) {
+                    albumEditorPageListFragmentContainer.setVisibility(View.GONE);
+                    albumEditorPageListVerticalFragmentContainer.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -73,6 +67,7 @@ public class AlbumEditorFrameFragment extends Fragment {
         /* 리스너에 등록 */
         DataChangedListener.addDataChangeListener(mAlbumEditorElementListFragment);
         DataChangedListener.addDataChangeListener(mAlbumEditorPageListFragment);
+        DataChangedListener.addDataChangeListener(mAlbumEditorPageListVerticalFragment);
 
         return view;
     }
@@ -99,7 +94,7 @@ public class AlbumEditorFrameFragment extends Fragment {
 
     private void setVerticalFragment(FragmentTransaction fragmentTransaction) {
         mAlbumEditorPageListVerticalFragment = new AlbumEditorPageListVerticalFragment();
-        fragmentTransaction.add(R.id.page_list_grid_fragment_container, mAlbumEditorPageListVerticalFragment);
+        fragmentTransaction.add(R.id.page_list_vertical_fragment_container, mAlbumEditorPageListVerticalFragment);
         // 데이터 전달
         Bundle bundle = new Bundle();
         bundle.putParcelable("album", mAlbum);

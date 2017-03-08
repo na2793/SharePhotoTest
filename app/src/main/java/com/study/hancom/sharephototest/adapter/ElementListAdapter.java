@@ -374,19 +374,16 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     @Override
     public void addPage(int index, Page page) {
         mAlbum.addPage(index, page);
-        DataChangedListener.notifyChanged();
     }
 
     @Override
     public void removePage(int index) {
         mAlbum.removePage(index);
-        DataChangedListener.notifyChanged();
     }
 
     @Override
     public void reorderPage(int fromIndex, int toIndex) {
         mAlbum.reorderPage(fromIndex, toIndex);
-        DataChangedListener.notifyChanged();
     }
 
     @Override
@@ -397,7 +394,6 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     @Override
     public void addPicture(int index, int position, Picture picture) {
         mAlbum.getPage(index).addPicture(position, picture);
-        DataChangedListener.notifyChanged();
     }
 
     public void removePicture(int index, int position, boolean nullable) throws Exception {
@@ -460,7 +456,6 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
                 toPage.addPicture(toPosition, target);
                 fromPage.setLayout(fromPage.getPictureCount());
             }
-            DataChangedListener.notifyChanged();
         } catch (Exception e) {
             mAlbum = backup;
             throw e;

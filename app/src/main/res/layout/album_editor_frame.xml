@@ -13,9 +13,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/page_list_fragment_handle"
@@ -25,12 +30,13 @@
             android:background="@color/colorAccent" />
 
         <LinearLayout
-            android:id="@+id/page_list_grid_fragment_container"
+            android:id="@+id/page_list_vertical_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="bottom|center"
-            android:background="#FFF"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:background="@color/colorWhite"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/page_list_fragment_container"

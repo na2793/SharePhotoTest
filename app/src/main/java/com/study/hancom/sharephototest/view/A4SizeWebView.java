@@ -18,11 +18,7 @@ public class A4SizeWebView extends WebView {
     }
 
     public A4SizeWebView(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    public A4SizeWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
         init();
     }
 
