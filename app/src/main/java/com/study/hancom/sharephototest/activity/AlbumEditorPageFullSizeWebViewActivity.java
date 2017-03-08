@@ -1,14 +1,17 @@
-package com.study.hancom.sharephototest.adapter;
+package com.study.hancom.sharephototest.activity;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
@@ -16,44 +19,43 @@ import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
-public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
-
-    private Context mContext;
+public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
     private Album mAlbum;
+    private int mCurrentPageIndex;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
+
+    private WebView mWebView;
 
     private boolean mLoadingFinished = true;
     private boolean mRedirect = false;
 
-    public PageListAdapter(Context context, Album album){
-        mContext = context;
-        mAlbum = album;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.album_editor_page_full_size_webview_main);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /* 인텐트 데이터 처리 */
+        parseIntentData();
+
+        /* 뷰 처리 */
+        mWebView = (WebView) findViewById(R.id.show_webview);
+        setWebView();
+
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public void parseIntentData() {
+        Bundle bundle = getIntent().getExtras();
+        mAlbum = bundle.getParcelable("album");
+        mCurrentPageIndex = bundle.getInt("pageIndex");
     }
 
-    @Override
-    public int getItemCount() {
-        return mAlbum.getPageCount();
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_page_list_item, parent, false);
-
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
-        final Page page = mAlbum.getPage(position);
+    private void setWebView(){
+        final Page page = mAlbum.getPage(mCurrentPageIndex);
 
         // Add a WebViewClient
-        holder.webView.setWebViewClient(new WebViewClient() {
+        mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!mLoadingFinished) {
@@ -91,15 +93,25 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
             }
         });
 
-        holder.webView.loadUrl("file://" + page.getLayout().getFramePath());
+        mWebView.loadUrl("file://" + page.getLayout().getFramePath());
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        WebView webView;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater();
+        setTitle(R.string.title_album_editor_page_full_size_webview_main);
+        return true;
+    }
 
-        ViewHolder(View itemView) {
-            super(itemView);
-            webView = (WebView) itemView.findViewById(R.id.page_list_item_webview);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
     }
 }

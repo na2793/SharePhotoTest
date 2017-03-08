@@ -18,7 +18,7 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gallery_full_size_picture);
+        setContentView(R.layout.gallery_full_size_picture_main);
 
         ImageView imageView = (ImageView) findViewById(R.id.show_image_view);
 

@@ -3,7 +3,6 @@ package com.study.hancom.sharephototest.adapter;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -25,8 +24,6 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class ElementListAdapter extends SectionableAdapter implements AlbumDataChangeInterface {
 
@@ -403,60 +400,71 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
         DataChangedListener.notifyChanged();
     }
 
-    public void removePicture(int index, int position, boolean nullable) {
-        if (nullable) {
-            mAlbum.getPage(index).removePicture(position);
-            mAlbum.getPage(index).addPicture(position, null);
-        } else {
-            Page page = mAlbum.getPage(index);
-            int pictureCount = page.getPictureCount();
-            if (pictureCount > 1) {
-                try {
-                    page.setLayout(pictureCount - 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    public void removePicture(int index, int position, boolean nullable) throws Exception {
+        Album backup;
+        backup = mAlbum.clone();
+
+        try {
+            if (nullable) {
+                mAlbum.getPage(index).removePicture(position);
+                mAlbum.getPage(index).addPicture(position, null);
             } else {
-                mAlbum.removePage(index);
-                setSelectedSection(-1);
+                Page page = mAlbum.getPage(index);
+                int pictureCount = page.getPictureCount();
+                if (pictureCount > 1) {
+                    page.setLayout(pictureCount - 1);
+                } else {
+                    mAlbum.removePage(index);
+                    setSelectedSection(-1);
+                }
+                page.removePicture(position);
             }
-            page.removePicture(position);
+            setSelectedItem(-1);
+        } catch (Exception e) {
+            mAlbum = backup;
+            throw e;
         }
-        setSelectedItem(-1);
-        DataChangedListener.notifyChanged();
     }
 
     @Override
     public void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception {
-        Page fromPage = mAlbum.getPage(fromIndex);
-        Page toPage;
+        Album backup;
+        backup = mAlbum.clone();
 
-        if (fromIndex == toIndex) {
-            fromPage.reorderPicture(fromPosition, toPosition);
-        } else {
-            if (toIndex >= getSectionsCount()) {
-                toPage = new Page(1);
-                mAlbum.addPage(toPage);
-                if (toPosition < 0) {
-                    toPosition = 0;
+        try {
+            Page fromPage = mAlbum.getPage(fromIndex);
+            Page toPage;
+
+            if (fromIndex == toIndex) {
+                fromPage.reorderPicture(fromPosition, toPosition);
+            } else {
+                if (toIndex >= getSectionsCount()) {
+                    toPage = new Page(1);
+                    mAlbum.addPage(toPage);
+                    if (toPosition < 0) {
+                        toPosition = 0;
+                    }
+                } else {
+                    toPage = mAlbum.getPage(toIndex);
+                    toPage.setLayout(toPage.getPictureCount() + 1);
                 }
-            } else {
-                toPage = mAlbum.getPage(toIndex);
-                toPage.setLayout(toPage.getPictureCount() + 1);
-            }
 
-            Picture target;
-            if (getCountInSection(fromIndex) > 1) {
-                target = fromPage.removePicture(fromPosition);
-            } else {
-                target = fromPage.removePicture(fromPosition);
-                fromPage.addPicture(fromPosition, null);
-            }
+                Picture target;
+                if (getCountInSection(fromIndex) > 1) {
+                    target = fromPage.removePicture(fromPosition);
+                } else {
+                    target = fromPage.removePicture(fromPosition);
+                    fromPage.addPicture(fromPosition, null);
+                }
 
-            toPage.addPicture(toPosition, target);
-            fromPage.setLayout(fromPage.getPictureCount());
+                toPage.addPicture(toPosition, target);
+                fromPage.setLayout(fromPage.getPictureCount());
+            }
+            DataChangedListener.notifyChanged();
+        } catch (Exception e) {
+            mAlbum = backup;
+            throw e;
         }
-        DataChangedListener.notifyChanged();
     }
 
     /* 리스너 인터페이스 */

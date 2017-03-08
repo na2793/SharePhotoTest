@@ -3,8 +3,14 @@ package com.study.hancom.sharephototest.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.study.hancom.sharephototest.exception.FrameFileNotFoundException;
+import com.study.hancom.sharephototest.exception.InvalidElementNumException;
+import com.study.hancom.sharephototest.exception.StyleFileNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class Page implements Parcelable {
     static final private PageLayoutFactory pageLayoutFactory = new PageLayoutFactory();
@@ -12,12 +18,12 @@ public class Page implements Parcelable {
     private PageLayout mLayout;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    public Page(int elementNum) throws Exception {
-        this(pageLayoutFactory.getPageLayout(elementNum));
-    }
+    public Page(int elementNum) throws InvalidElementNumException, FrameFileNotFoundException, StyleFileNotFoundException {
+        if (MAX_ELEMENT_OF_PAGE_NUM < elementNum || elementNum < 1) {
+            throw new InvalidElementNumException();
+        }
 
-    public Page(PageLayout layout) {
-        mLayout = layout;
+        mLayout = pageLayoutFactory.getPageLayout(elementNum);
     }
 
     private Page(Parcel in) {
@@ -37,7 +43,7 @@ public class Page implements Parcelable {
         }
     };
 
-    public void setLayout(int elementNum) throws Exception {
+    public void setLayout(int elementNum) throws FrameFileNotFoundException, StyleFileNotFoundException {
         mLayout = pageLayoutFactory.getPageLayout(elementNum);
     }
 

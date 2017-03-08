@@ -5,13 +5,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.study.hancom.sharephototest.exception.FrameFileNotFoundException;
+import com.study.hancom.sharephototest.exception.StyleFileNotFoundException;
 import com.study.hancom.sharephototest.util.MathUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +49,7 @@ class PageLayoutFactory implements Parcelable {
         }
     };
 
-    PageLayout getPageLayout(int elementNum) throws Exception {
+    PageLayout getPageLayout(int elementNum) throws FrameFileNotFoundException, StyleFileNotFoundException {
         PageLayout pageLayout = null;
         List<PageLayout> pageLayoutList = mLayoutMap.get(elementNum);
 
@@ -67,11 +65,11 @@ class PageLayoutFactory implements Parcelable {
         return pageLayout;
     }
 
-    private List<PageLayout> findLayoutFile(int elementNum) throws Exception {
+    private List<PageLayout> findLayoutFile(int elementNum) throws FrameFileNotFoundException, StyleFileNotFoundException {
         List<PageLayout> pageLayoutList = new ArrayList<>();
         File frameFile = new File(mLayoutFrameFolderPath + elementNum + ".html");
 
-        if (frameFile.exists()) {   //** 이렇게 하지 말 것 (동기화 X)
+        if (frameFile.exists()) {
             File styleFolder = new File(mLayoutStyleFolderPath + elementNum);
             File[] styleList = styleFolder.listFiles();
             int styleListLength = styleList.length;
@@ -81,14 +79,10 @@ class PageLayoutFactory implements Parcelable {
                     pageLayoutList.add(new PageLayout(elementNum, frameFile.getAbsolutePath(), eachStyleFile.getAbsolutePath()));
                 }
             } else {
-                //** exception style not found
-                Log.v("tag", "style not found");
-                throw new Exception();
+                throw new StyleFileNotFoundException();
             }
         } else {
-            //** exception frame not found
-            Log.v("tag", "frame not found");
-            throw new Exception();
+            throw new FrameFileNotFoundException();
         }
 
         return pageLayoutList;

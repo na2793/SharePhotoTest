@@ -1,7 +1,5 @@
 package com.study.hancom.sharephototest.listener;
 
-import com.study.hancom.sharephototest.model.Album;
-
 import java.util.HashSet;
 import java.util.Set;
 

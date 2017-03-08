@@ -1,8 +1,12 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
@@ -10,13 +14,20 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
+import com.study.hancom.sharephototest.activity.AlbumEditorPageFullSizeWebViewActivity;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
+import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.WebViewUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AlbumGridAdapter extends BaseAdapter {
     private Context mContext;
@@ -26,6 +37,8 @@ public class AlbumGridAdapter extends BaseAdapter {
 
     private boolean mLoadingFinished = true;
     private boolean mRedirect = false;
+
+    private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
     public AlbumGridAdapter(Context context, Album album) {
         this.mContext = context;
@@ -38,7 +51,7 @@ public class AlbumGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public Page getItem(int position){
+    public Page getItem(int position) {
         return mAlbum.getPage(position);
     }
 
@@ -67,18 +80,25 @@ public class AlbumGridAdapter extends BaseAdapter {
         String pageNum = getHeaderForSection(position);
         viewHolder.textView.setText(pageNum);
 
-        final Page page = mAlbum.getPage(position);
+        /* 체크박스 처리 */
+        if (mPinnedPositionSet.contains(position)) {
+            viewHolder.checkBox.setChecked(true);
+        } else {
+            viewHolder.checkBox.setChecked(false);
+        }
 
-        // Enable Javascript
-        viewHolder.webView.getSettings().setJavaScriptEnabled(true);
-        viewHolder.webView.getSettings().setLoadWithOverviewMode(true);
-        viewHolder.webView.getSettings().setUseWideViewPort(true);
-        viewHolder.webView.setHorizontalScrollBarEnabled(false);
-        viewHolder.webView.setVerticalScrollBarEnabled(false);
-        viewHolder.webView.getSettings().setBuiltInZoomControls(false);
-        viewHolder.webView.getSettings().setSupportZoom(false);
-        viewHolder.webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        viewHolder.webView.setInitialScale(1);
+        final CheckBox checkBox = viewHolder.checkBox;
+        checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mPinnedPositionSet.remove(position)) {
+                    mPinnedPositionSet.add(position);
+                }
+            }
+        });
+
+        /* 웹뷰 처리 */
+        final Page page = mAlbum.getPage(position);
 
         // Add a WebViewClient
         viewHolder.webView.setWebViewClient(new WebViewClient() {
@@ -110,27 +130,93 @@ public class AlbumGridAdapter extends BaseAdapter {
                         mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
                         mWebViewUtil.injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
                     }
-
-                    // setSize
-                    mWebViewUtil.setA4SizeByWidth(view, view.getWidth());
                 } else {
                     mRedirect = false;
                 }
             }
         });
 
-        viewHolder.webView.loadUrl("file://" + page.getLayout().getFramePath());
+        final String layoutFramePath = "file://" + page.getLayout().getFramePath();
+
+        viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("album", mAlbum);
+                        bundle.putInt("pageIndex", position);
+                        intent.putExtras(bundle);
+
+                        mContext.startActivity(intent);
+                        break;
+                }
+                return false;
+            }
+        });
+
+        viewHolder.webView.loadUrl(layoutFramePath);
 
         return convertView;
+    }
+
+    public String getHeaderForSection(int position) {
+        return mContext.getResources().getString(R.string.album_overview_section_header, position + 1);
+    }
+
+    public void relayout() throws Exception {
+        Album backup;
+        backup = mAlbum.clone();
+
+        try {
+            List<Picture> pictureList = new ArrayList<>();
+            List<Page> pinnedPageList = new ArrayList<>();
+
+            /* 고정 페이지 추출 */
+            Integer[] sortedPinnedPositionArray = mPinnedPositionSet.toArray(new Integer[mPinnedPositionSet.size()]);
+            Arrays.sort(sortedPinnedPositionArray);
+
+            for (int eachPinnedPosition : sortedPinnedPositionArray) {
+                pinnedPageList.add(mAlbum.removePage(eachPinnedPosition));
+            }
+
+            /* 모든 사진 추출 및 페이지 삭제 */
+            int oldPageCount = mAlbum.getPageCount();
+            Log.v("tag", oldPageCount + " ");
+            for (int i = 0; i < oldPageCount; i++) {
+                Page eachPage = mAlbum.removePage(0);
+                for (int j = 0; j < eachPage.getPictureCount(); j++) {
+                    Picture eachPicture = eachPage.getPicture(j);
+                    if (eachPicture != null) {
+                        pictureList.add(eachPicture);
+                    }
+                }
+            }
+
+            /* 새롭게 적재 */
+            mAlbum.addPages(pictureList);
+
+            int newPageCount = mAlbum.getPageCount();
+            for (int eachPinnedPosition : sortedPinnedPositionArray) {
+                if (eachPinnedPosition < newPageCount) {
+                    mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
+                } else {
+                    mPinnedPositionSet.remove(eachPinnedPosition);
+                    mPinnedPositionSet.add(mAlbum.getPageCount());
+                    mAlbum.addPage(pinnedPageList.remove(0));
+                }
+            }
+        } catch (Exception e) {
+            mAlbum = backup;
+            throw e;
+        }
     }
 
     class ViewHolder {
         TextView textView;
         WebView webView;
         CheckBox checkBox;
-    }
-
-    public String getHeaderForSection(int position) {
-       return mContext.getResources().getString(R.string.album_overview_section_header, position + 1);
     }
 }

@@ -13,7 +13,7 @@ public interface AlbumDataChangeInterface {
 
     void addPicture(int index, int position, Picture picture);
 
-    void removePicture(int index, int position, boolean nullable);
+    void removePicture(int index, int position, boolean nullable) throws Exception;
 
     void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception;
 }

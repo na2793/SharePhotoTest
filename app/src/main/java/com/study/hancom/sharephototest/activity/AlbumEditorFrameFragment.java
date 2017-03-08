@@ -4,9 +4,12 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
@@ -18,6 +21,11 @@ public class AlbumEditorFrameFragment extends Fragment {
 
     private AlbumEditorElementListFragment mAlbumEditorElementListFragment;
     private AlbumEditorPageListFragment mAlbumEditorPageListFragment;
+    private AlbumEditorPageListVerticalFragment mAlbumEditorPageListVerticalFragment;
+
+    private FragmentManager fragmentManager;
+
+    private Button handlerButton;
 
     @Override
     public void setArguments(Bundle args) {
@@ -32,11 +40,35 @@ public class AlbumEditorFrameFragment extends Fragment {
         View view = inflater.inflate(R.layout.album_editor_frame, container, false);
 
         /* 프래그먼트 생성 */
-        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         setElementListFragment(fragmentTransaction);
         setPageListFragment(fragmentTransaction);
+        setVerticalFragment(fragmentTransaction);
+        fragmentManager.beginTransaction()
+                .hide(mAlbumEditorPageListVerticalFragment)
+                .commit();
         fragmentTransaction.commit(); // 완료
+
+        /* 핸들 처리 */
+        handlerButton = (Button) view.findViewById(R.id.page_list_fragment_handle);
+        handlerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean visible = mAlbumEditorPageListVerticalFragment.isVisible();
+                if (visible) {
+                    fragmentManager.beginTransaction()
+                            .show(mAlbumEditorPageListFragment)
+                            .hide(mAlbumEditorPageListVerticalFragment)
+                            .commit();
+                } else {
+                    fragmentManager.beginTransaction()
+                            .show(mAlbumEditorPageListVerticalFragment)
+                            .hide(mAlbumEditorPageListFragment)
+                            .commit();
+                }
+            }
+        });
 
         /* 리스너에 등록 */
         DataChangedListener.addDataChangeListener(mAlbumEditorElementListFragment);
@@ -63,5 +95,14 @@ public class AlbumEditorFrameFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putParcelable("album", mAlbum);
         mAlbumEditorPageListFragment.setArguments(bundle);
+    }
+
+    private void setVerticalFragment(FragmentTransaction fragmentTransaction) {
+        mAlbumEditorPageListVerticalFragment = new AlbumEditorPageListVerticalFragment();
+        fragmentTransaction.add(R.id.page_list_grid_fragment_container, mAlbumEditorPageListVerticalFragment);
+        // 데이터 전달
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("album", mAlbum);
+        mAlbumEditorPageListVerticalFragment.setArguments(bundle);
     }
 }
