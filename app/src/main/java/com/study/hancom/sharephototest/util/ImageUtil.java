@@ -3,8 +3,11 @@ package com.study.hancom.sharephototest.util;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.webkit.WebView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.study.hancom.sharephototest.R;
@@ -60,5 +63,13 @@ public class ImageUtil {
 
     public static String drawableResourceToURI(int drawableResourceId) {
         return "drawable://" + drawableResourceId;
+    }
+
+    public static Bitmap getViewScreenShot(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+
+        return bitmap;
     }
 }

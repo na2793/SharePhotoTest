@@ -2,6 +2,7 @@ package com.study.hancom.sharephototest.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.webkit.WebView;
 
 import com.study.hancom.sharephototest.util.WebViewUtil;

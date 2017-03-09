@@ -2,6 +2,7 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -19,6 +20,9 @@ import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.Picture;
+
+import java.util.ArrayList;
 
 import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
@@ -256,6 +260,9 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_empty_set_picture:
+                Intent intent = new Intent(getActivity().getApplicationContext(),GalleryActivity.class);
+                startActivity(intent);
+
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -99,11 +100,10 @@ public class AlbumGridAdapter extends BaseAdapter {
         });
 
         /* 웹뷰 처리 */
-        final Page page = mAlbum.getPage(position);
-
-        viewHolder.webView.setOnClickListener(new View.OnClickListener() {
+        // webview에 onClickListener가 적용되지 않아 이런 식으로 처리
+        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onSingleTapUp(MotionEvent e) {
                 Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
 
                 Bundle bundle = new Bundle();
@@ -112,6 +112,17 @@ public class AlbumGridAdapter extends BaseAdapter {
                 intent.putExtras(bundle);
 
                 mContext.startActivity(intent);
+
+                return false;
+            }
+        });
+
+        final Page page = mAlbum.getPage(position);
+
+        viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return webViewGestureDetector.onTouchEvent(event);
             }
         });
 

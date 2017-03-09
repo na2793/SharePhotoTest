@@ -41,7 +41,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
 
     private AnimationUtil mAnimationUtil;
 
-    private static ImageLoader mImageLoader = ImageLoader.getInstance();
+    private ImageLoader mImageLoader = ImageLoader.getInstance();
 
     public ElementListAdapter(Context context, Album album, int rowLayoutID, int headerMenuHolderID, int headerTextID, int itemHolderID, int resizeMode) {
         super(context, rowLayoutID, headerMenuHolderID, headerTextID, itemHolderID, resizeMode);
@@ -63,9 +63,9 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     @Override
-    public Object getItem(int position) {
+    public Picture getItem(int position) {
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; ++i) {
+        for (int i = 0; i < pageNum; i++) {
             Page eachPage = mAlbum.getPage(i);
             int pictureNum = eachPage.getPictureCount();
             if (position < pictureNum) {
@@ -81,7 +81,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     public int getDataCount() {
         int total = 0;
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; ++i) {
+        for (int i = 0; i < pageNum; i++) {
             total += mAlbum.getPage(i).getPictureCount();
         }
         return total;
@@ -398,8 +398,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
     }
 
     public void removePicture(int index, int position, boolean nullable) throws Exception {
-        Album backup;
-        backup = mAlbum.clone();
+        Album backup = mAlbum.clone();
 
         try {
             if (nullable) {

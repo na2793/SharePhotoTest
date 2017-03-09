@@ -20,17 +20,18 @@ public class GalleryActivity extends AppCompatActivity {
     private List<String> mGalleryPicturePaths = new ArrayList<>();
     private ArrayList<String> mSelectedPicturePaths = new ArrayList<>();
 
+    private GridView mGridView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_picture_main);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        GridView gridView = (GridView) findViewById(R.id.gallery_image_grid_view);
 
+        mGridView = (GridView) findViewById(R.id.gallery_image_grid_view);
         mGalleryPicturePaths = ImageUtil.getMediaImage(this);
         GalleryAdapter myGalleryAdapter = new GalleryAdapter(this, mGalleryPicturePaths, mSelectedPicturePaths);
-        gridView.setAdapter(myGalleryAdapter);
+        mGridView.setAdapter(myGalleryAdapter);
         myGalleryAdapter.setOnMultipleItemSelectListener(new GalleryAdapter.OnMultipleItemSelectListener() {
             @Override
             public void onSelect() {
@@ -47,7 +48,6 @@ public class GalleryActivity extends AppCompatActivity {
 
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

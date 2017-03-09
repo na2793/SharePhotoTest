@@ -11,7 +11,6 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
@@ -78,10 +77,12 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         int maxIndex = mAlbum.getPageCount() - 1;
         if (0 >= mCurrentPageIndex) {
             mButtonPrevious.setVisibility(View.GONE);
-        } else if (mCurrentPageIndex >= maxIndex) {
-            mButtonNext.setVisibility(View.GONE);
         } else {
             mButtonPrevious.setVisibility(View.VISIBLE);
+        }
+        if (mCurrentPageIndex >= maxIndex) {
+            mButtonNext.setVisibility(View.GONE);
+        } else {
             mButtonNext.setVisibility(View.VISIBLE);
         }
     }
