@@ -26,6 +26,8 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
     private WebViewUtil mWebViewUtil = new WebViewUtil();
 
     private WebView mWebView;
+    private Button mButtonPrevious;
+    private Button mButtonNext;
 
     private boolean mLoadingFinished = true;
     private boolean mRedirect = false;
@@ -39,10 +41,31 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         /* 인텐트 데이터 처리 */
         parseIntentData();
 
-        /* 뷰 처리 */
+        /* 웹뷰 처리 */
         mWebView = (WebView) findViewById(R.id.show_webview);
         setWebView();
 
+        /* 버튼 처리 */
+        mButtonPrevious = (Button) findViewById(R.id.button_previous);
+        mButtonNext = (Button) findViewById(R.id.button_next);
+        setButton();
+
+        mButtonPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentPageIndex--;
+                setButton();
+                setWebView();
+            }
+        });
+        mButtonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCurrentPageIndex++;
+                setButton();
+                setWebView();
+            }
+        });
     }
 
     public void parseIntentData() {
@@ -51,7 +74,19 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         mCurrentPageIndex = bundle.getInt("pageIndex");
     }
 
-    private void setWebView(){
+    private void setButton() {
+        int maxIndex = mAlbum.getPageCount() - 1;
+        if (0 >= mCurrentPageIndex) {
+            mButtonPrevious.setVisibility(View.GONE);
+        } else if (mCurrentPageIndex >= maxIndex) {
+            mButtonNext.setVisibility(View.GONE);
+        } else {
+            mButtonPrevious.setVisibility(View.VISIBLE);
+            mButtonNext.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setWebView() {
         final Page page = mAlbum.getPage(mCurrentPageIndex);
 
         // Add a WebViewClient
@@ -74,20 +109,20 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if(!mRedirect){
+                if (!mRedirect) {
                     mLoadingFinished = true;
                 }
 
-                if(mLoadingFinished && !mRedirect){
+                if (mLoadingFinished && !mRedirect) {
                     // inject data
-                    for (int i = 0 ; i < page.getPictureCount() ; i++) {
+                    for (int i = 0; i < page.getPictureCount(); i++) {
                         mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
                         Picture eachPicture = page.getPicture(i);
                         if (eachPicture != null) {
                             mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
                         }
                     }
-                } else{
+                } else {
                     mRedirect = false;
                 }
             }

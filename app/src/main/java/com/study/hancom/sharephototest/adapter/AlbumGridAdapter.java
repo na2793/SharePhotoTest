@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -100,6 +101,20 @@ public class AlbumGridAdapter extends BaseAdapter {
         /* 웹뷰 처리 */
         final Page page = mAlbum.getPage(position);
 
+        viewHolder.webView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("album", mAlbum);
+                bundle.putInt("pageIndex", position);
+                intent.putExtras(bundle);
+
+                mContext.startActivity(intent);
+            }
+        });
+
         // Add a WebViewClient
         viewHolder.webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -137,26 +152,6 @@ public class AlbumGridAdapter extends BaseAdapter {
         });
 
         final String layoutFramePath = "file://" + page.getLayout().getFramePath();
-
-        viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
-
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("album", mAlbum);
-                        bundle.putInt("pageIndex", position);
-                        intent.putExtras(bundle);
-
-                        mContext.startActivity(intent);
-                        break;
-                }
-                return false;
-            }
-        });
-
         viewHolder.webView.loadUrl(layoutFramePath);
 
         return convertView;
@@ -205,7 +200,7 @@ public class AlbumGridAdapter extends BaseAdapter {
                     mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
                 } else {
                     mPinnedPositionSet.remove(eachPinnedPosition);
-                    mPinnedPositionSet.add(newPageCount);
+                    mPinnedPositionSet.add(mAlbum.getPageCount());
                     mAlbum.addPage(pinnedPageList.remove(0));
                 }
             }
