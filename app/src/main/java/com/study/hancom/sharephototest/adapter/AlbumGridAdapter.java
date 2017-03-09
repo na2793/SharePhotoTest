@@ -167,8 +167,7 @@ public class AlbumGridAdapter extends BaseAdapter {
     }
 
     public void relayout() throws Exception {
-        Album backup;
-        backup = mAlbum.clone();
+        Album backup = mAlbum.clone();
 
         try {
             List<Picture> pictureList = new ArrayList<>();
@@ -178,8 +177,10 @@ public class AlbumGridAdapter extends BaseAdapter {
             Integer[] sortedPinnedPositionArray = mPinnedPositionSet.toArray(new Integer[mPinnedPositionSet.size()]);
             Arrays.sort(sortedPinnedPositionArray);
 
+            int offset = 0;
             for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                pinnedPageList.add(mAlbum.removePage(eachPinnedPosition));
+                pinnedPageList.add(mAlbum.removePage(eachPinnedPosition - offset));
+                offset++;
             }
 
             /* 모든 사진 추출 및 페이지 삭제 */
@@ -198,13 +199,13 @@ public class AlbumGridAdapter extends BaseAdapter {
             /* 새롭게 적재 */
             mAlbum.addPages(pictureList);
 
-            int newPageCount = mAlbum.getPageCount();
             for (int eachPinnedPosition : sortedPinnedPositionArray) {
+                int newPageCount = mAlbum.getPageCount();
                 if (eachPinnedPosition < newPageCount) {
                     mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
                 } else {
                     mPinnedPositionSet.remove(eachPinnedPosition);
-                    mPinnedPositionSet.add(mAlbum.getPageCount());
+                    mPinnedPositionSet.add(newPageCount);
                     mAlbum.addPage(pinnedPageList.remove(0));
                 }
             }

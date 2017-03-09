@@ -11,10 +11,6 @@ import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
-import com.study.hancom.sharephototest.exception.FrameFileNotFoundException;
-import com.study.hancom.sharephototest.exception.InvalidElementNumException;
-import com.study.hancom.sharephototest.exception.StyleFileNotFoundException;
-import com.study.hancom.sharephototest.exception.TooManyFailedAttemptsException;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Picture;
 

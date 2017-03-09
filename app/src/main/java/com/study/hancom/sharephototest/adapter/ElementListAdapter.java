@@ -239,6 +239,7 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
             public void onClick(View v) {
                 removePage(getSelectedSection());
                 setSelectedItem(-1);
+                DataChangedListener.notifyChanged();
             }
         });
     }
