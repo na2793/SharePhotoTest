@@ -26,7 +26,7 @@ public class AlbumEditorPageListVerticalFragment extends Fragment implements Dat
         View view = inflater.inflate(R.layout.album_editor_page_list_vertical, container, false);
 
         mVerticalPageListView = (RecyclerView) view.findViewById(R.id.page_grid_view_vertical);
-        mVerticalPageListView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        mVerticalPageListView.setLayoutManager(new GridLayoutManager(getActivity(), 5));    // 5 = column num
         mPageListAdapter = new PageListAdapter(getActivity(), mAlbum);
         mVerticalPageListView.setAdapter(mPageListAdapter);
 

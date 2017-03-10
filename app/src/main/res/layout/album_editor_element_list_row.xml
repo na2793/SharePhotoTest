@@ -56,5 +56,11 @@
         <include layout="@layout/album_editor_element_list_item" />
 
         <include layout="@layout/album_editor_element_list_item" />
+
+        <include layout="@layout/album_editor_element_list_item" />
+
+        <include layout="@layout/album_editor_element_list_item" />
+
+        <include layout="@layout/album_editor_element_list_item" />
     </LinearLayout>
 </LinearLayout>

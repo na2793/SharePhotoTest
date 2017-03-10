@@ -64,12 +64,4 @@ public class ImageUtil {
     public static String drawableResourceToURI(int drawableResourceId) {
         return "drawable://" + drawableResourceId;
     }
-
-    public static Bitmap getViewScreenShot(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        view.draw(canvas);
-
-        return bitmap;
-    }
 }

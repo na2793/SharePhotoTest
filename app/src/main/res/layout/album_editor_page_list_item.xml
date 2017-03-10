@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:layout_height="130dp">
+    android:layout_height="200dp">
     <com.study.hancom.sharephototest.view.A4SizeWebView
         android:id="@+id/page_list_item_webview"
         android:layout_width="wrap_content"
