@@ -136,7 +136,7 @@ public class ElementListAdapter extends SectionableAdapter {
         textView.setText(elementNum);
 
         /* 이미지뷰 처리 */
-        Picture picture = getItem(position);
+        Picture picture = (Picture) getItem(position);
         if (picture != null) {
             mImageLoader.displayImage("file://" + picture.getPath(), imageView, ImageUtil.options);
         } else {

@@ -21,7 +21,6 @@ public class GalleryActivity extends AppCompatActivity {
     private ArrayList<String> mSelectedPicturePaths = new ArrayList<>();
 
     private GridView mGridView;
-    private GalleryAdapter mGalleryAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +30,9 @@ public class GalleryActivity extends AppCompatActivity {
 
         mGridView = (GridView) findViewById(R.id.gallery_image_grid_view);
         mGalleryPicturePaths = ImageUtil.getMediaImage(this);
-        mGalleryAdapter = new GalleryAdapter(this, mGalleryPicturePaths, mSelectedPicturePaths);
-        mGridView.setAdapter(mGalleryAdapter);
-        mGalleryAdapter.setOnMultipleItemSelectListener(new GalleryAdapter.OnMultipleItemSelectListener() {
+        GalleryAdapter myGalleryAdapter = new GalleryAdapter(this, mGalleryPicturePaths, mSelectedPicturePaths);
+        mGridView.setAdapter(myGalleryAdapter);
+        myGalleryAdapter.setOnMultipleItemSelectListener(new GalleryAdapter.OnMultipleItemSelectListener() {
             @Override
             public void onSelect() {
                 setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedPicturePaths.size(), mGalleryPicturePaths.size()));
@@ -70,6 +69,7 @@ public class GalleryActivity extends AppCompatActivity {
 
             default:
                 return super.onOptionsItemSelected(item);
+
         }
     }
 }

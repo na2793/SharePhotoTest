@@ -10,7 +10,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:horizontalSpacing="4dip"
-            android:numColumns="5"
+            android:numColumns="auto_fit"
             android:padding="4dip"
             android:stretchMode="columnWidth"
             android:verticalSpacing="4dip" />
