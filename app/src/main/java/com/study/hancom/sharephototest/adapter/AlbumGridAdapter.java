@@ -101,6 +101,7 @@ public class AlbumGridAdapter extends BaseAdapter {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
                 Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
+
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("album", mAlbum);
                 bundle.putInt("pageIndex", position);

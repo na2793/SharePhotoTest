@@ -1,6 +1,9 @@
 package com.study.hancom.sharephototest.model;
 
 import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.util.MathUtil;
@@ -12,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class PageLayoutManager {
+class PageLayoutManager implements Parcelable {
 
     private final String LAYOUT_FOLDER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
             + File.separator + "SharePhoto" + File.separator + "layout" + File.separator;
@@ -45,6 +48,15 @@ class PageLayoutManager {
         return Singleton.instance;
     }
 
+    private PageLayoutManager(Parcel in) {
+        int keyCount = in.readInt();
+        for (int i = 0; i < keyCount; i++) {
+            List<PageLayout> eachList = new ArrayList<>();
+            in.readList(eachList, PageLayout.class.getClassLoader());
+            mLayoutMap.put(i, eachList);
+        }
+    }
+
     private List<PageLayout> findPageLayoutList(int type) {
         List<PageLayout> pageLayoutList = new ArrayList<>();
 
@@ -57,6 +69,18 @@ class PageLayoutManager {
         return pageLayoutList;
     }
 
+    public static final Creator<PageLayoutManager> CREATOR = new Creator<PageLayoutManager>() {
+        @Override
+        public PageLayoutManager createFromParcel(Parcel in) {
+            return new PageLayoutManager(in);
+        }
+
+        @Override
+        public PageLayoutManager[] newArray(int size) {
+            return new PageLayoutManager[size];
+        }
+    };
+
     Set<Integer> getAllType() {
         return mLayoutMap.keySet();
     }
@@ -68,5 +92,18 @@ class PageLayoutManager {
 
         List<PageLayout> pageLayoutList = mLayoutMap.get(type);
         return pageLayoutList.get(mMathUtil.getRandomMath(pageLayoutList.size() - 1, 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mLayoutMap.size());
+        for (int eachKey : mLayoutMap.keySet()) {
+            dest.writeTypedList(mLayoutMap.get(eachKey));
+        }
     }
 }
