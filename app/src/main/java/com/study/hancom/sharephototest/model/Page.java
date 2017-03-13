@@ -26,7 +26,10 @@ public class Page implements Parcelable {
 
     private Page(Parcel in) {
         mLayout = in.readParcelable(PageLayout.class.getClassLoader());
-        mPictureList = in.createTypedArrayList(Picture.CREATOR);
+        int pictureListSize = in.readInt();
+        for (int i = 0 ; i < pictureListSize ; i++) {
+            mPictureList.add((Picture) in.readParcelable(Picture.class.getClassLoader()));
+        }
     }
 
     public static final Creator<Page> CREATOR = new Creator<Page>() {
@@ -95,6 +98,9 @@ public class Page implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(mLayout, flags);
-        dest.writeTypedList(mPictureList);
+        dest.writeInt(mPictureList.size());
+        for (Picture eachPicture : mPictureList) {
+            dest.writeParcelable(eachPicture, 0);
+        }
     }
 }

@@ -21,7 +21,10 @@ public class Album implements Parcelable, Cloneable {
 
     private Album(Parcel in) {
         mName = in.readString();
-        mPageList = in.createTypedArrayList(Page.CREATOR);
+        int pictureListSize = in.readInt();
+        for (int i = 0 ; i < pictureListSize ; i++) {
+            mPageList.add((Page) in.readParcelable(Page.class.getClassLoader()));
+        }
     }
 
     public static final Creator<Album> CREATOR = new Creator<Album>() {
@@ -73,7 +76,10 @@ public class Album implements Parcelable, Cloneable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mName);
-        dest.writeTypedList(mPageList);
+        dest.writeInt(mPageList.size());
+        for (Page eachPage : mPageList) {
+            dest.writeParcelable(eachPage, 0);
+        }
     }
 
     public Album clone() throws CloneNotSupportedException {
