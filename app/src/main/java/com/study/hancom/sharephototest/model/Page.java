@@ -3,27 +3,25 @@ package com.study.hancom.sharephototest.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.study.hancom.sharephototest.exception.FrameFileNotFoundException;
-import com.study.hancom.sharephototest.exception.InvalidElementNumException;
-import com.study.hancom.sharephototest.exception.StyleFileNotFoundException;
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
+import java.util.Set;
 
 public class Page implements Parcelable {
-    static final private PageLayoutFactory pageLayoutFactory = new PageLayoutFactory();
+
+    private static final PageLayoutManager mPageLayoutManager = PageLayoutManager.getInstance();
 
     private PageLayout mLayout;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    public Page(int elementNum) throws InvalidElementNumException, FrameFileNotFoundException, StyleFileNotFoundException {
-        if (MAX_ELEMENT_OF_PAGE_NUM < elementNum || elementNum < 1) {
-            throw new InvalidElementNumException();
-        }
+    public Page(int layoutType) throws LayoutNotFoundException {
+        mLayout = mPageLayoutManager.getPageLayout(layoutType);
+    }
 
-        mLayout = pageLayoutFactory.getPageLayout(elementNum);
+    public Page(PageLayout layout) {
+        mLayout = layout;
     }
 
     private Page(Parcel in) {
@@ -43,16 +41,20 @@ public class Page implements Parcelable {
         }
     };
 
-    public void setLayout(int elementNum) throws FrameFileNotFoundException, StyleFileNotFoundException {
-        mLayout = pageLayoutFactory.getPageLayout(elementNum);
-    }
-
-    public void setLayout(PageLayout layout) {
-        mLayout = layout;
+    public static Set<Integer> getAllPageLayoutType() {
+        return mPageLayoutManager.getAllType();
     }
 
     public PageLayout getLayout() {
         return mLayout;
+    }
+
+    public void setLayout(int layoutType) throws LayoutNotFoundException {
+        mLayout = mPageLayoutManager.getPageLayout(layoutType);
+    }
+
+    public void setLayout(PageLayout layout) {
+        mLayout = layout;
     }
 
     public Picture getPicture(int position) {
@@ -64,15 +66,11 @@ public class Page implements Parcelable {
     }
 
     public void addPicture(Picture picture) {
-        addPicture(mPictureList.size(), picture);
+        mPictureList.add(picture);
     }
 
     public void addPicture(int position, Picture picture) {
-        if (position < getPictureCount()) {
-            mPictureList.add(position, picture);
-        } else {
-            mPictureList.add(picture);
-        }
+        mPictureList.add(position, picture);
     }
 
     public Picture removePicture(int position) {

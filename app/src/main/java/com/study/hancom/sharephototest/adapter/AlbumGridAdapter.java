@@ -2,7 +2,6 @@ package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -10,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
@@ -23,6 +20,7 @@ import com.study.hancom.sharephototest.activity.AlbumEditorPageFullSizeWebViewAc
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.MathUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
 import java.util.ArrayList;
@@ -36,9 +34,7 @@ public class AlbumGridAdapter extends BaseAdapter {
     private Album mAlbum;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
-
-    private boolean mLoadingFinished = true;
-    private boolean mRedirect = false;
+    private MathUtil mMathUtil = new MathUtil();
 
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
@@ -72,6 +68,7 @@ public class AlbumGridAdapter extends BaseAdapter {
             viewHolder.textView = (TextView) convertView.findViewById(R.id.page_header_text);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.page_checkbox);
             viewHolder.webView = (WebView) convertView.findViewById(R.id.page_web_view);
+            viewHolder.webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
 
             convertView.setTag(viewHolder);
         } else {
@@ -100,7 +97,6 @@ public class AlbumGridAdapter extends BaseAdapter {
         });
 
         /* 웹뷰 처리 */
-        // webview에 onClickListener가 적용되지 않아 이런 식으로 처리
         final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
@@ -117,8 +113,6 @@ public class AlbumGridAdapter extends BaseAdapter {
             }
         });
 
-        final Page page = mAlbum.getPage(position);
-
         viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -129,43 +123,30 @@ public class AlbumGridAdapter extends BaseAdapter {
         // Add a WebViewClient
         viewHolder.webView.setWebViewClient(new WebViewClient() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if (!mLoadingFinished) {
-                    mRedirect = true;
-                }
-                mLoadingFinished = false;
-                view.loadUrl(request.getUrl().toString());
-                return true;
-            }
-
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-                mLoadingFinished = false;
-            }
-
-            @Override
             public void onPageFinished(WebView view, String url) {
-                if (!mRedirect) {
-                    mLoadingFinished = true;
-                }
-
-                if (mLoadingFinished && !mRedirect) {
-                    // inject data
-                    for (int i = 0; i < page.getPictureCount(); i++) {
-                        mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
-                        mWebViewUtil.injectImageByScript(view, "_" + (i + 1), page.getPicture(i).getPath());
-                    }
-                } else {
-                    mRedirect = false;
-                }
+                injectAll(position, view);
             }
         });
 
-        final String layoutFramePath = "file://" + page.getLayout().getFramePath();
-        viewHolder.webView.loadUrl(layoutFramePath);
+        injectAll(position, viewHolder.webView);
 
         return convertView;
+    }
+
+    private void injectAll(int position, WebView view) {
+        final Page page = mAlbum.getPage(position);
+        int pictureCount = page.getPictureCount();
+        mWebViewUtil.injectDivByScript(view, pictureCount);
+        // inject data
+        for (int i = 0; i < pictureCount; i++) {
+            mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
+            Picture eachPicture = page.getPicture(i);
+            if (eachPicture != null) {
+                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+            } else {
+                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+            }
+        }
     }
 
     public String getHeaderForSection(int position) {
@@ -203,11 +184,20 @@ public class AlbumGridAdapter extends BaseAdapter {
             }
 
             /* 새롭게 적재 */
-            mAlbum.addPages(pictureList);
+            List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
+            List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
+
+            for (int eachElementNum : composedElementNumList) {
+                Page newPage = new Page(eachElementNum);
+                mAlbum.addPage(newPage);
+                for (int i = 0; i < eachElementNum; i++) {
+                    newPage.addPicture(pictureList.remove(0));
+                }
+            }
 
             for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                int newPageCount = mAlbum.getPageCount();
-                if (eachPinnedPosition < newPageCount) {
+                int pageCount = mAlbum.getPageCount();
+                if (eachPinnedPosition < pageCount) {
                     mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
                 } else {
                     mPinnedPositionSet.remove(eachPinnedPosition);

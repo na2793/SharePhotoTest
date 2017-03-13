@@ -28,9 +28,6 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
     private Button mButtonPrevious;
     private Button mButtonNext;
 
-    private boolean mLoadingFinished = true;
-    private boolean mRedirect = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,48 +85,31 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
     }
 
     private void setWebView() {
-        final Page page = mAlbum.getPage(mCurrentPageIndex);
-
         // Add a WebViewClient
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if (!mLoadingFinished) {
-                    mRedirect = true;
-                }
-                mLoadingFinished = false;
-                view.loadUrl(request.getUrl().toString());
-                return true;
-            }
-
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-                mLoadingFinished = false;
-            }
-
-            @Override
             public void onPageFinished(WebView view, String url) {
-                if (!mRedirect) {
-                    mLoadingFinished = true;
-                }
-
-                if (mLoadingFinished && !mRedirect) {
-                    // inject data
-                    for (int i = 0; i < page.getPictureCount(); i++) {
-                        mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
-                        Picture eachPicture = page.getPicture(i);
-                        if (eachPicture != null) {
-                            mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
-                        }
-                    }
-                } else {
-                    mRedirect = false;
-                }
+                    injectAll(mCurrentPageIndex, view);
             }
         });
 
-        mWebView.loadUrl("file://" + page.getLayout().getFramePath());
+        mWebView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+    }
+
+    private void injectAll(int position, WebView view) {
+        final Page page = mAlbum.getPage(position);
+        int pictureCount = page.getPictureCount();
+        mWebViewUtil.injectDivByScript(view, pictureCount);
+        // inject data
+        for (int i = 0; i < pictureCount; i++) {
+            mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
+            Picture eachPicture = page.getPicture(i);
+            if (eachPicture != null) {
+                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+            } else {
+                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+            }
+        }
     }
 
     @Override

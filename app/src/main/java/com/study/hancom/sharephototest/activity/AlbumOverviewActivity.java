@@ -3,6 +3,7 @@ package com.study.hancom.sharephototest.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,8 +12,11 @@ import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +29,8 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     private GridView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
 
+    private MathUtil mMathUtil = new MathUtil();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,17 +42,17 @@ public class AlbumOverviewActivity extends AppCompatActivity {
          /* 데이터 파싱 */
         parseIntentData();
 
+        /* 앨범 생성 */
         try {
-            mAlbum = new Album(mPictureList);
-
-            /* 어댑터 붙이기 */
-            mAlbumGridView = (GridView) findViewById(R.id.album_overview_grid);
-            mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
-            mAlbumGridView.setAdapter(mAlbumGridAdapter);
-        } catch (Exception e) {
+            createAlbum(mPictureList);
+        } catch (LayoutNotFoundException e) {
             e.printStackTrace();
-            Toast.makeText(this, "뭔가 잘못됨", Toast.LENGTH_LONG).show();
         }
+
+        /* 어댑터 붙이기 */
+        mAlbumGridView = (GridView) findViewById(R.id.album_overview_grid);
+        mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
+        mAlbumGridView.setAdapter(mAlbumGridAdapter);
     }
 
     private void parseIntentData() {
@@ -55,8 +61,23 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         List<String> picturePathList = intent.getStringArrayListExtra("selectedImage");
 
         for (String eachPicturePath : picturePathList) {
-            Picture picture = new Picture(eachPicturePath, 0, 0);
+            Picture picture = new Picture(eachPicturePath);
             mPictureList.add(picture);
+        }
+    }
+
+    private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
+        mAlbum = new Album();
+
+        List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
+        List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
+        for (int eachElementNum : composedElementNumList) {
+            Page newPage = new Page(eachElementNum);
+            mAlbum.addPage(newPage);
+            Log.v("tag", "페이지 생성 " + eachElementNum);
+            for (int i = 0; i < eachElementNum; i++) {
+                newPage.addPicture(pictureList.remove(0));
+            }
         }
     }
 

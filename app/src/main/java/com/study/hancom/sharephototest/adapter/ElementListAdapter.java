@@ -15,7 +15,6 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumDataChangeInterface;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.AnimationUtil;
@@ -25,7 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ElementListAdapter extends SectionableAdapter implements AlbumDataChangeInterface {
+public class ElementListAdapter extends SectionableAdapter {
 
     private Album mAlbum;
 
@@ -367,32 +366,26 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
         mOnMultipleItemSelectModeListener = listener;
     }
 
-    @Override
     public void addPage(Page page) {
         addPage(mAlbum.getPageCount(), page);
     }
 
-    @Override
     public void addPage(int index, Page page) {
         mAlbum.addPage(index, page);
     }
 
-    @Override
     public void removePage(int index) {
         mAlbum.removePage(index);
     }
 
-    @Override
     public void reorderPage(int fromIndex, int toIndex) {
         mAlbum.reorderPage(fromIndex, toIndex);
     }
 
-    @Override
     public void addPicture(int index, Picture picture) {
         addPicture(index, mAlbum.getPage(index).getPictureCount(), picture);
     }
 
-    @Override
     public void addPicture(int index, int position, Picture picture) {
         mAlbum.getPage(index).addPicture(position, picture);
     }
@@ -422,7 +415,6 @@ public class ElementListAdapter extends SectionableAdapter implements AlbumDataC
         }
     }
 
-    @Override
     public void reorderPicture(int fromIndex, int fromPosition, int toIndex, int toPosition) throws Exception {
         Album backup;
         backup = mAlbum.clone();

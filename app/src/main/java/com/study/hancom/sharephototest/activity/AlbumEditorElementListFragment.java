@@ -20,11 +20,6 @@ import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.Picture;
-
-import java.util.ArrayList;
-
-import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
@@ -209,9 +204,6 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
             case R.id.action_multiple_edit:
                 return true;
             case R.id.action_multiple_move:
-                if (mElementListAdapter.getMultipleSelectedItem().length > MAX_ELEMENT_OF_PAGE_NUM) {
-                    Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
-                }
                 return true;
             case R.id.action_multiple_delete:
                 createDialog(getString(R.string.dialog_title_action_multiple_delete), getString(R.string.dialog_message_action_multiple_delete))
