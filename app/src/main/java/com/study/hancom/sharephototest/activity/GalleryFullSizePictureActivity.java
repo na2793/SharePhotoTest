@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.study.hancom.sharephototest.R;
@@ -17,15 +15,12 @@ import java.io.IOException;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
 
-    private ImageView mImageView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_full_size_picture_main);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mImageView = (ImageView) findViewById(R.id.show_image_view);
+        ImageView imageView = (ImageView) findViewById(R.id.show_image_view);
 
         Bundle bundle = getIntent().getExtras();
         String path = bundle.getString("ImagePath");
@@ -39,7 +34,7 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
             fileInputStream = new FileInputStream(path);
             bufferedInputStream = new BufferedInputStream(fileInputStream);
             Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream);
-            mImageView.setImageBitmap(bitmap);
+            imageView.setImageBitmap(bitmap);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (OutOfMemoryError e) {
@@ -51,25 +46,6 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater();
-        setTitle(R.string.title_gallery_full_size_picture_main);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
         }
     }
 }
