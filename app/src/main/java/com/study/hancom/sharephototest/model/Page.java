@@ -3,17 +3,21 @@ package com.study.hancom.sharephototest.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Page implements Parcelable {
-    static final private PageLayoutFactory pageLayoutFactory = new PageLayoutFactory();
+
+    private static final PageLayoutManager mPageLayoutManager = PageLayoutManager.getInstance();
 
     private PageLayout mLayout;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    public Page(int elementNum) throws Exception {
-        this(pageLayoutFactory.getPageLayout(elementNum));
+    public Page(int layoutType) throws LayoutNotFoundException {
+        mLayout = mPageLayoutManager.getPageLayout(layoutType);
     }
 
     public Page(PageLayout layout) {
@@ -37,16 +41,20 @@ public class Page implements Parcelable {
         }
     };
 
-    public void setLayout(int elementNum) throws Exception {
-        mLayout = pageLayoutFactory.getPageLayout(elementNum);
-    }
-
-    public void setLayout(PageLayout layout) {
-        mLayout = layout;
+    public static Set<Integer> getAllPageLayoutType() {
+        return mPageLayoutManager.getAllType();
     }
 
     public PageLayout getLayout() {
         return mLayout;
+    }
+
+    public void setLayout(int layoutType) throws LayoutNotFoundException {
+        mLayout = mPageLayoutManager.getPageLayout(layoutType);
+    }
+
+    public void setLayout(PageLayout layout) {
+        mLayout = layout;
     }
 
     public Picture getPicture(int position) {
@@ -58,15 +66,11 @@ public class Page implements Parcelable {
     }
 
     public void addPicture(Picture picture) {
-        addPicture(mPictureList.size(), picture);
+        mPictureList.add(picture);
     }
 
     public void addPicture(int position, Picture picture) {
-        if (position < getPictureCount()) {
-            mPictureList.add(position, picture);
-        } else {
-            mPictureList.add(picture);
-        }
+        mPictureList.add(position, picture);
     }
 
     public Picture removePicture(int position) {

@@ -3,113 +3,88 @@ package com.study.hancom.sharephototest.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.GridView;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.MathUtil;
+import com.study.hancom.sharephototest.view.AutoFitRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
 
 public class AlbumOverviewActivity extends AppCompatActivity {
 
     private Album mAlbum;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    private GridView mAlbumGridView;
+    private AutoFitRecyclerView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
+
+    private MathUtil mMathUtil = new MathUtil();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_overview_main);
 
-         /* 데이터 파싱 */
-        parseIntentData();
-
-        try {
-            setAlbum();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-       /* 어댑터 붙이기 */
-        mAlbumGridView = (GridView) findViewById(R.id.album_overview_grid);
+         /* 데이터 파싱 */
+        parseIntentData();
+
+           /* 앨범 생성 */
+        try {
+            createAlbum(mPictureList);
+        } catch (LayoutNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        /* 어댑터 붙이기 */
+        mAlbumGridView = (AutoFitRecyclerView) findViewById(R.id.album_overview_grid);
         mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
         mAlbumGridView.setAdapter(mAlbumGridAdapter);
     }
 
     private void parseIntentData() {
         /* 인텐트 처리 */
-        Intent intent = getIntent();
-        List<String> picturePathList = intent.getStringArrayListExtra("selectedImage");
+        Bundle bundle = getIntent().getExtras();
+        List<String> picturePathList = bundle.getStringArrayList("AlbumElementPaths");
 
         for (String eachPicturePath : picturePathList) {
-            Picture picture = new Picture(eachPicturePath, 0, 0);
+            Picture picture = new Picture(eachPicturePath);
             mPictureList.add(picture);
         }
     }
 
-    private void setAlbum() throws Exception {
-        /* 앨범 구성 */
+    private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
         mAlbum = new Album();
-        int pictureNum = mPictureList.size();
-        int temp = 0;
-        int errorCount = 0;
 
-        while (temp < pictureNum) {
-            try {
-                int elementNum = MathUtil.getRandomMath(MAX_ELEMENT_OF_PAGE_NUM, 1);
-                if (pictureNum > temp + elementNum) {
-                    mAlbum.addPage(new Page(elementNum));
-                    temp += elementNum;
-                } else {
-                    mAlbum.addPage(new Page(pictureNum - temp));
-                    break;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                errorCount++;
-            }
-            if (errorCount > 10) {
-                // 레이아웃 시도를 10회 이상 실패함
-                throw new Exception();
-            }
-        }
-
-        /* 페이지에 사진 넣기 */
-        int pageNum = mAlbum.getPageCount();
-        int usedPictureCount = 0;
-
-        for (int i = 0; i < pageNum; i++) {
-            Page page = mAlbum.getPage(i);
-            int elementNum = page.getLayout().getElementNum();
-
-            for (int j = 0; j < elementNum; j++) {
-                page.addPicture(mPictureList.get(usedPictureCount));
-                usedPictureCount++;
+        List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
+        List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
+        for (int eachElementNum : composedElementNumList) {
+            Page newPage = new Page(eachElementNum);
+            mAlbum.addPage(newPage);
+            Log.v("tag", "페이지 생성 " + eachElementNum);
+            for (int i = 0; i < eachElementNum; i++) {
+                newPage.addPicture(pictureList.remove(0));
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.album_overview_main, menu);
-        setTitle(R.string.title_album_editor_main);
+        setTitle(R.string.title_album_overview_main);
         return true;
     }
 
@@ -127,7 +102,12 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_album_relayout:
-                /* 재구성 */
+                try {
+                    mAlbumGridAdapter.relayout();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                mAlbumGridAdapter.notifyDataSetChanged();
                 return true;
 
             case R.id.action_album_confirm:  /* 저장 */

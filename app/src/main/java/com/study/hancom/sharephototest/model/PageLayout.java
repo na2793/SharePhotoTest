@@ -4,20 +4,17 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class PageLayout implements Parcelable {
-    final private int mElementNum;
-    final private String mFramePath;
-    final private String mStylePath;
+    private final String mPath;
+    private final int mElementNum;
 
-    public PageLayout(int elementNum, String framePath, String stylePath) {
+    public PageLayout(int elementNum, String stylePath) {
         mElementNum = elementNum;
-        mFramePath = framePath;
-        mStylePath = stylePath;
+        mPath = stylePath;
     }
 
     private PageLayout(Parcel in) {
         mElementNum = in.readInt();
-        mFramePath = in.readString();
-        mStylePath = in.readString();
+        mPath = in.readString();
     }
 
     public static final Creator<PageLayout> CREATOR = new Creator<PageLayout>() {
@@ -36,12 +33,8 @@ public class PageLayout implements Parcelable {
         return mElementNum;
     }
 
-    public String getFramePath() {
-        return mFramePath;
-    }
-
     public String getStylePath() {
-        return mStylePath;
+        return mPath;
     }
 
     @Override
@@ -52,7 +45,6 @@ public class PageLayout implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mElementNum);
-        dest.writeString(mFramePath);
-        dest.writeString(mStylePath);
+        dest.writeString(mPath);
     }
 }

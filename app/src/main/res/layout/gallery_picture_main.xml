@@ -12,7 +12,6 @@
             android:horizontalSpacing="4dip"
             android:numColumns="auto_fit"
             android:padding="4dip"
-            android:stretchMode="columnWidth"
             android:verticalSpacing="4dip" />
 
 </LinearLayout>

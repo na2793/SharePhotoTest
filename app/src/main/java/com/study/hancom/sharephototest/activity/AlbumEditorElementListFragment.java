@@ -1,7 +1,9 @@
 package com.study.hancom.sharephototest.activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -19,8 +21,9 @@ import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.Picture;
 
-import static com.study.hancom.sharephototest.model.Album.MAX_ELEMENT_OF_PAGE_NUM;
+import java.util.ArrayList;
 
 public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
@@ -28,6 +31,8 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
     private static final int MENU_MODE_SINGLE_SELECT = 2;
     private static final int MENU_MODE_MULTIPLE_SELECT = 3;
     private static final int MENU_MODE_EMPTY_PICTURE = 4;
+
+    private static final int REQUEST_CODE = 1;
 
     private Menu mMenu;
     private int mMenuMode = MENU_MODE_MAIN;
@@ -110,15 +115,16 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         // pass ; MENU_MODE_SINGLE_SELECT와 동일
                     case MENU_MODE_SINGLE_SELECT:
                         mElementListAdapter.setSelectedItem(-1);
-                        mElementListAdapter.notifyDataSetChanged();
+                        DataChangedListener.notifyChanged();
                         break;
                     case MENU_MODE_MULTIPLE_SELECT:
                         mElementListAdapter.stopMultipleSelectMode();
-                        mElementListAdapter.notifyDataSetChanged();
+                        DataChangedListener.notifyChanged();
                         break;
                 }
                 return true;
             case R.id.action_confirm:
+                // @임시
                 Toast.makeText(getActivity(), "epub으로 저장하였습니다.", Toast.LENGTH_LONG).show();
                 getActivity().finish();
                 return true;
@@ -142,7 +148,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                                     mElementListAdapter.reorderPicture(fromIndex, fromPosition, toIndex, toPosition);
                                     mElementListAdapter.setSelectedSection(toIndex);
                                     mElementListAdapter.setSelectedItem(-1);
-                                    mElementListAdapter.notifyDataSetChanged();
+                                    DataChangedListener.notifyChanged();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
@@ -162,17 +168,29 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .setPositiveButton(getString(R.string.dialog_button_remain), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int index = mElementListAdapter.getSelectedSection();
-                                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                mElementListAdapter.removePicture(index, position, true);
+                                try {
+                                    int index = mElementListAdapter.getSelectedSection();
+                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                                    mElementListAdapter.removePicture(index, position, true);
+                                    DataChangedListener.notifyChanged();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                }
                             }
                         })
                         .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int index = mElementListAdapter.getSelectedSection();
-                                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                mElementListAdapter.removePicture(index, position, false);
+                                try {
+                                    int index = mElementListAdapter.getSelectedSection();
+                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                                    mElementListAdapter.removePicture(index, position, false);
+                                    DataChangedListener.notifyChanged();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                }
                             }
                         })
                         .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
@@ -188,39 +206,48 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 for (int eachPosition = 0; eachPosition < dataCount; eachPosition++) {
                     mElementListAdapter.addMultipleSelectedItem(eachPosition);
                 }
-                mElementListAdapter.notifyDataSetChanged();
+                DataChangedListener.notifyChanged();
                 return true;
             case R.id.action_multiple_edit:
                 return true;
             case R.id.action_multiple_move:
-                if (mElementListAdapter.getMultipleSelectedItem().length > MAX_ELEMENT_OF_PAGE_NUM) {
-                    Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG);
-                }
                 return true;
             case R.id.action_multiple_delete:
                 createDialog(getString(R.string.dialog_title_action_multiple_delete), getString(R.string.dialog_message_action_multiple_delete))
                         .setPositiveButton(getString(R.string.dialog_button_remain), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                for (int eachSelectedItemPosition : mElementListAdapter.getMultipleSelectedItem()) {
-                                    int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
-                                    int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
-                                    mElementListAdapter.removePicture(index, position, true);
+                                try {
+                                    for (int eachSelectedItemPosition : mElementListAdapter.getMultipleSelectedItem()) {
+                                        int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
+                                        int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
+                                        mElementListAdapter.removePicture(index, position, true);
+                                    }
+                                    mElementListAdapter.stopMultipleSelectMode();
+                                    DataChangedListener.notifyChanged();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
                                 }
-                                mElementListAdapter.stopMultipleSelectMode();
                             }
                         })
                         .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Integer[] sortedMultipleSelectedItemArray = mElementListAdapter.getMultipleSelectedItem(true);
-                                for (int i = sortedMultipleSelectedItemArray.length - 1; i > -1; i--) {
-                                    int eachSelectedItemPosition = sortedMultipleSelectedItemArray[i];
-                                    int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
-                                    int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
-                                    mElementListAdapter.removePicture(index, position, false);
+                                try {
+                                    Integer[] sortedMultipleSelectedItemArray = mElementListAdapter.getMultipleSelectedItem(true);
+                                    for (int i = sortedMultipleSelectedItemArray.length - 1; i > -1; i--) {
+                                        int eachSelectedItemPosition = sortedMultipleSelectedItemArray[i];
+                                        int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
+                                        int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
+                                        mElementListAdapter.removePicture(index, position, false);
+                                    }
+                                    mElementListAdapter.stopMultipleSelectMode();
+                                    DataChangedListener.notifyChanged();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
                                 }
-                                mElementListAdapter.stopMultipleSelectMode();
                             }
                         })
                         .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
@@ -232,15 +259,32 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_empty_set_picture:
+                ArrayList<String> albumElementPictureListPaths = new ArrayList<>();
+                for (int i = 0; i < mElementListAdapter.getDataCount(); i++) {
+                    Picture picture = mElementListAdapter.getItem(i);
+                    if(picture != null) {
+                        albumElementPictureListPaths.add(picture.getPath());
+                    }
+                }
+
+                Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
+                intent.putStringArrayListExtra("albumElementPaths", albumElementPictureListPaths);
+                startActivityForResult(intent, REQUEST_CODE);
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
                         .setPositiveButton(getString(R.string.dialog_button_continue), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int index = mElementListAdapter.getSelectedSection();
-                                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                mElementListAdapter.removePicture(index, position, false);
+                                try {
+                                    int index = mElementListAdapter.getSelectedSection();
+                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                                    mElementListAdapter.removePicture(index, position, false);
+                                    DataChangedListener.notifyChanged();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                }
                             }
                         })
                         .setNegativeButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
@@ -289,4 +333,24 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
     public void onDataChanged() {
         mElementListAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (resultCode == Activity.RESULT_OK) {
+            try {
+                Bundle bundle = data.getExtras();
+                Picture picture = new Picture(bundle.getString("selectedImage"));
+                int index = mElementListAdapter.getSelectedSection();
+                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                mElementListAdapter.addPicture(index, position, picture);
+                mElementListAdapter.removePicture(index, position + 1, false);
+                DataChangedListener.notifyChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+
+

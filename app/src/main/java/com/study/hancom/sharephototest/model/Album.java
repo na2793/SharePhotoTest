@@ -6,9 +6,7 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Album implements Parcelable {
-
-    public static final int MAX_ELEMENT_OF_PAGE_NUM = 4;
+public class Album implements Parcelable, Cloneable {
 
     private String mName;
     private List<Page> mPageList = new ArrayList<>();
@@ -47,7 +45,7 @@ public class Album implements Parcelable {
     }
 
     public void addPage(Page page) {
-        addPage(mPageList.size(), page);
+        mPageList.add(page);
     }
 
     public void addPage(int index, Page page) {
@@ -76,5 +74,9 @@ public class Album implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mName);
         dest.writeTypedList(mPageList);
+    }
+
+    public Album clone() throws CloneNotSupportedException {
+        return (Album) super.clone();
     }
 }

@@ -21,20 +21,17 @@ public class AlbumEditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_editor_main);
 
-        /* 데이터 파싱 */
-        try {
-            parseIntentData();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /* 데이터 파싱 */
+        parseIntentData();
 
         /* 프래그먼트 생성 */
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         setFrameFragment(fragmentTransaction);
+
     }
 
     @Override
@@ -46,10 +43,12 @@ public class AlbumEditorActivity extends AppCompatActivity {
         return true;
     }
 
-    private void parseIntentData() throws Exception {
+    private void parseIntentData() {
         /* 인텐트 처리 */
         Bundle bundle = getIntent().getExtras();
-        mAlbum = bundle.getParcelable("album");
+        if (bundle != null) {
+            mAlbum = bundle.getParcelable("album");
+        }
     }
 
     private void setFrameFragment(FragmentTransaction fragmentTransaction) {
@@ -62,4 +61,5 @@ public class AlbumEditorActivity extends AppCompatActivity {
         // 완료
         fragmentTransaction.commit();
     }
+
 }

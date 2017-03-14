@@ -43,3 +43,4 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChanged
         mPageListAdapter.notifyDataSetChanged();
     }
 }
+
