@@ -39,12 +39,16 @@ public class AlbumEditorFrameFragment extends Fragment {
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_frame, container, false);
 
+        /* 번들 생성 */
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("album", mAlbum);
+
         /* 프래그먼트 생성 */
         mFragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        setElementListFragment(fragmentTransaction);
-        setPageListFragment(fragmentTransaction);
-        setVerticalFragment(fragmentTransaction);
+        setElementListFragment(fragmentTransaction, bundle);
+        setPageListFragment(fragmentTransaction, bundle);
+        setVerticalFragment(fragmentTransaction, bundle);
         fragmentTransaction.commit(); // 완료
 
         /* 핸들 처리 */
@@ -72,32 +76,26 @@ public class AlbumEditorFrameFragment extends Fragment {
         return view;
     }
 
-    private void setElementListFragment(FragmentTransaction fragmentTransaction) {
+    private void setElementListFragment(FragmentTransaction fragmentTransaction, Bundle bundle) {
         mAlbumEditorElementListFragment = new AlbumEditorElementListFragment();
         fragmentTransaction.add(R.id.element_list_fragment_container, mAlbumEditorElementListFragment);
         // 액션바를 가짐
         mAlbumEditorElementListFragment.setHasOptionsMenu(true);
         // 데이터 전달
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("album", mAlbum);
         mAlbumEditorElementListFragment.setArguments(bundle);
     }
 
-    private void setPageListFragment(FragmentTransaction fragmentTransaction) {
+    private void setPageListFragment(FragmentTransaction fragmentTransaction, Bundle bundle) {
         mAlbumEditorPageListFragment = new AlbumEditorPageListFragment();
         fragmentTransaction.add(R.id.page_list_fragment_container, mAlbumEditorPageListFragment);
         // 데이터 전달
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("album", mAlbum);
         mAlbumEditorPageListFragment.setArguments(bundle);
     }
 
-    private void setVerticalFragment(FragmentTransaction fragmentTransaction) {
+    private void setVerticalFragment(FragmentTransaction fragmentTransaction, Bundle bundle) {
         mAlbumEditorPageListVerticalFragment = new AlbumEditorPageListVerticalFragment();
         fragmentTransaction.add(R.id.page_list_vertical_fragment_container, mAlbumEditorPageListVerticalFragment);
         // 데이터 전달
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("album", mAlbum);
         mAlbumEditorPageListVerticalFragment.setArguments(bundle);
     }
 }
