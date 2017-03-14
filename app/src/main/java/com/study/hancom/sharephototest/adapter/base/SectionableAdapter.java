@@ -9,9 +9,6 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.utils.L;
-import com.study.hancom.sharephototest.R;
-
 /**
  * An Adapter that populates a grid of 1-n columns. Unlike a standard Android GridView,
  * lists using this Adapter can label sections within the grid, and can include shorter

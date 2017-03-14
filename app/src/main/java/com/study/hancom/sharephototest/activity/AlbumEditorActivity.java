@@ -46,9 +46,7 @@ public class AlbumEditorActivity extends AppCompatActivity {
     private void parseIntentData() {
         /* 인텐트 처리 */
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            mAlbum = bundle.getParcelable("album");
-        }
+        mAlbum = bundle.getParcelable("album");
     }
 
     private void setFrameFragment(FragmentTransaction fragmentTransaction) {

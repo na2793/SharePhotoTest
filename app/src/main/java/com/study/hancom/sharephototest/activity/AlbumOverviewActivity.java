@@ -60,7 +60,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         List<String> picturePathList = bundle.getStringArrayList("AlbumElementPaths");
 
-        Log.v("tag", picturePathList.size() + " overview");
         for (String eachPicturePath : picturePathList) {
             Picture picture = new Picture(eachPicturePath);
             mPictureList.add(picture);
@@ -70,7 +69,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
         mAlbum = new Album();
 
-        Log.v("tag", pictureList.size() + " overview");
         List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
         List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
         for (int eachElementNum : composedElementNumList) {

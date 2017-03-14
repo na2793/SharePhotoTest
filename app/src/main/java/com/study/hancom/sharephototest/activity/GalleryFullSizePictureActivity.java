@@ -96,7 +96,7 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
             case R.id.action_select_picture:
                 Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
                 intent.putExtra("selectedImage", path);
-                setResult(1, intent);
+                setResult(RESULT_OK, intent);
                 finish();
                 return true;
 

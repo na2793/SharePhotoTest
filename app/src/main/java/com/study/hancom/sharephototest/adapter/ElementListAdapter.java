@@ -18,7 +18,6 @@ import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.AnimationUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -59,7 +58,7 @@ public class ElementListAdapter extends SectionableAdapter {
     @Override
     public Picture getItem(int position) {
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; ++i) {
+        for (int i = 0; i < pageNum; i++) {
             Page eachPage = mAlbum.getPage(i);
             int pictureNum = eachPage.getPictureCount();
             if (position < pictureNum) {
@@ -75,7 +74,7 @@ public class ElementListAdapter extends SectionableAdapter {
     public int getDataCount() {
         int total = 0;
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; ++i) {
+        for (int i = 0; i < pageNum; i++) {
             total += mAlbum.getPage(i).getPictureCount();
         }
         return total;
@@ -98,7 +97,7 @@ public class ElementListAdapter extends SectionableAdapter {
     public int getTypeFor(int position) {
         int runningTotal = 0;
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; ++i) {
+        for (int i = 0; i < pageNum; i++) {
             int eachItemCount = mAlbum.getPage(i).getPictureCount();
             if (position < runningTotal + eachItemCount)
                 return i;
@@ -325,7 +324,7 @@ public class ElementListAdapter extends SectionableAdapter {
     public int getPositionInSection(int position) {
         int runningTotal = 0;
         int pageCount = mAlbum.getPageCount();
-        for (int i = 0; i < pageCount; ++i) {
+        for (int i = 0; i < pageCount; i++) {
             int eachItemCount = mAlbum.getPage(i).getPictureCount();
             if (position < runningTotal + eachItemCount) {
                 return position - runningTotal;
@@ -341,7 +340,7 @@ public class ElementListAdapter extends SectionableAdapter {
         int pageCount = mAlbum.getPageCount();
         int colCount = getColCount();
 
-        for (int i = 0; i < pageCount; ++i) {
+        for (int i = 0; i < pageCount; i++) {
             int eachItemCount = mAlbum.getPage(i).getPictureCount();
             int eachRowCount = (int) Math.ceil((double) eachItemCount / (double) colCount);
             if (index < runningTotal + eachRowCount) {

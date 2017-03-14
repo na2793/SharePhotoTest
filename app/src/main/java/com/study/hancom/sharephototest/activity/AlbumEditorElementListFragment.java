@@ -23,6 +23,8 @@ import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Picture;
 
+import java.util.ArrayList;
+
 public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
     private static final int MENU_MODE_MAIN = 1;
@@ -258,9 +260,15 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 return true;
             case R.id.action_empty_set_picture:
                 // 수정 바람
-//                Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
-//                intent.putStringArrayListExtra("albumElementPaths", mElementListAdapter.extractElementPaths());
-//                startActivityForResult(intent, REQUEST_CODE);
+                ArrayList<String> test = new ArrayList<>();
+
+                for (int i = 0; i < mElementListAdapter.getDataCount(); i++) {
+                    test.add(mElementListAdapter.getItem(i).getPath());
+                }
+
+                Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
+                intent.putStringArrayListExtra("albumElementPaths", test);
+                startActivityForResult(intent, REQUEST_CODE);
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
