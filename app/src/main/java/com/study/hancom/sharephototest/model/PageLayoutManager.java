@@ -18,7 +18,7 @@ import java.util.Set;
 class PageLayoutManager implements Parcelable {
 
     private final String LAYOUT_FOLDER_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "SharePhoto" + File.separator + "layout" + File.separator;
+            + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "style" + File.separator;
 
     private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();    // <type, pageLayoutList>
                                                                             // type = 스타일 파일들을 분류하는 기준 (element count)

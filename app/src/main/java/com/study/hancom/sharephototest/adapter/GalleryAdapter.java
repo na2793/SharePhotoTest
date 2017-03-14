@@ -130,8 +130,8 @@ public class GalleryAdapter extends BaseAdapter {
                 .with(mContext)
                 .load(ImagePath)
                 .centerCrop()
+                .dontAnimate()
                 .placeholder(R.drawable.place_holder)
-                .crossFade()
                 .into(galleryPictureHolder.imageView);
 
         galleryPictureHolder.imageView.setOnClickListener(new View.OnClickListener() {

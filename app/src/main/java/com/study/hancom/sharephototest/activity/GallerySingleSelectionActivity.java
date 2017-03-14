@@ -45,8 +45,7 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.gallery_single_select_main, menu);
+        getMenuInflater().inflate(R.menu.gallery_single_select_main, menu);
 
         return true;
     }

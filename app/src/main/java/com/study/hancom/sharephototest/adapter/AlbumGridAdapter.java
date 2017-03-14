@@ -3,6 +3,7 @@ package com.study.hancom.sharephototest.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -29,15 +29,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AlbumGridAdapter extends BaseAdapter {
+public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
     private Context mContext;
     private Album mAlbum;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
     private MathUtil mMathUtil = new MathUtil();
-
-    private boolean mLoadingFinished = true;
-    private boolean mRedirect = false;
 
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
@@ -47,49 +44,35 @@ public class AlbumGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return mAlbum.getPageCount();
-    }
-
-    @Override
-    public Page getItem(int position) {
-        return mAlbum.getPage(position);
-    }
-
-    @Override
     public long getItemId(int position) {
         return position;
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+    public int getItemCount() {
+        return mAlbum.getPageCount();
+    }
 
-        if (convertView == null) {
-            viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.album_overview_grid_item, parent, false);
-            viewHolder.textView = (TextView) convertView.findViewById(R.id.page_header_text);
-            viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.page_checkbox);
-            viewHolder.webView = (WebView) convertView.findViewById(R.id.page_web_view);
-            viewHolder.webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final View view = LayoutInflater.from(mContext).inflate(R.layout.album_overview_grid_item, parent, false);
+        return new ViewHolder(view);
+    }
 
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
+    @Override
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         /* 텍스트뷰 처리 */
-        String pageNum = getHeaderForSection(position);
-        viewHolder.textView.setText(pageNum);
+        String pageNum = Integer.toString(position + 1) + "페이지";
+        holder.textView.setText(pageNum);
 
         /* 체크박스 처리 */
         if (mPinnedPositionSet.contains(position)) {
-            viewHolder.checkBox.setChecked(true);
+            holder.checkBox.setChecked(true);
         } else {
-            viewHolder.checkBox.setChecked(false);
+            holder.checkBox.setChecked(false);
         }
 
-        final CheckBox checkBox = viewHolder.checkBox;
+        final CheckBox checkBox = holder.checkBox;
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,7 +99,7 @@ public class AlbumGridAdapter extends BaseAdapter {
             }
         });
 
-        viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
+        holder.webView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return webViewGestureDetector.onTouchEvent(event);
@@ -124,16 +107,14 @@ public class AlbumGridAdapter extends BaseAdapter {
         });
 
         // Add a WebViewClient
-        viewHolder.webView.setWebViewClient(new WebViewClient() {
+        holder.webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
             }
         });
 
-        injectAll(position, viewHolder.webView);
-
-        return convertView;
+        injectAll(position, holder.webView);
     }
 
     private void injectAll(int position, WebView view) {
@@ -150,10 +131,6 @@ public class AlbumGridAdapter extends BaseAdapter {
                 mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
         }
-    }
-
-    public String getHeaderForSection(int position) {
-        return mContext.getResources().getString(R.string.album_overview_section_header, position + 1);
     }
 
     public void relayout() throws Exception {
@@ -214,9 +191,17 @@ public class AlbumGridAdapter extends BaseAdapter {
         }
     }
 
-    class ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         WebView webView;
         CheckBox checkBox;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.page_header_text);
+            checkBox = (CheckBox) itemView.findViewById(R.id.page_checkbox);
+            webView = (WebView) itemView.findViewById(R.id.page_web_view);
+            webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+        }
     }
 }

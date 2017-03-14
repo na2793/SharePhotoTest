@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.GridView;
 
 import com.study.hancom.sharephototest.R;
@@ -22,9 +23,12 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
     private ArrayList<String> mSelectedPicturePaths = new ArrayList<>();
     private GalleryAdapter mGalleryAdapter;
 
+    private Menu mMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.gallery_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -36,14 +40,19 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
             @Override
             public void onSelect() {
                 setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedPicturePaths.size(), mGalleryPicturePaths.size()));
+                if (mSelectedPicturePaths.isEmpty()) {
+                    mMenu.findItem(R.id.action_next).setEnabled(false);
+                } else {
+                    mMenu.findItem(R.id.action_next).setEnabled(true);
+                }
             }
         });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.gallery_multiple_select_main, menu);
+        mMenu = menu;
+        getMenuInflater().inflate(R.menu.gallery_multiple_select_main, menu);
         setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedPicturePaths.size(), mGalleryPicturePaths.size()));
 
         return true;

@@ -17,6 +17,7 @@ import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.MathUtil;
+import com.study.hancom.sharephototest.view.AutoFitRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     private Album mAlbum;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    private GridView mAlbumGridView;
+    private AutoFitRecyclerView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
 
     private MathUtil mMathUtil = new MathUtil();
@@ -50,7 +51,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         }
 
         /* 어댑터 붙이기 */
-        mAlbumGridView = (GridView) findViewById(R.id.album_overview_grid);
+        mAlbumGridView = (AutoFitRecyclerView) findViewById(R.id.album_overview_grid);
         mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
         mAlbumGridView.setAdapter(mAlbumGridAdapter);
     }
@@ -83,8 +84,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.album_overview_main, menu);
+        getMenuInflater().inflate(R.menu.album_overview_main, menu);
         setTitle(R.string.title_album_overview_main);
         return true;
     }

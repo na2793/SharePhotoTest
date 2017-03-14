@@ -113,8 +113,8 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater();
         setTitle(R.string.title_album_editor_page_full_size_webview_main);
+
         return true;
     }
 

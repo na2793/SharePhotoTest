@@ -11,9 +11,6 @@ import android.widget.Spinner;
 
 import com.study.hancom.sharephototest.R;
 
-/**
- * Created by owner on 2017-03-13.
- */
 public class AlbumEditorNewLayoutSelectionActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     @Override

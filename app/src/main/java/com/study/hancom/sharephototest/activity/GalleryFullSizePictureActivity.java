@@ -29,7 +29,7 @@ import java.io.IOException;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
 
-    private String path;
+    private String mPicturePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +45,12 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         /* 이미지 */
         TouchImageView imageView = (TouchImageView) findViewById(R.id.show_image_view);
         //@임시 "file:/"을 지우기 위해 사용하였음.
-        path = path.substring(6);
+        mPicturePath = mPicturePath.substring(6);
 
         FileInputStream fileInputStream = null;
         BufferedInputStream bufferedInputStream = null;
         try {
-            fileInputStream = new FileInputStream(path);
+            fileInputStream = new FileInputStream(mPicturePath);
             bufferedInputStream = new BufferedInputStream(fileInputStream);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = false;
@@ -75,14 +75,13 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
 
     public void parseIntentData() {
         Bundle bundle = getIntent().getExtras();
-        path = bundle.getString("ImagePath");
+        mPicturePath = bundle.getString("ImagePath");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        getMenuInflater().inflate(R.menu.gallery_full_size_picture_main, menu);
         setTitle(R.string.title_gallery_full_size_picture_main);
-        inflater.inflate(R.menu.gallery_full_size_picture_main, menu);
         return true;
     }
 
@@ -95,7 +94,7 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
 
             case R.id.action_select_picture:
                 Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
-                intent.putExtra("selectedImage", path);
+                intent.putExtra("selectedImage", mPicturePath);
                 setResult(RESULT_OK, intent);
                 finish();
                 return true;

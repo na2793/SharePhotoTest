@@ -8,7 +8,7 @@ public class WebViewUtil {
             "<html>\n" +
             "<head>\n" +
             "<meta charset=\"UTF-8\">\n" +
-            "<meta name=\"viewport\" content=\"initial-scale=1.0\"/>\n" +
+            "<meta name=\"viewport\" content=\"initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"/>\n" +
             "<title>Title of the document</title>\n" +
             "<style>\n" +
             "@page {\n" +

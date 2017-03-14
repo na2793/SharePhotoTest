@@ -35,8 +35,8 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
     private static final int REQUEST_CODE = 1;
 
     private Menu mMenu;
-    private int mMenuMode = MENU_MODE_MAIN;
     private MenuInflater mMenuInflater;
+    private int mMenuMode = MENU_MODE_MAIN;
 
     private ListView mElementListView;
     private ElementListAdapter mElementListAdapter;

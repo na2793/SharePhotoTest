@@ -36,9 +36,8 @@ public class AlbumEditorActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        getMenuInflater().inflate(R.menu.album_editor_main, menu);
         setTitle(R.string.title_album_editor_main);
-        inflater.inflate(R.menu.album_editor_main, menu);
 
         return true;
     }
