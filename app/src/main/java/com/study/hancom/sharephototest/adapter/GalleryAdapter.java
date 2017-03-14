@@ -1,5 +1,6 @@
 package com.study.hancom.sharephototest.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,47 +13,56 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
-import com.study.hancom.sharephototest.util.ImageUtil;
 
 import java.util.List;
 
 public class GalleryAdapter extends BaseAdapter {
 
-    private static String TAG = GalleryAdapter.class.getName();
-    private static ImageLoader imageLoader;
+    public static final int MENU_MODE_SINGLE_SELECT = 0;
+    public static final int MENU_MODE_MULTIPLE_SELECT = 1;
 
-    private Context context;
-    private List<String> galleryPicturePaths;
-    private List<String> checkedPicturePaths;
+    private static String TAG = GalleryAdapter.class.getName();
+
+    private Context mContext;
+    private int mMode;
+    private List<String> mGalleryPicturePaths;
+    private List<String> mMultipleSelectedPicturePaths;
+    private String mSingleSelectedPicturePath;
 
     private GalleryPictureHolder galleryPictureHolder;
 
     private OnMultipleItemSelectListener mOnMultipleItemSelectListener;
 
-    public GalleryAdapter(Context context, List<String> galleryPicturePaths, List<String> checkedPicturePaths) {
-        this.context = context;
-        this.galleryPicturePaths = galleryPicturePaths;
-        this.checkedPicturePaths = checkedPicturePaths;
+    public GalleryAdapter(Context context, List<String> galleryPicturePaths, List<String> multipleSelectedPicturePaths, int mode) {
+        this.mContext = context;
+        this.mGalleryPicturePaths = galleryPicturePaths;
+        this.mMultipleSelectedPicturePaths = multipleSelectedPicturePaths;
+        this.mMode = mode;
 
-        imageLoader = ImageLoader.getInstance();
-        if (!imageLoader.isInited()) {
-            imageLoader.init(ImageLoaderConfiguration.createDefault(context));
-        }
     }
+
+    public GalleryAdapter(Context context, List<String> galleryPicturePaths, List<String> multipleSelectedPicturePaths, String singleSelectedPicturePath, int mode) {
+        this.mContext = context;
+        this.mGalleryPicturePaths = galleryPicturePaths;
+        this.mMultipleSelectedPicturePaths = multipleSelectedPicturePaths;
+        this.mSingleSelectedPicturePath = singleSelectedPicturePath;
+        this.mMode = mode;
+
+    }
+
 
     @Override
     public int getCount() {
-        Log.v(TAG, "data.size() ---> " + String.valueOf(galleryPicturePaths.size()));
-        return galleryPicturePaths.size();
+        Log.v(TAG, "data.size() ---> " + String.valueOf(mGalleryPicturePaths.size()));
+        return mGalleryPicturePaths.size();
     }
 
     @Override
     public String getItem(int position) {
-        return galleryPicturePaths.get(position);
+        return mGalleryPicturePaths.get(position);
     }
 
     @Override
@@ -65,7 +75,7 @@ public class GalleryAdapter extends BaseAdapter {
 
         if (convertView == null) {
             galleryPictureHolder = new GalleryPictureHolder();
-            convertView = LayoutInflater.from(context).inflate(R.layout.gallery_picture_grid_item, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.gallery_picture_grid_item, parent, false);
 
             galleryPictureHolder.imageView = (ImageView) convertView.findViewById(R.id.gallery_image);
             galleryPictureHolder.button = (Button) convertView.findViewById(R.id.show_clicked_Image);
@@ -78,64 +88,112 @@ public class GalleryAdapter extends BaseAdapter {
         }
 
         boolean isCheck = false;
-        for (int i = 0; i < checkedPicturePaths.size(); i++) {
-            if (checkedPicturePaths.get(i).equals(galleryPicturePaths.get(position))) {
+        for (int i = 0; i < mMultipleSelectedPicturePaths.size(); i++) {
+            if (mMultipleSelectedPicturePaths.get(i).contains(mGalleryPicturePaths.get(position))) {
                 isCheck = true;
             }
         }
-        if (isCheck) {
-            galleryPictureHolder.checkBox.setEnabled(true);
-            galleryPictureHolder.checkBox.setChecked(true);
-            galleryPictureHolder.checkBox.setVisibility(View.VISIBLE);
-        } else {
-            galleryPictureHolder.checkBox.setEnabled(false);
-            galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
+
+
+        if (mMode == MENU_MODE_MULTIPLE_SELECT) {
+            if (isCheck) {
+                galleryPictureHolder.checkBox.setEnabled(true);
+                galleryPictureHolder.checkBox.setChecked(true);
+                galleryPictureHolder.checkBox.setVisibility(View.VISIBLE);
+            } else {
+                galleryPictureHolder.checkBox.setEnabled(false);
+                galleryPictureHolder.checkBox.setChecked(false);
+                galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
+            }
+        } else if (mMode == MENU_MODE_SINGLE_SELECT) {
+            if (isCheck) {
+                galleryPictureHolder.imageView.setAlpha(0.2f);
+                galleryPictureHolder.checkBox.setEnabled(false);
+                galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
+            } else {
+                galleryPictureHolder.imageView.setAlpha(1.0f);
+                galleryPictureHolder.checkBox.setEnabled(false);
+                galleryPictureHolder.checkBox.setChecked(false);
+                galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
+            }
+            if (mSingleSelectedPicturePath != null) {
+                if (mGalleryPicturePaths.get(position).equals(mSingleSelectedPicturePath)) {
+                    galleryPictureHolder.checkBox.setEnabled(true);
+                    galleryPictureHolder.checkBox.setChecked(true);
+                    galleryPictureHolder.checkBox.setVisibility(View.VISIBLE);
+                }
+            }
         }
 
-        final String ImagePath = "file://" + galleryPicturePaths.get(position);
-        imageLoader.displayImage(ImagePath, galleryPictureHolder.imageView, ImageUtil.options);
+        final String ImagePath = mGalleryPicturePaths.get(position);
+        Glide
+                .with(mContext)
+                .load(ImagePath)
+                .centerCrop()
+                .placeholder(R.drawable.place_holder)
+                .crossFade()
+                .into(galleryPictureHolder.imageView);
 
         galleryPictureHolder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v(TAG, "Click ---> " + String.valueOf(position));
+                if (mMode == MENU_MODE_MULTIPLE_SELECT) {
+                    boolean isSelectedBefore = false;
+                    if (mMultipleSelectedPicturePaths.size() != 0) {
+                        for (int i = 0; i < mMultipleSelectedPicturePaths.size(); i++) {
+                            if (getItem(position).equals(mMultipleSelectedPicturePaths.get(i))) {
+                                isSelectedBefore = true;
 
-                boolean isSelectedBefore = false;
-                if (checkedPicturePaths.size() != 0) {
-                    for (int i = 0; i < checkedPicturePaths.size(); i++) {
-                        if (getItem(position).equals(checkedPicturePaths.get(i))) {
-                            isSelectedBefore = true;
-                            checkedPicturePaths.remove(i);
-                            galleryPictureHolder.checkBox.setEnabled(false);
-                            galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
-                            break;
+                                mMultipleSelectedPicturePaths.remove(i);
+                                galleryPictureHolder.checkBox.setEnabled(false);
+                                galleryPictureHolder.checkBox.setVisibility(View.INVISIBLE);
+                                break;
+                            }
                         }
                     }
+                    if (!isSelectedBefore) {
+                        mMultipleSelectedPicturePaths.add(getItem(position));
+                    }
+                    mOnMultipleItemSelectListener.onSelect();
+                } else if (mMode == MENU_MODE_SINGLE_SELECT) {
+                    boolean isSelectedBefore = false;
+                    if (mMultipleSelectedPicturePaths.size() != 0) {
+                        for (int i = 0; i < mMultipleSelectedPicturePaths.size(); i++) {
+                            if (getItem(position).equals(mMultipleSelectedPicturePaths.get(i))) {
+                                isSelectedBefore = true;
+                                mSingleSelectedPicturePath = null;
+                                break;
+                            }
+                        }
+                    }
+                    if (!isSelectedBefore || mMultipleSelectedPicturePaths.size() == 0) {
+                        mSingleSelectedPicturePath = getItem(position);
+                    }
                 }
-                if (!isSelectedBefore) {
-                    checkedPicturePaths.add(getItem(position));
-                }
-                mOnMultipleItemSelectListener.onSelect();
                 notifyDataSetChanged();
             }
         });
 
-        galleryPictureHolder.button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v(TAG, "Click ---> " + String.valueOf(position));
-                Intent intent = new Intent(context, GalleryFullSizePictureActivity.class);
-
-                Bundle bundle = new Bundle();
-                bundle.putString("ImagePath", ImagePath);
-
-                intent.putExtras(bundle);
-
-                context.startActivity(intent);
-            }
-        });
+        if (mMode == MENU_MODE_MULTIPLE_SELECT) {
+            galleryPictureHolder.button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.v(TAG, "Click ---> " + String.valueOf(position));
+                    Intent intent = new Intent(mContext, GalleryFullSizePictureActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ImagePath", "file:/" + ImagePath);
+                    intent.putExtras(bundle);
+                    ((Activity) mContext).startActivityForResult(intent, 0);
+                }
+            });
+        }
 
         return convertView;
+    }
+
+    public String getSelectedPath() {
+
+        return mSingleSelectedPicturePath;
     }
 
     public void setOnMultipleItemSelectListener(OnMultipleItemSelectListener listener) {

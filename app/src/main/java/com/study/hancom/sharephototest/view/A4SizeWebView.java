@@ -1,12 +1,13 @@
 package com.study.hancom.sharephototest.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.webkit.WebView;
 
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
+@SuppressLint({"SetJavaScriptEnabled"})
 public class A4SizeWebView extends WebView {
     WebViewUtil mWebViewUtil = new WebViewUtil();
 
@@ -30,8 +31,8 @@ public class A4SizeWebView extends WebView {
         getSettings().setUseWideViewPort(true);
         setHorizontalScrollBarEnabled(false);
         setVerticalScrollBarEnabled(false);
-        getSettings().setBuiltInZoomControls(false);
-        getSettings().setSupportZoom(false);
+        getSettings().setBuiltInZoomControls(true);
+        getSettings().setSupportZoom(true);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         setInitialScale(1);
     }

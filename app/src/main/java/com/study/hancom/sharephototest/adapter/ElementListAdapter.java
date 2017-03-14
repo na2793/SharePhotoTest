@@ -9,8 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
@@ -18,8 +17,8 @@ import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.AnimationUtil;
-import com.study.hancom.sharephototest.util.ImageUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,8 +39,6 @@ public class ElementListAdapter extends SectionableAdapter {
 
     private AnimationUtil mAnimationUtil;
 
-    private ImageLoader mImageLoader = ImageLoader.getInstance();
-
     public ElementListAdapter(Context context, Album album, int rowLayoutID, int headerMenuHolderID, int headerTextID, int itemHolderID, int resizeMode) {
         super(context, rowLayoutID, headerMenuHolderID, headerTextID, itemHolderID, resizeMode);
         mAlbum = album;
@@ -49,9 +46,7 @@ public class ElementListAdapter extends SectionableAdapter {
         mSelectedItemPosition = -1;
         mIsMultipleItemSelectMode = false;
         mMultipleSelectedItemPositionSet = new HashSet<>();
-        if (!mImageLoader.isInited()) {
-            mImageLoader.init(ImageLoaderConfiguration.createDefault(context));
-        }
+
         mOnItemTouchListener = new OnItemTouchListener() {
             @Override
             public void onItemTouch(int sectionNum) {
@@ -64,7 +59,7 @@ public class ElementListAdapter extends SectionableAdapter {
     @Override
     public Picture getItem(int position) {
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; i++) {
+        for (int i = 0; i < pageNum; ++i) {
             Page eachPage = mAlbum.getPage(i);
             int pictureNum = eachPage.getPictureCount();
             if (position < pictureNum) {
@@ -80,7 +75,7 @@ public class ElementListAdapter extends SectionableAdapter {
     public int getDataCount() {
         int total = 0;
         int pageNum = mAlbum.getPageCount();
-        for (int i = 0; i < pageNum; i++) {
+        for (int i = 0; i < pageNum; ++i) {
             total += mAlbum.getPage(i).getPictureCount();
         }
         return total;
@@ -136,11 +131,11 @@ public class ElementListAdapter extends SectionableAdapter {
         textView.setText(elementNum);
 
         /* 이미지뷰 처리 */
-        Picture picture = (Picture) getItem(position);
+        Picture picture = getItem(position);
         if (picture != null) {
-            mImageLoader.displayImage("file://" + picture.getPath(), imageView, ImageUtil.options);
+            Glide.with(context).load(picture.getPath()).centerCrop().into(imageView);
         } else {
-            mImageLoader.displayImage(ImageUtil.drawableResourceToURI(R.drawable.place_holder), imageView, ImageUtil.options);
+            Glide.with(context).load(R.drawable.place_holder).into(imageView);
         }
 
         /* 체크박스 처리 */

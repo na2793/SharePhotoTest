@@ -36,6 +36,9 @@ public class AlbumGridAdapter extends BaseAdapter {
     private WebViewUtil mWebViewUtil = new WebViewUtil();
     private MathUtil mMathUtil = new MathUtil();
 
+    private boolean mLoadingFinished = true;
+    private boolean mRedirect = false;
+
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
     public AlbumGridAdapter(Context context, Album album) {
@@ -96,7 +99,7 @@ public class AlbumGridAdapter extends BaseAdapter {
             }
         });
 
-        /* 웹뷰 처리 */
+       /* 웹뷰 처리 */
         final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {

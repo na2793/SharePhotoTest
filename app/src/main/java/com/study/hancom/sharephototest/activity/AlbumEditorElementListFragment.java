@@ -1,5 +1,6 @@
 package com.study.hancom.sharephototest.activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import com.study.hancom.sharephototest.adapter.ElementListAdapter;
 import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.Picture;
 
 public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
@@ -27,6 +29,8 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
     private static final int MENU_MODE_SINGLE_SELECT = 2;
     private static final int MENU_MODE_MULTIPLE_SELECT = 3;
     private static final int MENU_MODE_EMPTY_PICTURE = 4;
+
+    private static final int REQUEST_CODE = 1;
 
     private Menu mMenu;
     private int mMenuMode = MENU_MODE_MAIN;
@@ -118,6 +122,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 }
                 return true;
             case R.id.action_confirm:
+                // @임시
                 Toast.makeText(getActivity(), "epub으로 저장하였습니다.", Toast.LENGTH_LONG).show();
                 getActivity().finish();
                 return true;
@@ -252,9 +257,10 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_empty_set_picture:
-                Intent intent = new Intent(getActivity().getApplicationContext(),GalleryActivity.class);
-                startActivity(intent);
-
+                // 수정 바람
+//                Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
+//                intent.putStringArrayListExtra("albumElementPaths", mElementListAdapter.extractElementPaths());
+//                startActivityForResult(intent, REQUEST_CODE);
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
@@ -318,4 +324,24 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
     public void onDataChanged() {
         mElementListAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (resultCode == Activity.RESULT_OK) {
+            try {
+                Bundle bundle = data.getExtras();
+                Picture picture = new Picture(bundle.getString("selectedImage"));
+                int index = mElementListAdapter.getSelectedSection();
+                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
+                mElementListAdapter.addPicture(index, position, picture);
+                mElementListAdapter.removePicture(index, position + 1, false);
+                DataChangedListener.notifyChanged();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+
+

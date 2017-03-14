@@ -4,11 +4,9 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ImageView
+    <com.study.hancom.sharephototest.view.TouchImageView
         android:id="@+id/show_image_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerInside"
-        android:contentDescription="ImageViewDialog"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

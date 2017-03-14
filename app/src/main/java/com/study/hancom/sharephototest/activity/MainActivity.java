@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
         newProjectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), GalleryActivity.class);
+                Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
                 startActivity(intent);
             }
         });

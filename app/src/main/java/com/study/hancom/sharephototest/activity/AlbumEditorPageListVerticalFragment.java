@@ -2,7 +2,6 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,7 +13,7 @@ import com.study.hancom.sharephototest.adapter.PageListAdapter;
 import com.study.hancom.sharephototest.listener.DataChangedListener;
 import com.study.hancom.sharephototest.model.Album;
 
-public class AlbumEditorPageListVerticalFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
+public class AlbumEditorPageListVerticalFragment extends Fragment implements DataChangedListener.OnDataChangeListener{
 
     private Album mAlbum;
     private RecyclerView mVerticalPageListView;
@@ -26,7 +25,7 @@ public class AlbumEditorPageListVerticalFragment extends Fragment implements Dat
         View view = inflater.inflate(R.layout.album_editor_page_list_vertical, container, false);
 
         mVerticalPageListView = (RecyclerView) view.findViewById(R.id.page_grid_view_vertical);
-        mVerticalPageListView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        mVerticalPageListView.setLayoutManager(new GridLayoutManager(getActivity(), 6));
         mPageListAdapter = new PageListAdapter(getActivity(), mAlbum);
         mVerticalPageListView.setAdapter(mPageListAdapter);
 
@@ -44,4 +43,5 @@ public class AlbumEditorPageListVerticalFragment extends Fragment implements Dat
     public void onDataChanged() {
         mPageListAdapter.notifyDataSetChanged();
     }
+
 }

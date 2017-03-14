@@ -21,7 +21,7 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
 
-    public PageListAdapter(Context context, Album album) {
+    public PageListAdapter(Context context, Album album){
         mContext = context;
         mAlbum = album;
     }
@@ -39,7 +39,6 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_page_list_item, parent, false);
-
         return new ViewHolder(view);
     }
 

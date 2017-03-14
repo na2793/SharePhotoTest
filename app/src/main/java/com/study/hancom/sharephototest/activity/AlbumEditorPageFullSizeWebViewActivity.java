@@ -3,7 +3,6 @@ package com.study.hancom.sharephototest.activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,7 +36,7 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         /* 인텐트 데이터 처리 */
         parseIntentData();
 
-        /* 웹뷰 처리 */
+        /* 뷰 처리 */
         mWebView = (WebView) findViewById(R.id.show_webview);
         setWebView();
 
@@ -89,7 +88,7 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                    injectAll(mCurrentPageIndex, view);
+                injectAll(mCurrentPageIndex, view);
             }
         });
 
