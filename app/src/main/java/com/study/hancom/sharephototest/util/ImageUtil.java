@@ -16,7 +16,6 @@ public class ImageUtil {
     private static String TAG = ImageUtil.class.getName();
 
     public static List<String> getMediaImage(Context context) {
-
         List<String> galleryPictures = new ArrayList<>();
 
         final String orderBy = MediaStore.Images.Media.DATE_TAKEN;

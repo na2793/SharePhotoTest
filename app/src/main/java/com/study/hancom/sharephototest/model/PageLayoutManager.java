@@ -21,10 +21,10 @@ class PageLayoutManager implements Parcelable {
             + File.separator + "LimHarim" + File.separator + "layout" + File.separator + "style" + File.separator;
 
     private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();    // <type, pageLayoutList>
-                                                                            // type = 스타일 파일들을 분류하는 기준 (element count)
+    // type = 스타일 파일들을 분류하는 기준 (element count)
     private MathUtil mMathUtil = new MathUtil();
 
-    private PageLayoutManager() {
+    PageLayoutManager() {
         File layoutFolder = new File(LAYOUT_FOLDER_PATH);
         if (layoutFolder.exists()) {
             File[] typeFolderList = layoutFolder.listFiles();
@@ -40,14 +40,6 @@ class PageLayoutManager implements Parcelable {
         }
     }
 
-    private static class Singleton {
-        private static final PageLayoutManager instance = new PageLayoutManager();
-    }
-
-    static PageLayoutManager getInstance() {
-        return Singleton.instance;
-    }
-
     private PageLayoutManager(Parcel in) {
         int keyCount = in.readInt();
         for (int i = 0; i < keyCount; i++) {
@@ -56,6 +48,18 @@ class PageLayoutManager implements Parcelable {
             mLayoutMap.put(i, eachList);
         }
     }
+
+    static final Creator<PageLayoutManager> CREATOR = new Creator<PageLayoutManager>() {
+        @Override
+        public PageLayoutManager createFromParcel(Parcel in) {
+            return new PageLayoutManager(in);
+        }
+
+        @Override
+        public PageLayoutManager[] newArray(int size) {
+            return new PageLayoutManager[size];
+        }
+    };
 
     private List<PageLayout> findPageLayoutList(int type) {
         List<PageLayout> pageLayoutList = new ArrayList<>();
@@ -69,20 +73,12 @@ class PageLayoutManager implements Parcelable {
         return pageLayoutList;
     }
 
-    public static final Creator<PageLayoutManager> CREATOR = new Creator<PageLayoutManager>() {
-        @Override
-        public PageLayoutManager createFromParcel(Parcel in) {
-            return new PageLayoutManager(in);
+    Set<Integer> getAllType() throws LayoutNotFoundException {
+        Set layoutKeySet = mLayoutMap.keySet();
+        if (layoutKeySet.isEmpty()) {
+            throw new LayoutNotFoundException();
         }
-
-        @Override
-        public PageLayoutManager[] newArray(int size) {
-            return new PageLayoutManager[size];
-        }
-    };
-
-    Set<Integer> getAllType() {
-        return mLayoutMap.keySet();
+        return layoutKeySet;
     }
 
     PageLayout getPageLayout(int type) throws LayoutNotFoundException {

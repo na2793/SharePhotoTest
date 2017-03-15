@@ -126,13 +126,7 @@ public class GalleryAdapter extends BaseAdapter {
         }
 
         final String ImagePath = mGalleryPicturePaths.get(position);
-        Glide
-                .with(mContext)
-                .load(ImagePath)
-                .centerCrop()
-                .dontAnimate()
-                .placeholder(R.drawable.place_holder)
-                .into(galleryPictureHolder.imageView);
+        Glide.with(mContext).load(ImagePath).centerCrop().into(galleryPictureHolder.imageView);
 
         galleryPictureHolder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override

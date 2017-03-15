@@ -6,19 +6,19 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-public class AutoFitRecyclerView extends RecyclerView {
-    private GridLayoutManager manager;
+public class AutoFitRecyclerGridView extends RecyclerView {
+    private GridLayoutManager mLayoutManager;
     private int columnWidth = -1;
 
-    public AutoFitRecyclerView(Context context) {
+    public AutoFitRecyclerGridView(Context context) {
         this(context, null);
     }
 
-    public AutoFitRecyclerView(Context context, AttributeSet attrs) {
+    public AutoFitRecyclerGridView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AutoFitRecyclerView(Context context, AttributeSet attrs, int defStyle) {
+    public AutoFitRecyclerGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs);
     }
@@ -33,8 +33,8 @@ public class AutoFitRecyclerView extends RecyclerView {
             array.recycle();
         }
 
-        manager = new GridLayoutManager(getContext(), 1);
-        setLayoutManager(manager);
+        mLayoutManager = new GridLayoutManager(getContext(), 1);
+        setLayoutManager(mLayoutManager);
     }
 
     @Override
@@ -42,7 +42,11 @@ public class AutoFitRecyclerView extends RecyclerView {
         super.onMeasure(widthSpec, heightSpec);
         if (columnWidth > 0) {
             int spanCount = Math.max(1, getMeasuredWidth() / columnWidth);
-            manager.setSpanCount(spanCount);
+            mLayoutManager.setSpanCount(spanCount);
         }
+    }
+    
+    public GridLayoutManager getLayoutManager() {
+        return mLayoutManager;
     }
 }

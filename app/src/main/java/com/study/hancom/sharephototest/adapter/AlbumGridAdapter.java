@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
+
     private Context mContext;
+
     private Album mAlbum;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
@@ -39,8 +41,8 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
     public AlbumGridAdapter(Context context, Album album) {
-        this.mContext = context;
-        this.mAlbum = album;
+        mContext = context;
+        mAlbum = album;
     }
 
     @Override

@@ -8,8 +8,12 @@ import java.util.List;
 
 public class MathUtil {
     public List<Integer> getRandomNumberList(List<Integer> usableNumberList, final int totalCount) {
-        Collections.sort(usableNumberList);
+        if (usableNumberList.isEmpty()) {
+            return null;
+        }
+
         List<Integer> randomNumberList = new ArrayList<>();
+        Collections.sort(usableNumberList);
 
         int maxIndex = usableNumberList.size() - 1;
         int minNumber = usableNumberList.get(0);

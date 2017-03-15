@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Page implements Parcelable {
 
-    private static final PageLayoutManager mPageLayoutManager = PageLayoutManager.getInstance();
+    private static PageLayoutManager mPageLayoutManager = new PageLayoutManager();
 
     private PageLayout mLayout;
     private List<Picture> mPictureList = new ArrayList<>();
@@ -20,7 +20,7 @@ public class Page implements Parcelable {
         mLayout = mPageLayoutManager.getPageLayout(layoutType);
     }
 
-    public Page(PageLayout layout) {
+    public Page(PageLayout layout) throws LayoutNotFoundException {
         mLayout = layout;
     }
 
@@ -41,7 +41,7 @@ public class Page implements Parcelable {
         }
     };
 
-    public static Set<Integer> getAllPageLayoutType() {
+    public static Set<Integer> getAllPageLayoutType() throws LayoutNotFoundException {
         return mPageLayoutManager.getAllType();
     }
 

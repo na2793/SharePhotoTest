@@ -3,6 +3,8 @@ package com.study.hancom.sharephototest.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +13,11 @@ public class Album implements Parcelable, Cloneable {
     private String mName;
     private List<Page> mPageList = new ArrayList<>();
 
-    public Album() {
+    public Album() throws LayoutNotFoundException {
         this("tempAlbumName");
     }
 
-    public Album(String name) {
+    public Album(String name) throws LayoutNotFoundException {
         mName = name;
     }
 
