@@ -266,9 +266,8 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         albumElementPictureListPaths.add(picture.getPath());
                     }
                 }
-
                 Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
-                intent.putStringArrayListExtra("albumElementPaths", albumElementPictureListPaths);
+                intent.putStringArrayListExtra("InvalidPicturePathList", albumElementPictureListPaths);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
             case R.id.action_empty_delete:

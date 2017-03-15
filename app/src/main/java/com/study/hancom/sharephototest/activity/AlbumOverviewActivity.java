@@ -39,7 +39,13 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
          /* 데이터 파싱 */
-        parseIntentData();
+        Bundle bundle = getIntent().getExtras();
+        List<String> picturePathList = bundle.getStringArrayList("selectedPicturePathList");
+
+        for (String eachPicturePath : picturePathList) {
+            Picture picture = new Picture(eachPicturePath);
+            mPictureList.add(picture);
+        }
 
            /* 앨범 생성 */
         try {
@@ -52,17 +58,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         mAlbumGridView = (AutoFitRecyclerView) findViewById(R.id.album_overview_grid);
         mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
         mAlbumGridView.setAdapter(mAlbumGridAdapter);
-    }
-
-    private void parseIntentData() {
-        /* 인텐트 처리 */
-        Bundle bundle = getIntent().getExtras();
-        List<String> picturePathList = bundle.getStringArrayList("AlbumElementPaths");
-
-        for (String eachPicturePath : picturePathList) {
-            Picture picture = new Picture(eachPicturePath);
-            mPictureList.add(picture);
-        }
     }
 
     private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
