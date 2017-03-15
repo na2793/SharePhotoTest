@@ -40,7 +40,8 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
          /* 데이터 파싱 */
-        parseIntentData();
+        Bundle bundle = getIntent().getExtras();
+        mPicturePath = bundle.getString("ImagePath");
 
         /* 이미지 */
         TouchImageView imageView = (TouchImageView) findViewById(R.id.show_image_view);
@@ -71,11 +72,6 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void parseIntentData() {
-        Bundle bundle = getIntent().getExtras();
-        mPicturePath = bundle.getString("ImagePath");
     }
 
     @Override

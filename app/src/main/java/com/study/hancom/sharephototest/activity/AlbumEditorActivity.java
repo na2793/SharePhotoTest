@@ -5,7 +5,6 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-import android.view.MenuInflater;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
@@ -24,13 +23,21 @@ public class AlbumEditorActivity extends AppCompatActivity {
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /* 데이터 파싱 */
-        parseIntentData();
+        /* 인텐트 처리 */
+        Bundle bundle = getIntent().getExtras();
+        mAlbum = bundle.getParcelable("album");
 
         /* 프래그먼트 생성 */
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        setFrameFragment(fragmentTransaction);
+
+        mAlbumEditorFrameFragment = new AlbumEditorFrameFragment();
+        fragmentTransaction.add(R.id.page_editor_main_frame, mAlbumEditorFrameFragment);
+
+        // 데이터 전달
+        bundle.putParcelable("album", mAlbum);
+        mAlbumEditorFrameFragment.setArguments(bundle);
+        fragmentTransaction.commit();
 
     }
 
@@ -41,22 +48,4 @@ public class AlbumEditorActivity extends AppCompatActivity {
 
         return true;
     }
-
-    private void parseIntentData() {
-        /* 인텐트 처리 */
-        Bundle bundle = getIntent().getExtras();
-        mAlbum = bundle.getParcelable("album");
-    }
-
-    private void setFrameFragment(FragmentTransaction fragmentTransaction) {
-        mAlbumEditorFrameFragment = new AlbumEditorFrameFragment();
-        fragmentTransaction.add(R.id.page_editor_main_frame, mAlbumEditorFrameFragment);
-        // 데이터 전달
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("album", mAlbum);
-        mAlbumEditorFrameFragment.setArguments(bundle);
-        // 완료
-        fragmentTransaction.commit();
-    }
-
 }

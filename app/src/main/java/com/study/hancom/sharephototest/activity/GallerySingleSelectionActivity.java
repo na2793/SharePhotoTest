@@ -27,20 +27,17 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_picture_main);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /* 데이터 파싱 */
-        parseIntentData();
+        Bundle bundle = getIntent().getExtras();
+        mMultipleSelectedPicturePaths = bundle.getStringArrayList("albumElementPaths");
 
         GridView gridView = (GridView) findViewById(R.id.gallery_image_grid_view);
         mGalleryPicturePaths = ImageUtil.getMediaImage(this);
         mGalleryAdapter = new GalleryAdapter(this, mGalleryPicturePaths, mMultipleSelectedPicturePaths, null, GalleryAdapter.MENU_MODE_SINGLE_SELECT);
         gridView.setAdapter(mGalleryAdapter);
-    }
-
-    public void parseIntentData() {
-        Bundle bundle = getIntent().getExtras();
-        mMultipleSelectedPicturePaths = bundle.getStringArrayList("albumElementPaths");
     }
 
     @Override

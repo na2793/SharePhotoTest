@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
@@ -17,7 +15,7 @@ import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.MathUtil;
-import com.study.hancom.sharephototest.view.AutoFitRecyclerView;
+import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     private Album mAlbum;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    private AutoFitRecyclerView mAlbumGridView;
+    private AutoFitRecyclerGridView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
 
     private MathUtil mMathUtil = new MathUtil();
@@ -40,24 +38,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         /* 데이터 파싱 */
-        parseIntentData();
-
-           /* 앨범 생성 */
-        try {
-            createAlbum(mPictureList);
-        } catch (LayoutNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        /* 어댑터 붙이기 */
-        mAlbumGridView = (AutoFitRecyclerView) findViewById(R.id.album_overview_grid);
-        mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
-        mAlbumGridView.setAdapter(mAlbumGridAdapter);
-    }
-
-    private void parseIntentData() {
-        /* 인텐트 처리 */
+         /* 인텐트 처리 */
         Bundle bundle = getIntent().getExtras();
         List<String> picturePathList = bundle.getStringArrayList("AlbumElementPaths");
 
@@ -65,13 +46,29 @@ public class AlbumOverviewActivity extends AppCompatActivity {
             Picture picture = new Picture(eachPicturePath);
             mPictureList.add(picture);
         }
+
+        try {
+            /* 앨범 생성 */
+            createAlbum(mPictureList);
+
+            /* 어댑터 붙이기 */
+            mAlbumGridView = (AutoFitRecyclerGridView) findViewById(R.id.album_overview_grid);
+            mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
+            mAlbumGridView.setAdapter(mAlbumGridAdapter);
+        } catch (LayoutNotFoundException e) {
+            //** String 임시
+            Toast.makeText(this, "ERROR : 페이지를 구성하는데 필요한 필수 파일을 삭제했냐? (../SharePhoto/layout)", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            finish();
+        }
     }
 
     private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
-        mAlbum = new Album();
-
         List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
         List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
+
+        mAlbum = new Album();
+
         for (int eachElementNum : composedElementNumList) {
             Page newPage = new Page(eachElementNum);
             mAlbum.addPage(newPage);
@@ -106,6 +103,8 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                 try {
                     mAlbumGridAdapter.relayout();
                 } catch (Exception e) {
+                    //** String 임시
+                    Toast.makeText(this, "ERROR : 앨범 재구성을 실패했습니다.", Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
                 mAlbumGridAdapter.notifyDataSetChanged();

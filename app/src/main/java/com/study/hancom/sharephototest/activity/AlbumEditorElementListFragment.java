@@ -63,7 +63,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
         mElementListAdapter.setOnMultipleItemSelectModeListener(new ElementListAdapter.OnMultipleItemSelectModeListener() {
             @Override
             public void onStart() {
-                onChangeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                changeActionBar(MENU_MODE_MULTIPLE_SELECT);
             }
 
             @Override
@@ -73,22 +73,22 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
 
             @Override
             public void onStop() {
-                onChangeActionBar(MENU_MODE_MAIN);
+                changeActionBar(MENU_MODE_MAIN);
             }
         });
         mElementListAdapter.setOnItemSelectListener(new ElementListAdapter.OnItemSelectListener() {
             @Override
             public void onItemSelect(Object item) {
                 if (item != null) {
-                    onChangeActionBar(MENU_MODE_SINGLE_SELECT);
+                    changeActionBar(MENU_MODE_SINGLE_SELECT);
                 } else {
-                    onChangeActionBar(MENU_MODE_EMPTY_PICTURE);
+                    changeActionBar(MENU_MODE_EMPTY_PICTURE);
                 }
             }
 
             @Override
             public void onItemSelectCancel() {
-                onChangeActionBar(MENU_MODE_MAIN);
+                changeActionBar(MENU_MODE_MAIN);
             }
         });
         mElementListView.setAdapter(mElementListAdapter);
@@ -299,7 +299,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
         }
     }
 
-    public void onChangeActionBar(int mode) {
+    public void changeActionBar(int mode) {
         mMenuMode = mode;
         mMenu.clear();
         switch (mMenuMode) {

@@ -34,11 +34,21 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /* 인텐트 데이터 처리 */
-        parseIntentData();
+        Bundle bundle = getIntent().getExtras();
+        mAlbum = bundle.getParcelable("album");
+        mCurrentPageIndex = bundle.getInt("pageIndex");
 
         /* 뷰 처리 */
         mWebView = (WebView) findViewById(R.id.show_webview);
-        setWebView();
+        // Add a WebViewClient
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                injectAll(mCurrentPageIndex, view);
+            }
+        });
+
+        mWebView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
 
         /* 버튼 처리 */
         mButtonPrevious = (Button) findViewById(R.id.button_previous);
@@ -50,7 +60,7 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentPageIndex--;
                 setButton();
-                setWebView();
+                injectAll(mCurrentPageIndex, mWebView);
             }
         });
         mButtonNext.setOnClickListener(new View.OnClickListener() {
@@ -58,15 +68,9 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentPageIndex++;
                 setButton();
-                setWebView();
+                injectAll(mCurrentPageIndex, mWebView);
             }
         });
-    }
-
-    public void parseIntentData() {
-        Bundle bundle = getIntent().getExtras();
-        mAlbum = bundle.getParcelable("album");
-        mCurrentPageIndex = bundle.getInt("pageIndex");
     }
 
     private void setButton() {
@@ -81,18 +85,6 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
         } else {
             mButtonNext.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void setWebView() {
-        // Add a WebViewClient
-        mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                injectAll(mCurrentPageIndex, view);
-            }
-        });
-
-        mWebView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
     }
 
     private void injectAll(int position, WebView view) {
