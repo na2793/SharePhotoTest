@@ -92,7 +92,6 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
             }
         });
         mElementListView.setAdapter(mElementListAdapter);
-        mElementListView.setDividerHeight(0);
 
         return view;
     }
@@ -259,16 +258,17 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_empty_set_picture:
-                // 수정 바람
-                ArrayList<String> test = new ArrayList<>();
-
+                ArrayList<String> usedPicturePathList = new ArrayList<>();
                 for (int i = 0; i < mElementListAdapter.getDataCount(); i++) {
-                    test.add(mElementListAdapter.getItem(i).getPath());
+                    Picture picture = mElementListAdapter.getItem(i);
+                    if(picture != null) {
+                        usedPicturePathList.add(picture.getPath());
+                    }
                 }
-
                 Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
-                intent.putStringArrayListExtra("albumElementPaths", test);
+                intent.putStringArrayListExtra("InvalidPicturePathList", usedPicturePathList);
                 startActivityForResult(intent, REQUEST_CODE);
+
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))

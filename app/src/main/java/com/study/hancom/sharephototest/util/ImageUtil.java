@@ -15,8 +15,8 @@ public class ImageUtil {
 
     private static String TAG = ImageUtil.class.getName();
 
-    public static List<String> getMediaImage(Context context) {
-        List<String> galleryPictures = new ArrayList<>();
+    public static ArrayList<String> getMediaImage(Context context) {
+        ArrayList<String> galleryPictures = new ArrayList<>();
 
         final String orderBy = MediaStore.Images.Media.DATE_TAKEN;
         final String[] columns = {MediaStore.Images.Media.DATA, //The data stream for the file

@@ -40,7 +40,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
 
          /* 인텐트 처리 */
         Bundle bundle = getIntent().getExtras();
-        List<String> picturePathList = bundle.getStringArrayList("AlbumElementPaths");
+        List<String> picturePathList = bundle.getStringArrayList("selectedPicturePathList");
 
         for (String eachPicturePath : picturePathList) {
             Picture picture = new Picture(eachPicturePath);

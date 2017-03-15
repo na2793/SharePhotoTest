@@ -14,10 +14,10 @@ import com.study.hancom.sharephototest.model.Album;
 
 public class AlbumEditorPageListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
 
-    HorizontalGridView mPageListView;
-    PageListAdapter mPageListAdapter;
-
     private Album mAlbum;
+
+    private HorizontalGridView mPageListView;
+    private PageListAdapter mPageListAdapter;
 
     @Override
     public void setArguments(Bundle args) {

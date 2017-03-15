@@ -16,6 +16,7 @@ import com.study.hancom.sharephototest.model.Album;
 public class AlbumEditorPageListVerticalFragment extends Fragment implements DataChangedListener.OnDataChangeListener{
 
     private Album mAlbum;
+
     private RecyclerView mVerticalPageListView;
     private PageListAdapter mPageListAdapter;
 
