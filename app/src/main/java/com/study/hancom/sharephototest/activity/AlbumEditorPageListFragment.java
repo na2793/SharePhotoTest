@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.base.DataChangeObserverActivity;
@@ -22,7 +23,8 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
 
     private Album mAlbum;
 
-    private RecyclerView mPageListView;
+    private Button mHandleButton;
+    private AutoFitRecyclerGridView mPageListView;
     private PageListAdapter mPageListAdapter;
 
     @Override
@@ -39,11 +41,23 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_page_list, container, false);
 
-        mPageListView = (RecyclerView) view.findViewById(R.id.page_grid_view);
+        mPageListView = (AutoFitRecyclerGridView) view.findViewById(R.id.page_list_view);
         mPageListAdapter = new PageListAdapter(mContext, mAlbum);
-        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-        mPageListView.setLayoutManager(horizontalLayoutManager);
         mPageListView.setAdapter(mPageListAdapter);
+
+        /* 핸들 처리 */
+        mHandleButton = (Button) view.findViewById(R.id.page_list_fragment_handle);
+        mHandleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int pageListViewOrientation = mPageListView.getOrientation();
+                if (pageListViewOrientation == AutoFitRecyclerGridView.VERTICAL) {
+                    mPageListView.setOrientation(AutoFitRecyclerGridView.HORIZONTAL);
+                } else {
+                    mPageListView.setOrientation(AutoFitRecyclerGridView.VERTICAL);
+                }
+            }
+        });
 
         return view;
     }

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -67,7 +68,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
 
         /* 리스트뷰에 어댑터 붙이기 */
         mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
-        mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, mElementGridView.getLayoutManager());
+        mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
         mElementGridAdapter.setOnContentSelectListener(new ElementGridAdapter.OnContentSelectListener() {
             @Override
             public void onSelect(int section, int position) {

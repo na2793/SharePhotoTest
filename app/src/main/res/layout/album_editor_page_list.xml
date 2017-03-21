@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/page_grid_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/page_list_fragment_handle"
+        android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:layout_gravity="bottom|center"
+        android:background="@color/colorAccent" />
+
+    <com.study.hancom.sharephototest.view.AutoFitRecyclerGridView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/page_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnWidth="100dp"
+        android:orientation="horizontal"/>
+
+</LinearLayout>

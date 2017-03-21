@@ -16,11 +16,9 @@ import com.study.hancom.sharephototest.model.Album;
 public class AlbumEditorActivity extends DataChangeObserverActivity {
 
     private FragmentManager mFragmentManager;
+
     private AlbumEditorElementListFragment mAlbumEditorElementListFragment;
     private AlbumEditorPageListFragment mAlbumEditorPageListFragment;
-    private AlbumEditorPageListVerticalFragment mAlbumEditorPageListVerticalFragment;
-
-    private Button mHandlerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +31,6 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
         /* 인텐트 처리 */
         Bundle bundle = getIntent().getExtras();
 
-        /* 핸들 처리 */
-        mHandlerButton = (Button) findViewById(R.id.page_list_fragment_handle);
-        mHandlerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View albumEditorPageListFragmentContainer = ((ViewGroup) mAlbumEditorPageListFragment.getView().getParent());
-                View albumEditorPageListVerticalFragmentContainer = ((ViewGroup) mAlbumEditorPageListVerticalFragment.getView().getParent());
-                if (albumEditorPageListFragmentContainer.getVisibility() == View.GONE) {
-                    albumEditorPageListFragmentContainer.setVisibility(View.VISIBLE);
-                    albumEditorPageListVerticalFragmentContainer.setVisibility(View.GONE);
-                } else if (albumEditorPageListFragmentContainer.getVisibility() == View.VISIBLE) {
-                    albumEditorPageListFragmentContainer.setVisibility(View.GONE);
-                    albumEditorPageListVerticalFragmentContainer.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
         /* 프래그먼트 생성 */
         mFragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
@@ -61,18 +42,13 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
         mAlbumEditorPageListFragment = new AlbumEditorPageListFragment();
         fragmentTransaction.add(R.id.page_list_fragment_container, mAlbumEditorPageListFragment);
 
-        mAlbumEditorPageListVerticalFragment = new AlbumEditorPageListVerticalFragment();
-        fragmentTransaction.add(R.id.page_list_vertical_fragment_container, mAlbumEditorPageListVerticalFragment);
-
         // 데이터 전달
         mAlbumEditorElementListFragment.setArguments(bundle);
         mAlbumEditorPageListFragment.setArguments(bundle);
-        mAlbumEditorPageListVerticalFragment.setArguments(bundle);
 
         /* 리스너에 등록 */
         addDataChangeListener(mAlbumEditorElementListFragment);
         addDataChangeListener(mAlbumEditorPageListFragment);
-        addDataChangeListener(mAlbumEditorPageListVerticalFragment);
 
         fragmentTransaction.commit(); // 완료
 
