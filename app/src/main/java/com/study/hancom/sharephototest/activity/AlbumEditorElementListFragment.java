@@ -6,92 +6,97 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.adapter.ElementListAdapter;
-import com.study.hancom.sharephototest.adapter.base.SectionableAdapter;
-import com.study.hancom.sharephototest.listener.DataChangedListener;
+import com.study.hancom.sharephototest.activity.base.DataChangeObserverActivity;
+import com.study.hancom.sharephototest.adapter.ElementGridAdapter;
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.AlbumAction;
+import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.EpubMaker;
+import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class AlbumEditorElementListFragment extends Fragment implements DataChangedListener.OnDataChangeListener {
+public class AlbumEditorElementListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
+
+    private static final int REQUEST_CODE = 1;
 
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
     private static final int MENU_MODE_MULTIPLE_SELECT = 3;
     private static final int MENU_MODE_EMPTY_PICTURE = 4;
 
-    private static final int REQUEST_CODE = 1;
+    private Album mAlbum;
+    private AlbumAction mAlbumAction = new AlbumAction();
 
     private Menu mMenu;
     private MenuInflater mMenuInflater;
     private int mMenuMode = MENU_MODE_MAIN;
 
-    private ListView mElementListView;
-    private ElementListAdapter mElementListAdapter;
-
-    private Album mAlbum;
+    private AutoFitRecyclerGridView mElementGridView;
+    private ElementGridAdapter mElementGridAdapter;
 
     @Override
     public void setArguments(Bundle args) {
         super.setArguments(args);
-        Bundle extra = getArguments();
-        mAlbum = extra.getParcelable("album");
+        Bundle bundle = getArguments();
+        mAlbum = bundle.getParcelable("album");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /* 뷰 생성 */
-        View view = inflater.inflate(R.layout.album_editor_element_list, container, false);
+        View view = inflater.inflate(R.layout.album_editor_element_grid, container, false);
 
         /* 리스트뷰에 어댑터 붙이기 */
-        mElementListView = (ListView) view.findViewById(R.id.element_list_view);
-        mElementListAdapter = new ElementListAdapter(getActivity(), mAlbum,
-                R.layout.album_editor_element_list_row, R.id.row_menuHolder, R.id.row_header_text,
-                R.id.row_itemHolder, SectionableAdapter.MODE_VARY_WIDTHS);
-        mElementListAdapter.setOnMultipleItemSelectModeListener(new ElementListAdapter.OnMultipleItemSelectModeListener() {
+        mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
+        mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, mElementGridView.getLayoutManager());
+        mElementGridAdapter.setOnContentSelectListener(new ElementGridAdapter.OnContentSelectListener() {
             @Override
-            public void onStart() {
-                changeActionBar(MENU_MODE_MULTIPLE_SELECT);
-            }
-
-            @Override
-            public void onSelect() {
-                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
-            }
-
-            @Override
-            public void onStop() {
-                changeActionBar(MENU_MODE_MAIN);
-            }
-        });
-        mElementListAdapter.setOnItemSelectListener(new ElementListAdapter.OnItemSelectListener() {
-            @Override
-            public void onItemSelect(Object item) {
-                if (item != null) {
-                    changeActionBar(MENU_MODE_SINGLE_SELECT);
+            public void onSelect(int section, int position) {
+                if (mElementGridAdapter.isMultipleSelectModeEnabled()) {
+                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                    getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select),
+                            mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
                 } else {
-                    changeActionBar(MENU_MODE_EMPTY_PICTURE);
+                    if (mElementGridAdapter.getContent(section, position) != null) {
+                        changeActionBar(MENU_MODE_SINGLE_SELECT);
+                    } else {
+                        changeActionBar(MENU_MODE_EMPTY_PICTURE);
+                    }
                 }
             }
 
             @Override
-            public void onItemSelectCancel() {
+            public void onCancel() {
                 changeActionBar(MENU_MODE_MAIN);
             }
         });
-        mElementListView.setAdapter(mElementListAdapter);
+
+        mElementGridAdapter.setOnDataChangeListener(new ElementGridAdapter.OnDataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                ((DataChangeObserverActivity) getActivity()).notifyChanged();
+            }
+        });
+        mElementGridView.setAdapter(mElementGridAdapter);
 
         return view;
     }
@@ -113,44 +118,50 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                     case MENU_MODE_EMPTY_PICTURE:
                         // pass ; MENU_MODE_SINGLE_SELECT와 동일
                     case MENU_MODE_SINGLE_SELECT:
-                        mElementListAdapter.setSelectedItem(-1);
-                        DataChangedListener.notifyChanged();
+                        mElementGridAdapter.selectContent(-1);
+                        mElementGridAdapter.notifyDataSetChanged();
                         break;
                     case MENU_MODE_MULTIPLE_SELECT:
-                        mElementListAdapter.stopMultipleSelectMode();
-                        DataChangedListener.notifyChanged();
+                        mElementGridAdapter.stopMultipleSelectMode();
+                        mElementGridAdapter.notifyDataSetChanged();
                         break;
                 }
                 return true;
             case R.id.action_confirm:
                 // @임시
-                Toast.makeText(getActivity(), "epub으로 저장하였습니다.", Toast.LENGTH_LONG).show();
-                getActivity().finish();
+                new Thread(new Runnable() {
+                    public void run() {
+                        new EpubMaker(mAlbum, getActivity()).saveEpub("test");
+                    }
+                }).start();
                 return true;
             case R.id.action_single_edit:
                 return true;
             case R.id.action_single_move:
                 final NumberPicker pageNumberPicker = new NumberPicker(getActivity());
                 pageNumberPicker.setMinValue(1);
-                pageNumberPicker.setMaxValue(mElementListAdapter.getSectionsCount() + 1);
-                pageNumberPicker.setValue(mElementListAdapter.getSelectedSection() + 1);
+                pageNumberPicker.setMaxValue(mElementGridAdapter.getSectionCount());
+                pageNumberPicker.setValue(mElementGridAdapter.getSelectedSection() + 1);
                 createDialog(getString(R.string.dialog_title_action_single_move), getString(R.string.dialog_message_action_single_move))
                         .setView(pageNumberPicker)
                         .setPositiveButton(getString(R.string.dialog_button_confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int fromIndex = mElementListAdapter.getSelectedSection();
-                                int fromPosition = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                int toIndex = pageNumberPicker.getValue() - 1;
-                                int toPosition = mElementListAdapter.getCountInSection(toIndex);
+                                int fromSection = mElementGridAdapter.getSelectedSection();
+                                int fromPosition = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                int toSection = pageNumberPicker.getValue() - 1;
+                                int toPosition = mAlbum.getPage(toSection).getPictureCount();
+
                                 try {
-                                    mElementListAdapter.reorderPicture(fromIndex, fromPosition, toIndex, toPosition);
-                                    mElementListAdapter.setSelectedSection(toIndex);
-                                    mElementListAdapter.setSelectedItem(-1);
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+                                    mAlbumAction.reorderPicture(mAlbum, fromSection, fromPosition, toSection, toPosition);
+                                    mElementGridAdapter.selectSection(toSection);
+                                    mElementGridAdapter.selectContent(-1);
+                                    mElementGridAdapter.notifyDataSetChanged();
+
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_single_move_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_single_move_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -168,13 +179,14 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    int index = mElementListAdapter.getSelectedSection();
-                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                    mElementListAdapter.removePicture(index, position, true);
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+                                    int section = mElementGridAdapter.getSelectedSection();
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    mAlbumAction.removePicture(mAlbum, section, position, true);
+                                    mElementGridAdapter.selectContent(-1);
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -182,13 +194,14 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    int index = mElementListAdapter.getSelectedSection();
-                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                    mElementListAdapter.removePicture(index, position, false);
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+                                    int section = mElementGridAdapter.getSelectedSection();
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    mAlbumAction.removePicture(mAlbum, section, position, false);
+                                    mElementGridAdapter.selectContent(-1);
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -201,11 +214,14 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_multiple_select_all:
-                int dataCount = mElementListAdapter.getDataCount();
-                for (int eachPosition = 0; eachPosition < dataCount; eachPosition++) {
-                    mElementListAdapter.addMultipleSelectedItem(eachPosition);
+                int dataCount = mElementGridAdapter.getContentCount();
+                for (int eachContentRawPosition = 0; eachContentRawPosition < dataCount; eachContentRawPosition++) {
+                    if (!mElementGridAdapter.selectContent(eachContentRawPosition)) {
+                        mElementGridAdapter.selectContent(eachContentRawPosition);
+                    }
                 }
-                DataChangedListener.notifyChanged();
+
+                mElementGridAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_multiple_edit:
                 return true;
@@ -217,16 +233,17 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    for (int eachSelectedItemPosition : mElementListAdapter.getMultipleSelectedItem()) {
-                                        int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
-                                        int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
-                                        mElementListAdapter.removePicture(index, position, true);
+                                    List<Integer> selectedContentRawPositionList = mElementGridAdapter.getMultipleSelectedContentRawPosition();
+                                    for (int eachSelectedItemPosition : selectedContentRawPositionList) {
+                                        int section = mElementGridAdapter.getSectionFor(eachSelectedItemPosition);
+                                        int position = mElementGridAdapter.rawPositionToPosition(eachSelectedItemPosition);
+                                        mAlbumAction.removePicture(mAlbum, section, position, true);
                                     }
-                                    mElementListAdapter.stopMultipleSelectMode();
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+                                    mElementGridAdapter.stopMultipleSelectMode();
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -234,18 +251,48 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    Integer[] sortedMultipleSelectedItemArray = mElementListAdapter.getMultipleSelectedItem(true);
-                                    for (int i = sortedMultipleSelectedItemArray.length - 1; i > -1; i--) {
-                                        int eachSelectedItemPosition = sortedMultipleSelectedItemArray[i];
-                                        int index = mElementListAdapter.getTypeFor(eachSelectedItemPosition);
-                                        int position = mElementListAdapter.getPositionInSection(eachSelectedItemPosition);
-                                        mElementListAdapter.removePicture(index, position, false);
+                                    /* 삭제 가능 여부(레이아웃 존재 여부) 판별 */
+                                    List<Integer> selectedContentRawPositionList = mElementGridAdapter.getMultipleSelectedContentRawPosition();
+                                    Map<Integer, List<Integer>> selectedContentBySectionMap = new HashMap<>();
+
+                                    for (int eachSelectedContentRawPosition : selectedContentRawPositionList) {
+                                        int eachSection = mElementGridAdapter.getSectionFor(eachSelectedContentRawPosition);
+                                        List<Integer> eachRawPositionList;
+                                        if (selectedContentBySectionMap.containsKey(eachSection)) {
+                                            eachRawPositionList = selectedContentBySectionMap.get(eachSection);
+                                        } else {
+                                            eachRawPositionList = new ArrayList<>();
+                                            selectedContentBySectionMap.put(eachSection, eachRawPositionList);
+                                        }
+                                        eachRawPositionList.add(eachSelectedContentRawPosition);
                                     }
-                                    mElementListAdapter.stopMultipleSelectMode();
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+
+                                    Set<Integer> selectedContentCountBySectionMapKeySet = selectedContentBySectionMap.keySet();
+                                    Set<Integer> allLayoutTypeSet = Page.getAllLayoutType();
+
+                                    for (int eachSection : selectedContentCountBySectionMapKeySet) {
+                                        int pictureCount = mAlbum.getPage(eachSection).getPictureCount();
+                                        int selectedCount = selectedContentBySectionMap.get(eachSection).size();
+                                        int result = pictureCount - selectedCount;
+                                        if (result > 0) {
+                                            if (!allLayoutTypeSet.contains(result)) {
+                                                throw new LayoutNotFoundException();
+                                            }
+                                        }
+                                    }
+
+                                    /* 삭제 */
+                                    List<Integer> sortedSelectedSectionList = new ArrayList<>(selectedContentCountBySectionMapKeySet);
+                                    Collections.sort(sortedSelectedSectionList);
+                                    for (int i = sortedSelectedSectionList.size() - 1 ; i >= 0 ; i--) {
+                                        int eachSection = sortedSelectedSectionList.get(i);
+                                        mAlbumAction.removeMultiplePicture(mAlbum, eachSection, selectedContentBySectionMap.get(eachSection));
+                                    }
+                                    mElementGridAdapter.stopMultipleSelectMode();
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -259,9 +306,10 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 return true;
             case R.id.action_empty_set_picture:
                 ArrayList<String> usedPicturePathList = new ArrayList<>();
-                for (int i = 0; i < mElementListAdapter.getDataCount(); i++) {
-                    Picture picture = mElementListAdapter.getItem(i);
-                    if(picture != null) {
+                int contentCount = mElementGridAdapter.getContentCount();
+                for (int i = 0; i < contentCount; i++) {
+                    Picture picture = mElementGridAdapter.getContent(i);
+                    if (picture != null) {
                         usedPicturePathList.add(picture.getPath());
                     }
                 }
@@ -276,13 +324,14 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    int index = mElementListAdapter.getSelectedSection();
-                                    int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                                    mElementListAdapter.removePicture(index, position, false);
-                                    DataChangedListener.notifyChanged();
-                                } catch (Exception e) {
+                                    int section = mElementGridAdapter.getSelectedSection();
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    mAlbumAction.removePicture(mAlbum, section, position, false);
+                                    mElementGridAdapter.selectContent(-1);
+                                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                                } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -312,7 +361,7 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
                 mMenuInflater.inflate(R.menu.album_editor_select_single_picture, mMenu);
                 break;
             case MENU_MODE_MULTIPLE_SELECT:
-                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementListAdapter.getSelectedItemCount(), mElementListAdapter.getDataCount()));
+                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
                 mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
                 break;
             case MENU_MODE_EMPTY_PICTURE:
@@ -330,26 +379,20 @@ public class AlbumEditorElementListFragment extends Fragment implements DataChan
 
     @Override
     public void onDataChanged() {
-        mElementListAdapter.notifyDataSetChanged();
+        mElementGridAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (resultCode == Activity.RESULT_OK) {
-            try {
-                Bundle bundle = data.getExtras();
-                Picture picture = new Picture(bundle.getString("selectedImage"));
-                int index = mElementListAdapter.getSelectedSection();
-                int position = mElementListAdapter.getPositionInSection(mElementListAdapter.getSelectedItem());
-                mElementListAdapter.addPicture(index, position, picture);
-                mElementListAdapter.removePicture(index, position + 1, false);
-                DataChangedListener.notifyChanged();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Bundle bundle = data.getExtras();
+            Picture picture = new Picture(bundle.getString("selectedImage"));
+            int section = mElementGridAdapter.getSelectedSection();
+            int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+            mAlbumAction.setPicture(mAlbum, section, position, picture);
+
+            ((DataChangeObserverActivity) getActivity()).notifyChanged();
         }
     }
 }
-
-

@@ -8,16 +8,16 @@ import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Album implements Parcelable, Cloneable {
+public class Album implements Parcelable {
 
     private String mName;
     private List<Page> mPageList = new ArrayList<>();
 
-    public Album() throws LayoutNotFoundException {
+    Album() throws LayoutNotFoundException {
         this("tempAlbumName");
     }
 
-    public Album(String name) throws LayoutNotFoundException {
+    Album(String name) throws LayoutNotFoundException {
         mName = name;
     }
 
@@ -46,25 +46,29 @@ public class Album implements Parcelable, Cloneable {
         return mPageList.get(index);
     }
 
-    public void addPage(Page page) {
-        mPageList.add(page);
-    }
-
-    public void addPage(int index, Page page) {
-        mPageList.add(index, page);
-    }
-
-    public Page removePage(int index) {
-        return mPageList.remove(index);
-    }
-
     public int getPageCount() {
         return mPageList.size();
     }
 
-    public void reorderPage(int fromIndex, int toIndex) {
-        Page tempPage = removePage(fromIndex);
-        addPage(toIndex, tempPage);
+    void addPage(Page page) {
+        mPageList.add(page);
+    }
+
+    void addPage(int index, Page page) {
+        mPageList.add(index, page);
+    }
+
+    Page removePage(int index) {
+        return mPageList.remove(index);
+    }
+
+    void reorderPage(int fromIndex, int toIndex) {
+        Page target = removePage(fromIndex);
+        if (toIndex < getPageCount()) {
+            addPage(toIndex, target);
+        } else {
+            addPage(target);
+        }
     }
 
     @Override
@@ -76,9 +80,5 @@ public class Album implements Parcelable, Cloneable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mName);
         dest.writeTypedList(mPageList);
-    }
-
-    public Album clone() throws CloneNotSupportedException {
-        return (Album) super.clone();
     }
 }

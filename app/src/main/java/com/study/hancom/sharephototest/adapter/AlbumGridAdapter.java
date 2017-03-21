@@ -36,7 +36,6 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
     private Album mAlbum;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
-    private MathUtil mMathUtil = new MathUtil();
 
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
 
@@ -119,77 +118,23 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         injectAll(position, holder.webView);
     }
 
+    public List<Integer> getPinnedPositionAll() {
+        return new ArrayList<>(mPinnedPositionSet);
+    }
+
     private void injectAll(int position, WebView view) {
         final Page page = mAlbum.getPage(position);
         int pictureCount = page.getPictureCount();
         mWebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
+            mWebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
                 mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
             } else {
                 mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
-        }
-    }
-
-    public void relayout() throws Exception {
-        Album backup = mAlbum.clone();
-
-        try {
-            List<Picture> pictureList = new ArrayList<>();
-            List<Page> pinnedPageList = new ArrayList<>();
-
-            /* 고정 페이지 추출 */
-            Integer[] sortedPinnedPositionArray = mPinnedPositionSet.toArray(new Integer[mPinnedPositionSet.size()]);
-            Arrays.sort(sortedPinnedPositionArray);
-
-            int offset = 0;
-            for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                pinnedPageList.add(mAlbum.removePage(eachPinnedPosition - offset));
-                offset++;
-            }
-
-            /* 모든 사진 추출 및 페이지 삭제 */
-            int oldPageCount = mAlbum.getPageCount();
-            Log.v("tag", oldPageCount + " ");
-            for (int i = 0; i < oldPageCount; i++) {
-                Page eachPage = mAlbum.removePage(0);
-                for (int j = 0; j < eachPage.getPictureCount(); j++) {
-                    Picture eachPicture = eachPage.getPicture(j);
-                    if (eachPicture != null) {
-                        pictureList.add(eachPicture);
-                    }
-                }
-            }
-
-            /* 새롭게 적재 */
-            List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
-            List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
-
-            for (int eachElementNum : composedElementNumList) {
-                Page newPage = new Page(eachElementNum);
-                mAlbum.addPage(newPage);
-                for (int i = 0; i < eachElementNum; i++) {
-                    newPage.addPicture(pictureList.remove(0));
-                }
-            }
-
-            for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                int pageCount = mAlbum.getPageCount();
-                if (eachPinnedPosition < pageCount) {
-                    mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
-                } else {
-                    mPinnedPositionSet.remove(eachPinnedPosition);
-                    mPinnedPositionSet.add(mAlbum.getPageCount());
-                    mAlbum.addPage(pinnedPageList.remove(0));
-                }
-            }
-        } catch (Exception e) {
-            mAlbum = backup;
-            throw e;
         }
     }
 

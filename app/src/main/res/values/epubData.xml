@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="epubData_mimeType">application/epub+zip</string>
+    <string name="epubData_metaInfo_fixedLayout">
+        <![CDATA[
+        <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <display_options>
+            <platform name=\"*\">
+                <option name=\"fixed-layout\">true</option>
+            </platform>
+        </display_options>
+        ]]></string>
+
+    <string name="epupData_metaInfo_container">
+        <![CDATA[
+        <?xml version=\"1.0\" encoding=\"utf-8\"?>
+        <container version=\"1.0\" xmlns=\"urn:oasis:names:tc:opendocument:xmlns:container\">
+            <rootfiles>
+                <rootfile full-path=\"OEBPS/package.opf\" media-type=\"application/oebps-package+xml\" />
+            </rootfiles>
+        </container>
+        ]]></string>
+
+    <string name="epubData_OEBPS_pakage">
+        <![CDATA[
+        <?xml version=\"1.0\" encoding=\"utf-8\"?>
+        <package xmlns=\"http://www.idpf.org/2007/opf\" prefix=\"cc: http://creativecommons.org/ns# rendition: http://www.idpf.org/vocab/rendition/#\" unique-identifier=\"uid\" xml:lang=\"ko\" version=\"3.0\">
+	    <metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:opf=\"http://www.idpf.org/2007/opf\">
+		    <dc:title>%1$s</dc:title>
+		    <dc:creator>%2$s</dc:creator>
+		    <dc:language>ko</dc:language>
+		    <dc:identifier id=\"uid\">urn:uuid:3438741D-E6E9-4146-808A-0D960BC17A64</dc:identifier>
+		    <meta content="1.0.0" name="SharePhoto version" />
+		    <meta name=\"cover\" content=\"coverimage\" />
+		    <meta name=\"hncdefaultwidth\" content=\"768\" />
+		    <meta name=\"hncdefaultheight\" content=\"1024\" />
+		    <meta property=\"rendition:layout\">pre-paginated</meta>
+		    <meta property=\"rendition:spread\">none</meta>
+	    </metadata>
+	    <manifest>
+	    </manifest>
+	    <spine toc=\"ncx\">
+	    </spine>
+        </package>
+        ]]></string>
+
+    <string name="epubData_OEBPS_toc">
+        <![CDATA[
+        <?xml version=\"1.0\" encoding=\"utf-8\"?>
+        <ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" xmlns:ncx=\"http://www.daisy.org/z3986/2005/ncx/\" xml:lang=\"ko\" version=\"2005-1\">
+        <head>
+		    <meta name=\"dtb:uid\" content=\"urn:uuid:3438741D-E6E9-4146-808A-0D960BC17A64\" />
+	    </head>
+	    <docTitle>
+		    <text>%1$s</text>
+	    </docTitle>
+	    <navMap>
+        </navMap>
+        </ncx>
+        ]]></string>
+
+    <string name="epubData_xhtml_nav">
+        <![CDATA[
+        <?xml version=\"1.0\" encoding=\"utf-8\"?>
+        <html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http://www.idpf.org/2007/ops\" xml:lang=\"ko\" lang=\"ko\">
+	    <head>
+		    <title>%1$s</title>
+		</head>
+	    <body>
+		<nav epub:type=\"toc\" id=\"toc\">
+			<h1>%1$s</h1>
+			<ol>
+			</ol>
+		</nav>
+        </body>
+        </html>
+        ]]></string>
+
+    <string name="epubData_OEBPS_package_manifest"><![CDATA[<item id=\"content%1$d\" href=\"xhtml/Chapter00%1$d.html\" media-type=\"application/xhtml+xm\" properties=\"scripted\" />]]></string>
+    <string name="epubData_OEBPS_package_spine"><![CDATA[<itemref idref=\"content%1$d\" />]]></string>
+    <string name="epubData_OEBPS_toc_navMap"><![CDATA[<navPoint id=\"np-%1$d\" playOrder=\"%1$d\"><navLabel><text>%1$d</text></navLabel><content src=\"xhtml/Chapter00%1$d.html\" /></navPoint>]]></string>
+    <string name="epubData_xhtml_nav_item"><![CDATA[<li><a href=\"Chapter00%1$d.html\" id=\"np-%1$d\">%1$d</a></li>]]></string>
+    <string name="epubData_xhtml_html_css"><![CDATA[<link rel=\"stylesheet\" href=\"css/%1$d.css\">]]></string>
+    <string name="epubData_xhtml_html_image"><![CDATA[<div id=\"_%1$d\" style=\"background-image:url(image/%2$d/%1$d.jpeg)\"></div>]]></string>
+    <string name="epubData_xhtml_html_name">Chapter00%1$d.html</string>
+
+    <string name="epubData_path_SharePhoto">/SharePhoto/</string>
+    <string name="epubData_path_epub">/SharePhoto/%1$s/</string>
+    <string name="epubData_path_metaInfo">META-INF/</string>
+    <string name="epubData_path_oebps">OEBPS/</string>
+    <string name="epubData_path_xhtml">OEBPS/xhtml/</string>
+    <string name="epubData_path_image">OEBPS/xhtml/image/</string>
+    <string name="epubData_path_css">OEBPS/xhtml/css/</string>
+
+    <string name="epubData_fileName_mineType">mimetype</string>
+    <string name="epubData_fileName_container">container.xml</string>
+    <string name="epubData_fileName_fixed_layout">com.apple.ibooks.display-options.xml</string>
+    <string name="epubData_fileName_package">package.opf</string>
+    <string name="epubData_fileName_toc">toc.ncx</string>
+    <string name="epubData_fileName_nav">nav.xhtml</string>
+
+    <string name="epubData_image_extension">.jpeg</string>
+    <string name="epubData_epub_extension">.epub</string>
+    <string name="epubData_css_extension">.css</string>
+
+</resources>

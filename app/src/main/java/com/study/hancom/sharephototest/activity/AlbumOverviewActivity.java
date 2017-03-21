@@ -12,6 +12,7 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.AlbumAction;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.MathUtil;
@@ -23,12 +24,11 @@ import java.util.List;
 public class AlbumOverviewActivity extends AppCompatActivity {
 
     private Album mAlbum;
+    private AlbumAction mAlbumAction = new AlbumAction();
     private List<Picture> mPictureList = new ArrayList<>();
 
     private AutoFitRecyclerGridView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
-
-    private MathUtil mMathUtil = new MathUtil();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
 
         try {
             /* 앨범 생성 */
-            createAlbum(mPictureList);
+            mAlbum = mAlbumAction.createAlbum(mPictureList);
 
             /* 어댑터 붙이기 */
             mAlbumGridView = (AutoFitRecyclerGridView) findViewById(R.id.album_overview_grid);
@@ -60,22 +60,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
             Toast.makeText(this, "ERROR : 페이지를 구성하는데 필요한 필수 파일을 삭제했냐? (../SharePhoto/layout)", Toast.LENGTH_LONG).show();
             e.printStackTrace();
             finish();
-        }
-    }
-
-    private void createAlbum(List<Picture> pictureList) throws LayoutNotFoundException {
-        List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
-        List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
-
-        mAlbum = new Album();
-
-        for (int eachElementNum : composedElementNumList) {
-            Page newPage = new Page(eachElementNum);
-            mAlbum.addPage(newPage);
-            Log.v("tag", "페이지 생성 " + eachElementNum);
-            for (int i = 0; i < eachElementNum; i++) {
-                newPage.addPicture(pictureList.remove(0));
-            }
         }
     }
 
@@ -101,7 +85,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
 
             case R.id.action_album_relayout:
                 try {
-                    mAlbumGridAdapter.relayout();
+                    mAlbumAction.relayoutAlbum(mAlbum, mAlbumGridAdapter.getPinnedPositionAll());
                 } catch (Exception e) {
                     //** String 임시
                     Toast.makeText(this, "ERROR : 앨범 재구성을 실패했습니다.", Toast.LENGTH_LONG).show();

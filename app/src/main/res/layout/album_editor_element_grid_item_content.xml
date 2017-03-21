@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="3dp"
     android:layout_weight="1">
 
     <ImageView
-        android:id="@+id/item_image"
-        android:layout_width="120dp"
+        android:id="@+id/item_content_image"
+        android:layout_width="match_parent"
         android:layout_height="120dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
 
     <CheckBox
-        android:id="@+id/item_checkbox"
+        android:id="@+id/item_content_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|top"
@@ -23,11 +23,13 @@
 
     <TextView
         android:background="@color/colorWhite"
-        android:id="@+id/item_text"
+        android:id="@+id/item_content_text"
         android:layout_margin="3dp"
         android:textSize="15sp"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:textAlignment="center"
         android:layout_gravity="start|top"
         android:textStyle="bold" />

@@ -11,28 +11,10 @@ public class WebViewUtil {
             "<meta name=\"viewport\" content=\"initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"/>\n" +
             "<title>Title of the document</title>\n" +
             "<style>\n" +
-            "@page {\n" +
-            "    size: A4;\n" +
-            "    margin: 0;\n" +
-            "}\n" +
-            "@media print {\n" +
-            "    html, body {\n" +
-            "        width: 210mm;\n" +
-            "        height: 297mm;\n" +
-            "        background: white;\n" +
-            "    }\n" +
-            "}\n" +
-            "body {        \n" +
-            "    margin: 0;\n" +
-            "    padding: 0;\n" +
-            "}\n" +
             "#container {\n" +
-            "    width: 210mm;\n" +
-            "    height: 297mm;\n" +
-            "    margin-left: auto;\n" +
-            "    margin-right: auto;\n" +
-            "    background: lightgray;\n" +
-            "    overflow:hidden;\n" +
+            "    width: 752px;\n" +
+            "    height: 1008px;\n" +
+            "    background: black;\n" +
             "}\n" +
             "</style>\n" +
             "</head>\n" +
@@ -48,12 +30,12 @@ public class WebViewUtil {
         return mDefaultHTMLData;
     }
 
-    public int getHeightByWidthForA4(int width) {
-        return 297 * width / 210;
+    public int getHeightByWidthForHD(int width) {
+        return 1008 * width / 752;
     }
 
-    public int getWidthByWidthForA4(int height) {
-        return 210 * height / 297;
+    public int getWidthByWidthForHD(int height) {
+        return 752 * height / 1008;
     }
 
     public void injectDivByScript(WebView view, int divNum) {
@@ -91,5 +73,6 @@ public class WebViewUtil {
                 "var target = document.getElementById('" + elementId + "');" +
                 "target.setAttribute('style', \"background-image:url('" + picturePath + "')\");" +
                 "})()");
+
     }
 }

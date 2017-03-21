@@ -71,7 +71,7 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
         mWebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
+            mWebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
                 mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());

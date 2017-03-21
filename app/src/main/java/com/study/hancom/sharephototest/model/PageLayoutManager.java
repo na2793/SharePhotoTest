@@ -83,7 +83,7 @@ class PageLayoutManager implements Parcelable {
 
     PageLayout getPageLayout(int type) throws LayoutNotFoundException {
         if (!mLayoutMap.containsKey(type)) {
-            throw new LayoutNotFoundException();
+            throw new LayoutNotFoundException("Layout Type " + type + " is Not Exist");
         }
 
         List<PageLayout> pageLayoutList = mLayoutMap.get(type);

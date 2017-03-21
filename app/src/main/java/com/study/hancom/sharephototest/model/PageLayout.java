@@ -7,7 +7,7 @@ public class PageLayout implements Parcelable {
     private final String mPath;
     private final int mElementNum;
 
-    public PageLayout(int elementNum, String stylePath) {
+    PageLayout(int elementNum, String stylePath) {
         mElementNum = elementNum;
         mPath = stylePath;
     }
@@ -33,7 +33,7 @@ public class PageLayout implements Parcelable {
         return mElementNum;
     }
 
-    public String getStylePath() {
+    public String getPath() {
         return mPath;
     }
 

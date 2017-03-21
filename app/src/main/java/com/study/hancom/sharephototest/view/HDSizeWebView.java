@@ -8,18 +8,18 @@ import android.webkit.WebView;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
 @SuppressLint({"SetJavaScriptEnabled"})
-public class A4SizeWebView extends WebView {
+public class HDSizeWebView extends WebView {
     WebViewUtil mWebViewUtil = new WebViewUtil();
 
-    public A4SizeWebView(Context context) {
+    public HDSizeWebView(Context context) {
         this(context, null);
     }
 
-    public A4SizeWebView(Context context, AttributeSet attrs) {
+    public HDSizeWebView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public A4SizeWebView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public HDSizeWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -43,11 +43,11 @@ public class A4SizeWebView extends WebView {
 
         if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY && MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.EXACTLY) {
             int height = MeasureSpec.getSize(heightMeasureSpec);
-            int width = mWebViewUtil.getWidthByWidthForA4(height);
+            int width = mWebViewUtil.getWidthByWidthForHD(height);
             setMeasuredDimension(width, height);
         } else if (MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY && MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
-            int height = mWebViewUtil.getHeightByWidthForA4(width);
+            int height = mWebViewUtil.getHeightByWidthForHD(width);
             setMeasuredDimension(width, height);
         }
     }
