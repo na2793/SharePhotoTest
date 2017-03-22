@@ -3,7 +3,6 @@ package com.study.hancom.sharephototest.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,16 +13,13 @@ import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.AlbumAction;
-import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.MathUtil;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumOverviewActivity extends AppCompatActivity {
-
     private Album mAlbum;
     private AlbumAction mAlbumAction = new AlbumAction();
     private List<Picture> mPictureList = new ArrayList<>();

@@ -29,10 +29,8 @@ public class MainActivity extends Activity {
         loadProjectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "잠시 준비중", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "준비중", Toast.LENGTH_LONG).show();
             }
         });
-
-//        GridView recentProject = (GridView) findViewById(R.id.recent_project_grid_view);
     }
 }

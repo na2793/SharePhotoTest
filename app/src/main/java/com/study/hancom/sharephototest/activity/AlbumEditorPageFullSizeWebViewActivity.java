@@ -21,9 +21,9 @@ public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
     private Album mAlbum;
     private int mCurrentPageIndex;
 
+    private WebView mWebView;
     private WebViewUtil mWebViewUtil = new WebViewUtil();
 
-    private WebView mWebView;
     private Button mButtonPrevious;
     private Button mButtonNext;
 

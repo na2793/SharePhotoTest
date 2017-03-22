@@ -15,15 +15,22 @@ import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
 public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
-
     private Context mContext;
     private Album mAlbum;
+    private boolean mHorizontal;
+
+    private boolean mFirstLoading = true;
 
     private WebViewUtil mWebViewUtil = new WebViewUtil();
 
     public PageListAdapter(Context context, Album album){
+        this(context, album, false);
+    }
+
+    public PageListAdapter(Context context, Album album, boolean horizontal){
         mContext = context;
         mAlbum = album;
+        mHorizontal = horizontal;
     }
 
     @Override
@@ -38,8 +45,13 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_page_list_item, parent, false);
-        return new ViewHolder(view);
+        if (mHorizontal) {
+            final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_horizontal_page_list_item, parent, false);
+            return new ViewHolder(view);
+        } else {
+            final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_page_list_item, parent, false);
+            return new ViewHolder(view);
+        }
     }
 
     @Override
@@ -49,10 +61,13 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
+                mFirstLoading = false;
             }
         });
 
-        injectAll(position, holder.webView);
+        if (!mFirstLoading) {
+            injectAll(position, holder.webView);
+        }
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

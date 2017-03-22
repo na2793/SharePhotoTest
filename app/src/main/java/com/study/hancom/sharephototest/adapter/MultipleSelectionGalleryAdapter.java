@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MultipleSelectionGalleryAdapter extends com.study.hancom.sharephototest.adapter.base.GalleryAdapter {
-    public static final int REQUEST_CODE = 1;
+    private static final int REQUEST_CODE = 1;
 
     private Set<Integer> mSelectedPositionSet = new HashSet<>();
     

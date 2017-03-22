@@ -17,6 +17,5 @@ public class ZipUtil {
         zipFile.addFolder(srcFolder + "OEBPS", parameters);
         zipFile.addFolder(srcFolder + "META-INF", parameters);
         zipFile.addFile(new File(srcFolder + "mimetype"), parameters);
-
     }
 }

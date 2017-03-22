@@ -15,7 +15,7 @@ import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
 import java.util.ArrayList;
 
 public class SingleSelectionGalleryAdapter extends com.study.hancom.sharephototest.adapter.base.GalleryAdapter {
-    public static final int REQUEST_CODE = 1;
+    private static final int REQUEST_CODE = 1;
 
     private int mSelectedPosition = -1;
     private ArrayList<String> mInvalidPicturePathList;

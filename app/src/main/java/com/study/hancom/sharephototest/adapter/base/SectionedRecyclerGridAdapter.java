@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.ViewHolder, CVH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private static final int ITEM_VIEW_TYPE_HEADER = 0;
     private static final int ITEM_VIEW_TYPE_CONTENT = 1;
 

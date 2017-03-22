@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
-
     private ArrayList<String> mPicturePathList;
     private Set<Integer> mSelectedIndexSet;
     private int mCurrentPictureIndex;

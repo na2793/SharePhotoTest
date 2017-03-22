@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GallerySingleSelectionActivity extends AppCompatActivity {
-    
     private ArrayList<String> mPicturePathList;
     private ArrayList<String> mInvalidPicturePathList;
 

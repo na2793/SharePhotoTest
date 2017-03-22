@@ -15,7 +15,6 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.ArrayList;
 
 public class GalleryMultipleSelectionActivity extends AppCompatActivity {
-
     private ArrayList<String> mPicturePathList;
 
     private Menu mMenu;

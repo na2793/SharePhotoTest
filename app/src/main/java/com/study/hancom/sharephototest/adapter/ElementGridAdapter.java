@@ -12,7 +12,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, ElementGridAdapter.HeaderViewHolder, ElementGridAdapter.ContentViewHolder> {
-
     private AlbumAction mAlbumAction = new AlbumAction();
 
     private boolean mEnableMultipleSelectMode = false;
@@ -112,8 +110,8 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
 
     @Override
     public ContentViewHolder onCreateContentViewHolder(ViewGroup parent) {
-        final View itemView = LayoutInflater.from(mContext).inflate(R.layout.album_editor_element_grid_item_content, parent, false);
-        return new ContentViewHolder(itemView);
+        final View contentView = LayoutInflater.from(mContext).inflate(R.layout.album_editor_element_grid_item_content, parent, false);
+        return new ContentViewHolder(contentView);
     }
 
     @Override
@@ -134,7 +132,7 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         });
 
         /* 텍스트 뷰 */
-        holder.textView.setText((section + 1) + " 페이지");
+        holder.textView.setText((section + 1) + " 페이지");    //** 리소스로 뺄 것
 
         /* 메뉴 홀더 */
         if (mEnableMultipleSelectMode) {

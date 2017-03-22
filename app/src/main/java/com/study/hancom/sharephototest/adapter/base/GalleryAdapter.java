@@ -16,13 +16,12 @@ import com.study.hancom.sharephototest.R;
 import java.util.ArrayList;
 
 public class GalleryAdapter extends BaseAdapter {
-    
     protected Context mContext;
     protected ArrayList<String> mPicturePathList;
 
     public GalleryAdapter(Context context, ArrayList<String> picturePaths) {
-        this.mContext = context;
-        this.mPicturePathList = picturePaths;
+        mContext = context;
+        mPicturePathList = picturePaths;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class GalleryAdapter extends BaseAdapter {
         return convertView;
     }
 
-    protected static class ViewHolder {
+    private static class ViewHolder {
         ImageView imageView;
         Button button;
         CheckBox checkBox;

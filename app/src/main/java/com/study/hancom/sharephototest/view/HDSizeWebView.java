@@ -30,9 +30,9 @@ public class HDSizeWebView extends WebView {
         getSettings().setLoadWithOverviewMode(true);
         getSettings().setUseWideViewPort(true);
         setHorizontalScrollBarEnabled(false);
+//        getSettings().setBuiltInZoomControls(true);
+//        getSettings().setSupportZoom(true);
         setVerticalScrollBarEnabled(false);
-        getSettings().setBuiltInZoomControls(true);
-        getSettings().setSupportZoom(true);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         setInitialScale(1);
     }

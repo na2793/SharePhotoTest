@@ -35,8 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AlbumEditorElementListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
-
+public class AlbumEditorElementGridFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
     private static final int REQUEST_CODE = 1;
 
     private static final int MENU_MODE_MAIN = 1;

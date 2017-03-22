@@ -32,12 +32,12 @@ import java.util.Set;
 public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
 
     private Context mContext;
-
     private Album mAlbum;
 
-    private WebViewUtil mWebViewUtil = new WebViewUtil();
-
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
+    private boolean mFirstLoading = true;
+
+    private WebViewUtil mWebViewUtil = new WebViewUtil();
 
     public AlbumGridAdapter(Context context, Album album) {
         mContext = context;
@@ -112,10 +112,13 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
+                mFirstLoading = false;
             }
         });
 
-        injectAll(position, holder.webView);
+        if (!mFirstLoading) {
+            injectAll(position, holder.webView);
+        }
     }
 
     public List<Integer> getPinnedPositionAll() {
