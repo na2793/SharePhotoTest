@@ -20,11 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumOverviewActivity extends AppCompatActivity {
-    static final String STATE_ALBUM = "album";
-    static final String STATE_ALBUM_GRID_ADAPTER_ALL_PINNED_POSITION = "albumGridAdapterAllPinnedPosition";
-
     private Album mAlbum;
     private AlbumAction mAlbumAction = new AlbumAction();
+    private List<Picture> mPictureList = new ArrayList<>();
 
     private AutoFitRecyclerGridView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
@@ -33,40 +31,33 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_overview_main);
+
+        /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (savedInstanceState != null) {
-            mAlbum = savedInstanceState.getParcelable(STATE_ALBUM);
-            mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
-            ArrayList<Integer> albumGridAdapterAllPinnedPosition = savedInstanceState.getIntegerArrayList(STATE_ALBUM_GRID_ADAPTER_ALL_PINNED_POSITION);
-            for (int eachPosition : albumGridAdapterAllPinnedPosition) {
-                mAlbumGridAdapter.addPinnedPosition(eachPosition);
-            }
-        } else {
-            Bundle bundle = getIntent().getExtras();
-            List<String> picturePathList = bundle.getStringArrayList("selectedPicturePathList");
+         /* 인텐트 처리 */
+        Bundle bundle = getIntent().getExtras();
+        List<String> picturePathList = bundle.getStringArrayList("selectedPicturePathList");
 
-            List<Picture> pictureList = new ArrayList<>();
-            for (String eachPicturePath : picturePathList) {
-                Picture picture = new Picture(eachPicturePath);
-                pictureList.add(picture);
-            }
-
-            try {
-                mAlbum = mAlbumAction.createAlbum(pictureList);
-            } catch (LayoutNotFoundException e) {
-                //** String 임시
-                Toast.makeText(this, "ERROR : 페이지를 구성하는데 필요한 필수 파일을 찾지 못했습니다. (../SharePhoto/layout)", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-                finish();
-            }
-
-            mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
+        for (String eachPicturePath : picturePathList) {
+            Picture picture = new Picture(eachPicturePath);
+            mPictureList.add(picture);
         }
 
-        /* 어댑터 붙이기 */
-        mAlbumGridView = (AutoFitRecyclerGridView) findViewById(R.id.album_overview_grid);
-        mAlbumGridView.setAdapter(mAlbumGridAdapter);
+        try {
+            /* 앨범 생성 */
+            mAlbum = mAlbumAction.createAlbum(mPictureList);
+
+            /* 어댑터 붙이기 */
+            mAlbumGridView = (AutoFitRecyclerGridView) findViewById(R.id.album_overview_grid);
+            mAlbumGridAdapter = new AlbumGridAdapter(this, mAlbum);
+            mAlbumGridView.setAdapter(mAlbumGridAdapter);
+        } catch (LayoutNotFoundException e) {
+            //** String 임시
+            Toast.makeText(this, "ERROR : 페이지를 구성하는데 필요한 필수 파일을 삭제했냐? (../SharePhoto/layout)", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            finish();
+        }
     }
 
     @Override
@@ -110,12 +101,5 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(STATE_ALBUM, mAlbum);
-        outState.putIntegerArrayList(STATE_ALBUM_GRID_ADAPTER_ALL_PINNED_POSITION, mAlbumGridAdapter.getPinnedPositionAll());
-        super.onSaveInstanceState(outState);
     }
 }

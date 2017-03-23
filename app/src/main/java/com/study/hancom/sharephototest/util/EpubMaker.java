@@ -6,8 +6,6 @@ import android.os.Environment;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.Page;
-import com.study.hancom.sharephototest.model.Picture;
 
 import java.io.File;
 import java.io.IOException;
@@ -132,15 +130,14 @@ public class EpubMaker {
         String cssPath = filePath + mContext.getResources().getString(R.string.epubData_path_css);
         fileUtil.makeDirectory(cssPath);
 
-        for (int i = 0; i < pageCount; i++) {
+        for (int i = 0; i < mAlbum.getPageCount(); i++) {
             stringBuilder.setLength(0);
 
-            String layoutPath = mAlbum.getPage(i).getLayout().getPath();
-            File originalLayoutFile = fileUtil.makeDirectory(layoutPath);
+            String stylePath = mAlbum.getPage(i).getLayout().getPath();
+            File originalStyleFile = fileUtil.makeDirectory(stylePath);
 
-            fileUtil.createFile(originalLayoutFile, originalLayoutFile.getPath());
-            fileUtil.copyFile(originalLayoutFile, cssPath + mAlbum.getPage(i).getLayout().getElementNum() + mContext.getResources().getString(R.string.epubData_extension_css));
-
+            fileUtil.createFile(originalStyleFile, originalStyleFile.getPath());
+            fileUtil.copyFile(originalStyleFile, cssPath + mAlbum.getPage(i).getLayout().getElementNum() + mContext.getResources().getString(R.string.epubData_extension_css));
             try {
                 inputStream = assetManager.open(mContext.getResources().getString(R.string.epubData_fileName_default_html));
                 stringBuilder.append(fileUtil.copyAssetFile(inputStream));
@@ -148,15 +145,10 @@ public class EpubMaker {
                 e.printStackTrace();
             }
             stringBuilder.insert(stringBuilder.indexOf(HEAD), String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_css), mAlbum.getPage(i).getLayout().getElementNum()));
-
-            Page page = mAlbum.getPage(i);
-            int pictureCount = mAlbum.getPage(i).getPictureCount();
-
-            for (int j = 0; j < pictureCount ; j++) {
-                String picturePath = page.getPicture(j).getPath();
-                int extensionIndex =picturePath.lastIndexOf(".");
+            for (int j = 0; j < mAlbum.getPage(i).getPictureCount(); j++) {
+                int extensionIndex = mAlbum.getPage(i).getPicture(j).getPath().lastIndexOf(".");
                 stringBuilder.insert(stringBuilder.lastIndexOf(XHTML_HTML_DIV_FOR_IMAGE),
-                        String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_image), j + 1, i + 1, (j + 1) + picturePath.substring(extensionIndex, picturePath.length())));
+                        String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_image), j + 1, i + 1, (j + 1) + mAlbum.getPage(i).getPicture(j).getPath().substring(extensionIndex,mAlbum.getPage(i).getPicture(j).getPath().length())));
             }
             file = fileUtil.createFile(dir, xhtmlPath + String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_name), i + 1));
             fileUtil.writeFile(file, stringBuilder.toString());

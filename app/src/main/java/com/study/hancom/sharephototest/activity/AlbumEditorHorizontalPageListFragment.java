@@ -16,8 +16,6 @@ import com.study.hancom.sharephototest.adapter.PageListAdapter;
 import com.study.hancom.sharephototest.model.Album;
 
 public class AlbumEditorHorizontalPageListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
-    static final String STATE_ALBUM = "album";
-
     private Context mContext;
 
     private Album mAlbum;
@@ -40,10 +38,6 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements D
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_horizontal_page_list, container, false);
 
-        if (savedInstanceState != null) {
-            mAlbum = savedInstanceState.getParcelable(STATE_ALBUM);
-        }
-
         mPageListView = (RecyclerView) view.findViewById(R.id.page_list_view);
         mLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         mPageListView.setLayoutManager(mLayoutManager);
@@ -56,12 +50,6 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements D
     @Override
     public void onDataChanged() {
         mPageListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(STATE_ALBUM, mAlbum);
-        super.onSaveInstanceState(outState);
     }
 }
 

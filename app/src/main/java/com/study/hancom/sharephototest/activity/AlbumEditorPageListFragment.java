@@ -15,8 +15,6 @@ import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 public class AlbumEditorPageListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
-    static final String STATE_ALBUM = "album";
-
     private Album mAlbum;
 
     private AutoFitRecyclerGridView mPageListView;
@@ -34,10 +32,6 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_page_list, container, false);
 
-        if (savedInstanceState != null) {
-            mAlbum = savedInstanceState.getParcelable(STATE_ALBUM);
-        }
-
         mPageListView = (AutoFitRecyclerGridView) view.findViewById(R.id.page_list_view);
         mPageListAdapter = new PageListAdapter(getActivity(), mAlbum);
         mPageListView.setAdapter(mPageListAdapter);
@@ -48,12 +42,6 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
     @Override
     public void onDataChanged() {
         mPageListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(STATE_ALBUM, mAlbum);
-        super.onSaveInstanceState(outState);
     }
 }
 

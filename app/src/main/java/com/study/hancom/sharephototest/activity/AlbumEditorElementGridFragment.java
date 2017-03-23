@@ -43,19 +43,12 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
     private static final int MENU_MODE_MULTIPLE_SELECT = 3;
     private static final int MENU_MODE_EMPTY_PICTURE = 4;
 
-    static final String STATE_ALBUM = "album";
-    static final String STATE_MENU_MODE = "menuMode";
-    static final String STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION = "elementGridAdapterSelectedSection";
-    static final String STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED = "elementGridAdapterIsMultipleSelectModeEnabled";
-    static final String STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION = "elementGridAdapterSelectedContentRawPosition";
-    static final String STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION = "elementGridAdapterMultipleSelectedContentRawPosition";
-
     private Album mAlbum;
     private AlbumAction mAlbumAction = new AlbumAction();
 
     private Menu mMenu;
     private MenuInflater mMenuInflater;
-    private int mMenuMode;
+    private int mMenuMode = MENU_MODE_MAIN;
 
     private AutoFitRecyclerGridView mElementGridView;
     private ElementGridAdapter mElementGridAdapter;
@@ -71,30 +64,17 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_element_grid, container, false);
-        mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
-
-        if (savedInstanceState != null) {
-            mAlbum = savedInstanceState.getParcelable(STATE_ALBUM);
-            mMenuMode = savedInstanceState.getInt(STATE_MENU_MODE);
-            mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
-            mElementGridAdapter.setSelectedSection(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION));
-            mElementGridAdapter.setSelectedContentPosition(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION));
-            mElementGridAdapter.setMultipleSelectMode(savedInstanceState.getBoolean(STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED));
-            ArrayList<Integer> selectedPositionList = savedInstanceState.getIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION);
-            for (int eachPosition : selectedPositionList) {
-                mElementGridAdapter.addMultipleSelectedContentPosition(eachPosition);
-            }
-        } else {
-            mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
-            mMenuMode = MENU_MODE_MAIN;
-        }
 
         /* 리스트뷰에 어댑터 붙이기 */
+        mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
+        mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
         mElementGridAdapter.setOnContentSelectListener(new ElementGridAdapter.OnContentSelectListener() {
             @Override
             public void onSelect(int section, int position) {
                 if (mElementGridAdapter.isMultipleSelectModeEnabled()) {
                     changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                    getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select),
+                            mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
                 } else {
                     if (mElementGridAdapter.getContent(section, position) != null) {
                         changeActionBar(MENU_MODE_SINGLE_SELECT);
@@ -106,11 +86,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
 
             @Override
             public void onCancel() {
-                if (mElementGridAdapter.isMultipleSelectModeEnabled()) {
-                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
-                } else {
-                    changeActionBar(MENU_MODE_MAIN);
-                }
+                changeActionBar(MENU_MODE_MAIN);
             }
         });
 
@@ -129,10 +105,6 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         mMenu = menu;
         mMenuInflater = inflater;
-
-        int initMenuMode = mMenuMode;
-        mMenuMode = -1;
-        changeActionBar(initMenuMode);
     }
 
     @Override
@@ -146,14 +118,12 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                     case MENU_MODE_EMPTY_PICTURE:
                         // pass ; MENU_MODE_SINGLE_SELECT와 동일
                     case MENU_MODE_SINGLE_SELECT:
-                        mElementGridAdapter.setSelectedContentPosition(-1);
+                        mElementGridAdapter.selectContent(-1);
                         mElementGridAdapter.notifyDataSetChanged();
-                        changeActionBar(MENU_MODE_MAIN);
                         break;
                     case MENU_MODE_MULTIPLE_SELECT:
                         mElementGridAdapter.stopMultipleSelectMode();
                         mElementGridAdapter.notifyDataSetChanged();
-                        changeActionBar(MENU_MODE_MAIN);
                         break;
                 }
                 return true;
@@ -184,10 +154,10 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
 
                                 try {
                                     mAlbumAction.reorderPicture(mAlbum, fromSection, fromPosition, toSection, toPosition);
-                                    mElementGridAdapter.setSelectedSection(toSection);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
+                                    mElementGridAdapter.selectSection(toSection);
+                                    mElementGridAdapter.selectContent(-1);
                                     mElementGridAdapter.notifyDataSetChanged();
-                                    changeActionBar(MENU_MODE_MAIN);
+
                                     ((DataChangeObserverActivity) getActivity()).notifyChanged();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
@@ -212,8 +182,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                                     int section = mElementGridAdapter.getSelectedSection();
                                     int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
                                     mAlbumAction.removePicture(mAlbum, section, position, true);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
-                                    changeActionBar(MENU_MODE_MAIN);
+                                    mElementGridAdapter.selectContent(-1);
                                     ((DataChangeObserverActivity) getActivity()).notifyChanged();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
@@ -228,8 +197,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                                     int section = mElementGridAdapter.getSelectedSection();
                                     int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
                                     mAlbumAction.removePicture(mAlbum, section, position, false);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
-                                    changeActionBar(MENU_MODE_MAIN);
+                                    mElementGridAdapter.selectContent(-1);
                                     ((DataChangeObserverActivity) getActivity()).notifyChanged();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
@@ -246,14 +214,14 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                         .create().show();
                 return true;
             case R.id.action_multiple_select_all:
-                int itemCount = mElementGridAdapter.getItemCount();
-                for (int eachPosition = 0; eachPosition < itemCount; eachPosition++) {
-                    if (!mElementGridAdapter.isHeader(eachPosition)) {
-                        mElementGridAdapter.addMultipleSelectedContentPosition(eachPosition);
+                int dataCount = mElementGridAdapter.getContentCount();
+                for (int eachContentRawPosition = 0; eachContentRawPosition < dataCount; eachContentRawPosition++) {
+                    if (!mElementGridAdapter.selectContent(eachContentRawPosition)) {
+                        mElementGridAdapter.selectContent(eachContentRawPosition);
                     }
                 }
+
                 mElementGridAdapter.notifyDataSetChanged();
-                changeActionBar(MENU_MODE_MULTIPLE_SELECT);
                 return true;
             case R.id.action_multiple_edit:
                 return true;
@@ -289,14 +257,14 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
 
                                     for (int eachSelectedContentRawPosition : selectedContentRawPositionList) {
                                         int eachSection = mElementGridAdapter.getSectionFor(eachSelectedContentRawPosition);
-                                        List<Integer> eachPositionList;
+                                        List<Integer> eachRawPositionList;
                                         if (selectedContentBySectionMap.containsKey(eachSection)) {
-                                            eachPositionList = selectedContentBySectionMap.get(eachSection);
+                                            eachRawPositionList = selectedContentBySectionMap.get(eachSection);
                                         } else {
-                                            eachPositionList = new ArrayList<>();
-                                            selectedContentBySectionMap.put(eachSection, eachPositionList);
+                                            eachRawPositionList = new ArrayList<>();
+                                            selectedContentBySectionMap.put(eachSection, eachRawPositionList);
                                         }
-                                        eachPositionList.add(mElementGridAdapter.rawPositionToPosition(eachSelectedContentRawPosition));
+                                        eachRawPositionList.add(eachSelectedContentRawPosition);
                                     }
 
                                     Set<Integer> selectedContentCountBySectionMapKeySet = selectedContentBySectionMap.keySet();
@@ -316,12 +284,11 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                                     /* 삭제 */
                                     List<Integer> sortedSelectedSectionList = new ArrayList<>(selectedContentCountBySectionMapKeySet);
                                     Collections.sort(sortedSelectedSectionList);
-                                    for (int i = sortedSelectedSectionList.size() - 1; i >= 0; i--) {
+                                    for (int i = sortedSelectedSectionList.size() - 1 ; i >= 0 ; i--) {
                                         int eachSection = sortedSelectedSectionList.get(i);
                                         mAlbumAction.removeMultiplePicture(mAlbum, eachSection, selectedContentBySectionMap.get(eachSection));
                                     }
                                     mElementGridAdapter.stopMultipleSelectMode();
-                                    changeActionBar(MENU_MODE_MAIN);
                                     ((DataChangeObserverActivity) getActivity()).notifyChanged();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
@@ -339,20 +306,17 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                 return true;
             case R.id.action_empty_set_picture:
                 ArrayList<String> usedPicturePathList = new ArrayList<>();
-                int pageCount = mAlbum.getPageCount();
-                for (int i = 0; i < pageCount; i++) {
-                    Page eachPage = mAlbum.getPage(i);
-                    int pictureCount = eachPage.getPictureCount();
-                    for (int j = 0; j < pictureCount ; j++) {
-                        Picture picture = eachPage.getPicture(j);
-                        if (picture != null) {
-                            usedPicturePathList.add(picture.getPath());
-                        }
+                int contentCount = mElementGridAdapter.getContentCount();
+                for (int i = 0; i < contentCount; i++) {
+                    Picture picture = mElementGridAdapter.getContent(i);
+                    if (picture != null) {
+                        usedPicturePathList.add(picture.getPath());
                     }
                 }
                 Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
                 intent.putStringArrayListExtra("InvalidPicturePathList", usedPicturePathList);
                 startActivityForResult(intent, REQUEST_CODE);
+
                 return true;
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
@@ -363,8 +327,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
                                     int section = mElementGridAdapter.getSelectedSection();
                                     int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
                                     mAlbumAction.removePicture(mAlbum, section, position, false);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
-                                    changeActionBar(MENU_MODE_MAIN);
+                                    mElementGridAdapter.selectContent(-1);
                                     ((DataChangeObserverActivity) getActivity()).notifyChanged();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
@@ -386,38 +349,26 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
     }
 
     public void changeActionBar(int mode) {
-        switch (mode) {
+        mMenuMode = mode;
+        mMenu.clear();
+        switch (mMenuMode) {
             case MENU_MODE_MAIN:
-                if (mMenuMode != mode) {
-                    mMenu.clear();
-                    mMenuInflater.inflate(R.menu.album_editor_main, mMenu);
-                }
                 getActivity().setTitle(R.string.title_album_editor_main);
+                mMenuInflater.inflate(R.menu.album_editor_main, mMenu);
                 break;
             case MENU_MODE_SINGLE_SELECT:
-                if (mMenuMode != mode) {
-                    mMenu.clear();
-                    mMenuInflater.inflate(R.menu.album_editor_select_single_picture, mMenu);
-                }
                 getActivity().setTitle(R.string.title_album_editor_single_select);
+                mMenuInflater.inflate(R.menu.album_editor_select_single_picture, mMenu);
                 break;
             case MENU_MODE_MULTIPLE_SELECT:
-                if (mMenuMode != mode) {
-                    mMenu.clear();
-                    mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
-                }
                 getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
+                mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
                 break;
             case MENU_MODE_EMPTY_PICTURE:
-                if (mMenuMode != mode) {
-                    mMenu.clear();
-                    mMenuInflater.inflate(R.menu.album_editor_select_empty_picture, mMenu);
-                }
                 getActivity().setTitle(R.string.title_album_editor_empty_picture);
+                mMenuInflater.inflate(R.menu.album_editor_select_empty_picture, mMenu);
                 break;
         }
-
-        mMenuMode = mode;
     }
 
     private AlertDialog.Builder createDialog(String title, String message) {
@@ -443,16 +394,5 @@ public class AlbumEditorElementGridFragment extends Fragment implements DataChan
 
             ((DataChangeObserverActivity) getActivity()).notifyChanged();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(STATE_ALBUM, mAlbum);
-        outState.putInt(STATE_MENU_MODE, mMenuMode);
-        outState.putInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION, mElementGridAdapter.getSelectedSection());
-        outState.putBoolean(STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED, mElementGridAdapter.isMultipleSelectModeEnabled());
-        outState.putInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION, mElementGridAdapter.getSelectedContentRawPosition());
-        outState.putIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION, mElementGridAdapter.getMultipleSelectedContentRawPosition());
-        super.onSaveInstanceState(outState);
     }
 }
