@@ -12,14 +12,14 @@ public class WebViewUtil {
             "<title>Title of the document</title>\n" +
             "<style>\n" +
             "#container {\n" +
-            "    width: 768px;\n" +
-            "    height: 1024px;\n" +
-            "    background: red;\n" +
+            "    width: 752px;\n" +
+            "    height: 1008px;\n" +
+            "    background: black;\n" +
             "}\n" +
             "</style>\n" +
             "</head>\n" +
             "\n" +
-            "<body style=\"margin : 0px;\">\n" +
+            "<body>\n" +
             "<div id=\"container\">" +
             "</div>" +
             "</body>\n" +
@@ -31,11 +31,11 @@ public class WebViewUtil {
     }
 
     public int getHeightByWidthForHD(int width) {
-        return 1024 * width / 768;
+        return 1008 * width / 752;
     }
 
     public int getWidthByWidthForHD(int height) {
-        return 768 * height / 1024;
+        return 752 * height / 1008;
     }
 
     public void injectDivByScript(WebView view, int divNum) {

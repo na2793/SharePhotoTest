@@ -2,8 +2,6 @@ package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,7 +13,6 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
@@ -64,7 +61,7 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         /* 텍스트뷰 처리 */
         String pageNum = Integer.toString(position + 1) + "페이지";
         holder.textView.setText(pageNum);
@@ -86,10 +83,10 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             }
         });
 
-        /* 이미지뷰 처리 */
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
+       /* 웹뷰 처리 */
+        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onSingleTapUp(MotionEvent e) {
                 Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
 
                 Bundle bundle = new Bundle();
@@ -98,71 +95,24 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
                 intent.putExtras(bundle);
 
                 mContext.startActivity(intent);
+
+                return false;
             }
         });
 
-       /* 웹뷰 처리 */
-        holder.webView.setWebViewClient(new WebViewClient() {
-            boolean loadingFinished = true;
-            boolean redirect = false;
-
-            long last_page_start;
-            long now;
-
-            // Load the url
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (!loadingFinished) {
-                    redirect = true;
-                }
-
-                loadingFinished = false;
-                view.loadUrl(url);
-                return false;
-            }
-
+        holder.webView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                loadingFinished = false;
-                last_page_start = System.nanoTime();
-                show_splash();
+            public boolean onTouch(View v, MotionEvent event) {
+                return webViewGestureDetector.onTouchEvent(event);
             }
+        });
 
-            // When finish loading page
-            public void onPageFinished(final WebView view, String url) {
+        // Add a WebViewClient
+        holder.webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
                 mFirstLoading = false;
-                if (!redirect) {
-                    loadingFinished = true;
-                }
-                //call remove_splash in 500 miSec
-                if (loadingFinished && !redirect) {
-                    now = System.nanoTime();
-                    new android.os.Handler().postDelayed(
-                            new Runnable() {
-                                public void run() {
-                                    remove_splash();
-                                }
-                            },
-                            3000);
-                } else {
-                    redirect = false;
-                }
-            }
-
-            private void show_splash() {
-                if (holder.webView.getVisibility() == View.VISIBLE) {
-                    holder.webView.setVisibility(View.VISIBLE);
-                    holder.imageView.setVisibility(View.GONE);
-                }
-            }
-
-            //if a new "page start" was fired dont remove splash screen
-            private void remove_splash() {
-                if (last_page_start < now) {
-                    holder.webView.setVisibility(View.GONE);
-                    holder.imageView.setVisibility(View.VISIBLE);
-                    holder.imageView.setImageBitmap(convertWebviewToBitmap(holder.webView));
-                }
             }
         });
 
@@ -191,24 +141,15 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         }
     }
 
-    public Bitmap convertWebviewToBitmap(WebView webView) {
-        Bitmap bmp = Bitmap.createBitmap(webView.getWidth(), webView.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
-        webView.draw(canvas);
-        return bmp;
-    }
-
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
-        CheckBox checkBox;
-        ImageView imageView;
         WebView webView;
+        CheckBox checkBox;
 
         ViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.page_header_text);
             checkBox = (CheckBox) itemView.findViewById(R.id.page_checkbox);
-            imageView = (ImageView) itemView.findViewById(R.id.page_image_view);
             webView = (WebView) itemView.findViewById(R.id.page_web_view);
             webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
         }
