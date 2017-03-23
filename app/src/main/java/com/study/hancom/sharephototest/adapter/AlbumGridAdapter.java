@@ -121,8 +121,16 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         }
     }
 
-    public List<Integer> getPinnedPositionAll() {
+    public ArrayList<Integer> getPinnedPositionAll() {
         return new ArrayList<>(mPinnedPositionSet);
+    }
+
+    public void addPinnedPosition(int position) {
+        mPinnedPositionSet.add(position);
+    }
+
+    public boolean removePinnedPosition(int position) {
+        return mPinnedPositionSet.remove(position);
     }
 
     private void injectAll(int position, WebView view) {

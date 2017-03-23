@@ -7,6 +7,7 @@ import com.study.hancom.sharephototest.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AlbumAction {
@@ -61,6 +62,8 @@ public class AlbumAction {
 
         List<Integer> usableElementNumList = new ArrayList<>(Page.getAllLayoutType());
         List<Integer> composedElementNumList = mathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
+
+        Collections.shuffle(pictureList);   // 사진도 랜덤으로
 
         for (int eachElementNum : composedElementNumList) {
             Page newPage = new Page(eachElementNum);
@@ -118,7 +121,7 @@ public class AlbumAction {
         int pictureCount = page.getPictureCount();
         int positionCount = positionArray.size();
         int result = pictureCount - positionCount;
-        if (result > 1) {
+        if (result > 0) {
             page.setLayout(result);
             for (int eachPosition : positionArray) {
                 page.removePicture(eachPosition);
