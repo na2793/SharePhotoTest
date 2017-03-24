@@ -85,6 +85,14 @@ public class AlbumAction {
         }
     }
 
+    public void addPage(Album album, int elementNum) throws LayoutNotFoundException {
+        album.addPage(new Page(elementNum));
+    }
+
+    public void addPage(Album album, int index, int elementNum) throws LayoutNotFoundException {
+        album.addPage(index, new Page(elementNum));
+    }
+
     public void removePage(Album album, int section) throws LayoutNotFoundException {
         album.removePage(section);
         if (album.getPageCount() < 1) {
@@ -98,6 +106,11 @@ public class AlbumAction {
         Page page = album.getPage(section);
         page.removePicture(position);
         page.addPicture(position, picture);
+    }
+
+    public void addPicture(Album album, int section, Picture picture) {
+        Page page = album.getPage(section);
+        page.addPicture(picture);
     }
 
     public void removePicture(Album album, int section, int position, boolean nullable) throws LayoutNotFoundException {

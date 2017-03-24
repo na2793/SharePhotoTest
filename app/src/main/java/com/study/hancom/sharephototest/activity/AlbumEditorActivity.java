@@ -36,6 +36,7 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //TODO: 가로 방향 레이아웃 처리
         /* 레이아웃 처리 */
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             setContentView(R.layout.album_editor_main);             // 세로 방향에서 사용할 레이아웃
