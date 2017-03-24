@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
+    static final String STATE_PICTURE_PATH_LIST = "picturePathList";
+    static final String STATE_SELECTED_INDEX_SET = "selectedIndexSet";
+    static final String STATE_CURRENT_PICTURE_INDEX = "currentPictureIndex";
+
     private ArrayList<String> mPicturePathList;
     private Set<Integer> mSelectedIndexSet;
     private int mCurrentPictureIndex;
@@ -35,11 +39,16 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_full_size_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         /* 데이터 파싱 */
-        Bundle bundle = getIntent().getExtras();
-        mPicturePathList = bundle.getStringArrayList("picturePathList");
-        mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
-        mCurrentPictureIndex = bundle.getInt("currentPictureIndex");
+        if (savedInstanceState != null) {
+            mPicturePathList = savedInstanceState.getStringArrayList(STATE_PICTURE_PATH_LIST);
+            mSelectedIndexSet = new HashSet<>(savedInstanceState.getIntegerArrayList(STATE_SELECTED_INDEX_SET));
+            mCurrentPictureIndex = savedInstanceState.getInt(STATE_CURRENT_PICTURE_INDEX);
+        } else {
+            Bundle bundle = getIntent().getExtras();
+            mPicturePathList = bundle.getStringArrayList("picturePathList");
+            mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
+            mCurrentPictureIndex = bundle.getInt("currentPictureIndex");
+        }
 
         /* 이미지뷰 처리 */
         mImageView = (ImageView) findViewById(R.id.show_image_view);
@@ -137,5 +146,13 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList(STATE_PICTURE_PATH_LIST, mPicturePathList);
+        outState.putIntegerArrayList(STATE_SELECTED_INDEX_SET, new ArrayList<>(mSelectedIndexSet));
+        outState.putInt(STATE_CURRENT_PICTURE_INDEX, mCurrentPictureIndex);
+        super.onSaveInstanceState(outState);
     }
 }

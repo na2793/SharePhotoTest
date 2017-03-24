@@ -50,6 +50,13 @@ abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.V
 
     abstract public int getCountInSection(int sectionIndex);
 
+    public int getContentCount() {
+        int itemCount = getItemCount();
+        int sectionCount = getSectionCount();
+
+        return itemCount - sectionCount;
+    }
+
     public boolean isHeader(int rawPosition) {
         return mSectionPositionList.contains(rawPosition);
     }

@@ -11,10 +11,11 @@ import android.widget.ImageView;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
+import com.study.hancom.sharephototest.adapter.base.GalleryAdapter;
 
 import java.util.ArrayList;
 
-public class SingleSelectionGalleryAdapter extends com.study.hancom.sharephototest.adapter.base.GalleryAdapter {
+public class SingleSelectionGalleryAdapter extends GalleryAdapter {
     private static final int REQUEST_CODE = 1;
 
     private int mSelectedPosition = -1;
@@ -24,39 +25,30 @@ public class SingleSelectionGalleryAdapter extends com.study.hancom.sharephotote
         super(context, picturePathList);
     }
 
-    public void setInvalidPicturePathList(ArrayList<String> invalidPicturePathList) {
-        mInvalidPicturePathList = invalidPicturePathList;
-    }
-
-    public int getSelectedPosition(){
-        return mSelectedPosition;
-    }
-
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View view = super.getView(position, convertView, parent);
-
-        ImageView imageView = (ImageView) view.findViewById(R.id.gallery_image);
-        Button button = (Button) view.findViewById(R.id.show_clicked_Image);
-        CheckBox checkBox = (CheckBox) view.findViewById(R.id.gallery_selected_image);
-
+    protected void bindView(ViewHolder holder, final int position) {
         if (mInvalidPicturePathList != null) {
             if (mInvalidPicturePathList.contains(getItem(position))) {
-                imageView.setAlpha(0.2f);
-                checkBox.setEnabled(false);
-                checkBox.setChecked(false);
-                checkBox.setVisibility(View.INVISIBLE);
+                holder.imageView.setAlpha(0.2f);
+                holder.checkBox.setVisibility(View.GONE);
             } else {
-               imageView.setAlpha(1.0f);
-                if (mSelectedPosition == position ) {
-                    checkBox.setChecked(true);
+                holder.imageView.setAlpha(1.0f);
+                holder.checkBox.setVisibility(View.VISIBLE);
+                if (mSelectedPosition == position) {
+                    holder.checkBox.setChecked(true);
                 } else {
-                    checkBox.setChecked(false);
+                    holder.checkBox.setChecked(false);
                 }
+            }
+        } else {
+            if (mSelectedPosition == position) {
+                holder.checkBox.setChecked(true);
+            } else {
+                holder.checkBox.setChecked(false);
             }
         }
 
-        imageView.setOnClickListener(new View.OnClickListener() {
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!mInvalidPicturePathList.contains(getItem(position))) {
@@ -66,7 +58,7 @@ public class SingleSelectionGalleryAdapter extends com.study.hancom.sharephotote
             }
         });
 
-        button.setOnClickListener(new View.OnClickListener() {
+        holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, GalleryFullSizePictureActivity.class);
@@ -75,7 +67,13 @@ public class SingleSelectionGalleryAdapter extends com.study.hancom.sharephotote
                 ((Activity) mContext).startActivityForResult(intent, REQUEST_CODE);
             }
         });
+    }
 
-        return view;
+    public void setInvalidPicturePathList(ArrayList<String> invalidPicturePathList) {
+        mInvalidPicturePathList = invalidPicturePathList;
+    }
+
+    public int getSelectedPosition() {
+        return mSelectedPosition;
     }
 }
