@@ -17,7 +17,7 @@ import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
-public class AlbumEditorPageFullSizeWebViewActivity extends AppCompatActivity {
+public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
     private Album mAlbum;
     private int mCurrentPageIndex;
 

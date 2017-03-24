@@ -12,14 +12,14 @@ public class WebViewUtil {
             "<title>Title of the document</title>\n" +
             "<style>\n" +
             "#container {\n" +
-            "    width: 752px;\n" +
-            "    height: 1008px;\n" +
+            "    width: 768px;\n" +
+            "    height: 1024px;\n" +
             "    background: black;\n" +
             "}\n" +
             "</style>\n" +
             "</head>\n" +
             "\n" +
-            "<body>\n" +
+            "<body style=\"margin:0px;\">\n" +
             "<div id=\"container\">" +
             "</div>" +
             "</body>\n" +

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,17 +15,14 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.AlbumEditorPageFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.MathUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
@@ -87,13 +83,11 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
-
+                Intent intent = new Intent(mContext, AlbumFullSizeWebViewActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("album", mAlbum);
                 bundle.putInt("pageIndex", position);
                 intent.putExtras(bundle);
-
                 mContext.startActivity(intent);
 
                 return false;

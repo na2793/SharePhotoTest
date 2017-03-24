@@ -1,6 +1,8 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
+import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
 import com.study.hancom.sharephototest.adapter.base.SectionedRecyclerGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
@@ -87,7 +90,35 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     @Override
     public HeaderViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
         final View headerView = LayoutInflater.from(mContext).inflate(R.layout.album_editor_element_grid_item_header, parent, false);
-        return new HeaderViewHolder(headerView);
+        HeaderViewHolder holder = new HeaderViewHolder(headerView);
+
+        /* 메뉴 */
+        holder.buttonPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, AlbumFullSizeWebViewActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("album", mData);
+                bundle.putInt("pageIndex", mSelectedSection);
+                intent.putExtras(bundle);
+                mContext.startActivity(intent);
+            }
+        });
+        holder.buttonChangeLayout.setEnabled(false);
+        holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    mAlbumAction.removePage(mData, mSelectedSection);
+                    mSelectedContentRawPosition = -1;
+                    mOnDataChangeListener.onDataChanged();
+                } catch (LayoutNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return holder;
     }
 
     @Override
@@ -129,20 +160,6 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 holder.view.setAlpha(0.5f);
             }
         }
-
-        /* 메뉴 */
-        holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    mAlbumAction.removePage(mData, section);
-                    mSelectedContentRawPosition = -1;
-                    mOnDataChangeListener.onDataChanged();
-                } catch (LayoutNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     @Override
