@@ -25,13 +25,13 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_editor_main);
 
-        /* 뒤로 가기 버튼 생성 */
+        // 뒤로 가기 버튼 생성
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /* 인텐트 처리 */
+        // 인텐트 처리
         Bundle bundle = getIntent().getExtras();
 
-        /* 핸들 처리 */
+        // 핸들 처리
         mHandlerButton = (Button) findViewById(R.id.page_list_fragment_handle);
         mHandlerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +48,7 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
             }
         });
 
-        /* 프래그먼트 생성 */
+        // 프래그먼트 생성
         mFragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
 
@@ -67,12 +67,13 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
         mAlbumEditorHorizontalPageListFragment.setArguments(bundle);
         mAlbumEditorPageListFragment.setArguments(bundle);
 
-        /* 리스너에 등록 */
+        // 리스너에 등록
         addDataChangeListener(mAlbumEditorElementGridFragment);
         addDataChangeListener(mAlbumEditorHorizontalPageListFragment);
         addDataChangeListener(mAlbumEditorPageListFragment);
 
-        fragmentTransaction.commit(); // 완료
+        // 완료
+        fragmentTransaction.commit();
 
     }
 
