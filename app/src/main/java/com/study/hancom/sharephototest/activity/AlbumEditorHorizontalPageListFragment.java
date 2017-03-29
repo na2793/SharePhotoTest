@@ -3,6 +3,7 @@ package com.study.hancom.sharephototest.activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,19 +12,26 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.base.DataChangeObserverActivity;
+import com.study.hancom.sharephototest.activity.base.IObservable;
+import com.study.hancom.sharephototest.activity.base.IObserver;
 import com.study.hancom.sharephototest.adapter.PageListAdapter;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumAction;
+import com.study.hancom.sharephototest.model.AlbumManager;
 
-public class AlbumEditorHorizontalPageListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class AlbumEditorHorizontalPageListFragment extends Fragment implements IObservable, IObserver {
     static final String STATE_ALBUM = "album";
+
+    private Map<String, IObserver> mObserverMap = new HashMap<>();
 
     private Context mContext;
 
     private Album mAlbum;
-    private AlbumAction mAlbumAction = new AlbumAction();
 
     private RecyclerView mPageListView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -50,9 +58,19 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements D
         }
 
         mPageListView = (RecyclerView) view.findViewById(R.id.page_list_view);
-        mLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        mLayoutManager = new GridLayoutManager(mContext, 1, GridLayoutManager.HORIZONTAL, false);
         mPageListView.setLayoutManager(mLayoutManager);
         mPageListAdapter = new PageListAdapter(mContext, mAlbum, true);
+        mPageListAdapter.setOnOnItemClickListener(new RecyclerClickableItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                mPageListAdapter.setSelectedPosition(position);
+                mPageListAdapter.notifyDataSetChanged();
+                Bundle out = new Bundle();
+                out.putInt("selectedPageNum", position);
+                notifyChangedAll(out);
+            }
+        });
         mPageListView.setAdapter(mPageListAdapter);
 
         mButtonAddPage = (Button) view.findViewById(R.id.button_add_page);
@@ -60,10 +78,11 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements D
             @Override
             public void onClick(View v) {
                 try {
-                    mAlbumAction.addPage(mAlbum, 1);
-                    mAlbumAction.addPicture(mAlbum, mAlbum.getPageCount() - 1, null);
+                    AlbumManager.addPage(mAlbum, 1);
+                    AlbumManager.addPicture(mAlbum, mAlbum.getPageCount() - 1, null);
                     mPageListAdapter.notifyDataSetChanged();
-                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                    mPageListView.smoothScrollToPosition(mPageListAdapter.getItemCount() - 1);
+                    notifyChangedAll();
                 } catch (LayoutNotFoundException e) {
                     //TODO : 토스트메시지 "페이지를 추가하지 못했습니다"
                     e.printStackTrace();
@@ -73,16 +92,59 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements D
 
         return view;
     }
-
-    @Override
-    public void onDataChanged() {
-        mPageListAdapter.notifyDataSetChanged();
-    }
-
+    
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(STATE_ALBUM, mAlbum);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void addObserver(String tag, IObserver observer) {
+        mObserverMap.put(tag, observer);
+    }
+
+    @Override
+    public IObserver removeObserver(String tag) {
+        return mObserverMap.remove(tag);
+    }
+
+    @Override
+    public IObserver getObserver(String tag) {
+        return mObserverMap.get(tag);
+    }
+
+    @Override
+    public int getObserverCount() {
+        return mObserverMap.size();
+    }
+
+    @Override
+    public void notifyChangedAll() {
+        notifyChangedAll(null);
+    }
+
+    @Override
+    public void notifyChangedAll(Bundle out) {
+        Set observerTagSet = mObserverMap.keySet();
+        for (Object eachTag : observerTagSet) {
+            mObserverMap.get(eachTag).update(out);
+        }
+    }
+
+    @Override
+    public void notifyChanged(String tag) {
+        notifyChanged(tag, null);
+    }
+
+    @Override
+    public void notifyChanged(String tag, Bundle out) {
+        mObserverMap.get(tag).update(out);
+    }
+
+    @Override
+    public void update(Bundle in) {
+        mPageListAdapter.notifyDataSetChanged();
     }
 }
 

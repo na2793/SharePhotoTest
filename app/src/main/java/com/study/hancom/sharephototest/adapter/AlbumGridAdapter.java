@@ -2,13 +2,16 @@ package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.CheckBox;
@@ -16,24 +19,29 @@ import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.FileUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
+import com.study.hancom.sharephototest.view.HDSizeWebView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
+public class AlbumGridAdapter extends RecyclerClickableItemAdapter<AlbumGridAdapter.ViewHolder> {
 
     private Context mContext;
     private Album mAlbum;
 
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
-    private boolean mFirstLoading = true;
-
-    private WebViewUtil mWebViewUtil = new WebViewUtil();
+    private Set<View> mWebViewSet = new HashSet<>();
 
     public AlbumGridAdapter(Context context, Album album) {
         mContext = context;
@@ -106,11 +114,11 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
-                mFirstLoading = false;
+                mWebViewSet.add(view);
             }
         });
 
-        if (!mFirstLoading) {
+        if (mWebViewSet.contains(holder.webView)) {
             injectAll(position, holder.webView);
         }
     }
@@ -130,15 +138,15 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
     private void injectAll(int position, WebView view) {
         final Page page = mAlbum.getPage(position);
         int pictureCount = page.getPictureCount();
-        mWebViewUtil.injectDivByScript(view, pictureCount);
+        WebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
+            WebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
             } else {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
         }
     }
@@ -153,7 +161,7 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             textView = (TextView) itemView.findViewById(R.id.page_header_text);
             checkBox = (CheckBox) itemView.findViewById(R.id.page_checkbox);
             webView = (WebView) itemView.findViewById(R.id.page_web_view);
-            webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+            webView.loadDataWithBaseURL("file:///android_asset/", WebViewUtil.getDefaultHTMLData(mContext), "text/html", "UTF-8", null);
         }
     }
 }

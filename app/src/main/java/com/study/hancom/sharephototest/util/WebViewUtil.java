@@ -1,44 +1,43 @@
 package com.study.hancom.sharephototest.util;
 
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.webkit.WebView;
 
+import com.study.hancom.sharephototest.R;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 public class WebViewUtil {
+    private static String mDefaultHTMLData;
 
-    private String mDefaultHTMLData = "<!DOCTYPE html>\n" +
-            "<html>\n" +
-            "<head>\n" +
-            "<meta charset=\"UTF-8\">\n" +
-            "<meta name=\"viewport\" content=\"initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\"/>\n" +
-            "<title>Title of the document</title>\n" +
-            "<style>\n" +
-            "#container {\n" +
-            "    width: 768px;\n" +
-            "    height: 1024px;\n" +
-            "    background: black;\n" +
-            "}\n" +
-            "</style>\n" +
-            "</head>\n" +
-            "\n" +
-            "<body style=\"margin:0px;\">\n" +
-            "<div id=\"container\">" +
-            "</div>" +
-            "</body>\n" +
-            "\n" +
-            "</html>";
+    private WebViewUtil() {
+    }
 
-    public String getDefaultHTMLData() {
+    public static int getHeightByWidthForHD(int width) {
+        return 1024 * width / 768;
+    }
+
+    public static int getWidthByWidthForHD(int height) {
+        return 768 * height / 1024;
+    }
+
+    public static String getDefaultHTMLData(Context context) {
+        if (mDefaultHTMLData == null) {
+            try {
+                AssetManager assetManager = context.getAssets();
+                InputStream inputStream = assetManager.open(context.getResources().getString(R.string.epubData_fileName_default_html));
+                mDefaultHTMLData = FileUtil.fileToString(inputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return mDefaultHTMLData;
     }
 
-    public int getHeightByWidthForHD(int width) {
-        return 1008 * width / 752;
-    }
-
-    public int getWidthByWidthForHD(int height) {
-        return 752 * height / 1008;
-    }
-
-    public void injectDivByScript(WebView view, int divNum) {
+    public static void injectDivByScript(WebView view, int divNum) {
         view.loadUrl("javascript:(window.onload = function() {" +
                 "var container = document.getElementById('container');" +
                 "var oldDivNum = container.children.length;" +
@@ -58,7 +57,7 @@ public class WebViewUtil {
                 "})()");
     }
 
-    public void injectStyleByScript(WebView view, String stylePath) {
+    public static void injectStyleByScript(WebView view, String stylePath) {
         view.loadUrl("javascript:(window.onload = function() {" +
                 "var parent = document.getElementsByTagName('head').item(0);" +
                 "var link = document.createElement('link');" +
@@ -68,11 +67,17 @@ public class WebViewUtil {
                 "})()");
     }
 
-    public void injectImageByScript(WebView view, String elementId, String picturePath) {
+    public static void injectImageByScript(WebView view, String elementId, String picturePath) {
         view.loadUrl("javascript:(window.onload = function() {" +
                 "var target = document.getElementById('" + elementId + "');" +
                 "target.setAttribute('style', \"background-image:url('" + picturePath + "')\");" +
                 "})()");
+    }
 
+    public static void injectEmptyImageByScript(WebView view, String elementId) {
+        view.loadUrl("javascript:(window.onload = function() {" +
+                "var target = document.getElementById('" + elementId + "');" +
+                "target.setAttribute('style', \"border: 10px solid #000000; background-color:#FFFFFF;\");" +
+                "})()");
     }
 }

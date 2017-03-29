@@ -8,18 +8,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.base.DataChangeObserverActivity;
+import com.study.hancom.sharephototest.activity.base.IObservable;
+import com.study.hancom.sharephototest.activity.base.IObserver;
 import com.study.hancom.sharephototest.adapter.PageListAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumAction;
+import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
-public class AlbumEditorPageListFragment extends Fragment implements DataChangeObserverActivity.OnDataChangeListener {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class AlbumEditorPageListFragment extends Fragment implements IObservable, IObserver {
     static final String STATE_ALBUM = "album";
 
+    private Map<String, IObserver> mObserverMap = new HashMap<>();
+
     private Album mAlbum;
-    private AlbumAction mAlbumAction = new AlbumAction();
 
     private AutoFitRecyclerGridView mPageListView;
     private PageListAdapter mPageListAdapter;
@@ -51,10 +57,10 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
             @Override
             public void onClick(View v) {
                 try {
-                    mAlbumAction.addPage(mAlbum, 1);
-                    mAlbumAction.addPicture(mAlbum, mAlbum.getPageCount() - 1, null);
+                    AlbumManager.addPage(mAlbum, 1);
+                    AlbumManager.addPicture(mAlbum, mAlbum.getPageCount() - 1, null);
                     mPageListAdapter.notifyDataSetChanged();
-                    ((DataChangeObserverActivity) getActivity()).notifyChanged();
+                    notifyChangedAll();
                 } catch (LayoutNotFoundException e) {
                     //TODO : 토스트메시지 "페이지를 추가하지 못했습니다"
                     e.printStackTrace();
@@ -66,14 +72,57 @@ public class AlbumEditorPageListFragment extends Fragment implements DataChangeO
     }
 
     @Override
-    public void onDataChanged() {
-        mPageListAdapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(STATE_ALBUM, mAlbum);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void addObserver(String tag, IObserver observer) {
+        mObserverMap.put(tag, observer);
+    }
+
+    @Override
+    public IObserver removeObserver(String tag) {
+        return mObserverMap.remove(tag);
+    }
+
+    @Override
+    public IObserver getObserver(String tag) {
+        return mObserverMap.get(tag);
+    }
+
+    @Override
+    public int getObserverCount() {
+        return mObserverMap.size();
+    }
+
+    @Override
+    public void notifyChangedAll() {
+        notifyChangedAll(null);
+    }
+
+    @Override
+    public void notifyChangedAll(Bundle out) {
+        Set observerTagSet = mObserverMap.keySet();
+        for (Object eachTag : observerTagSet) {
+            mObserverMap.get(eachTag).update(out);
+        }
+    }
+
+    @Override
+    public void notifyChanged(String tag) {
+        notifyChanged(tag, null);
+    }
+
+    @Override
+    public void notifyChanged(String tag, Bundle out) {
+        mObserverMap.get(tag).update(out);
+    }
+
+    @Override
+    public void update(Bundle in) {
+        mPageListAdapter.notifyDataSetChanged();
     }
 }
 

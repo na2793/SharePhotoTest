@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_new_layout_confirm"
+        android:title="@string/action_album_editor_confirm"
+        app:showAsAction="always"/>
+
+</menu>

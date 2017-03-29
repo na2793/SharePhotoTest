@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
@@ -64,6 +60,7 @@ public class SingleSelectionGalleryAdapter extends GalleryAdapter {
                 Intent intent = new Intent(mContext, GalleryFullSizePictureActivity.class);
                 intent.putStringArrayListExtra("picturePathList", mPicturePathList);
                 intent.putExtra("currentPictureIndex", position);
+                intent.putExtra("isMultipleSelection", false);
                 ((Activity) mContext).startActivityForResult(intent, REQUEST_CODE);
             }
         });

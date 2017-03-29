@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.study.hancom.sharephototest.R;
@@ -43,6 +45,7 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gallery_single_select_main, menu);
+        setTitle(getResources().getString(R.string.title_album_editor_single_select));
 
         return true;
     }

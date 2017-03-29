@@ -4,26 +4,20 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.Build;
-import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static android.view.View.LAYER_TYPE_NONE;
 import static android.view.View.LAYER_TYPE_SOFTWARE;
 
-public class AnimationUtil {
+public class WobbleAnimator {
 
-    private List<ObjectAnimator> mWobbleAnimatorList = new LinkedList<ObjectAnimator>();
+    private Set<ObjectAnimator> mWobbleAnimatorList = new HashSet<>();
 
     /**
      * The GridView from Android Lollipoop requires some different
@@ -40,8 +34,8 @@ public class AnimationUtil {
     }
 
     public void stopWobbleAll() {
-        for (Animator wobbleAnimator : mWobbleAnimatorList) {
-            wobbleAnimator.cancel();
+        for (ObjectAnimator eachAnimator : mWobbleAnimatorList) {
+            eachAnimator.cancel();
         }
         mWobbleAnimatorList.clear();
     }

@@ -3,7 +3,6 @@ package com.study.hancom.sharephototest.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -12,7 +11,7 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.AlbumGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumAction;
+import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
@@ -24,7 +23,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     static final String STATE_ALBUM_GRID_ADAPTER_ALL_PINNED_POSITION = "albumGridAdapterAllPinnedPosition";
 
     private Album mAlbum;
-    private AlbumAction mAlbumAction = new AlbumAction();
 
     private AutoFitRecyclerGridView mAlbumGridView;
     private AlbumGridAdapter mAlbumGridAdapter;
@@ -53,7 +51,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
             }
 
             try {
-                mAlbum = mAlbumAction.createAlbum(pictureList);
+                mAlbum = AlbumManager.createAlbum(pictureList);
             } catch (LayoutNotFoundException e) {
                 //** String 임시
                 Toast.makeText(this, "ERROR : 페이지를 구성하는데 필요한 필수 파일을 찾지 못했습니다. (../SharePhoto/layout)", Toast.LENGTH_LONG).show();
@@ -91,8 +89,17 @@ public class AlbumOverviewActivity extends AppCompatActivity {
 
             case R.id.action_album_relayout:
                 try {
-                    mAlbumAction.relayoutAlbum(mAlbum, mAlbumGridAdapter.getPinnedPositionAll());
-                } catch (Exception e) {
+                    List<Integer> oldPinnedPositionList = mAlbumGridAdapter.getPinnedPositionAll();
+                    List<Integer> newPinnedPositionList = AlbumManager.relayoutAlbum(mAlbum, oldPinnedPositionList);
+                    if (oldPinnedPositionList != null && newPinnedPositionList != null) {
+                        for (int eachPosition : oldPinnedPositionList) {
+                            mAlbumGridAdapter.removePinnedPosition(eachPosition);
+                        }
+                        for (int eachPosition : newPinnedPositionList) {
+                            mAlbumGridAdapter.addPinnedPosition(eachPosition);
+                        }
+                    }
+                } catch (LayoutNotFoundException e) {
                     //** String 임시
                     Toast.makeText(this, "ERROR : 앨범 재구성을 실패했습니다.", Toast.LENGTH_LONG).show();
                     e.printStackTrace();

@@ -4,14 +4,14 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.base.DataChangeObserverActivity;
 
-public class AlbumEditorActivity extends DataChangeObserverActivity {
+public class AlbumEditorActivity extends AppCompatActivity {
     static final String STATE_BUNDLE = "bundle";
     static final String STATE_HORIZONTAL_PAGE_LIST_FRAGMENT_VISIBILITY = "horizontalPageListFragmentVisibility";
 
@@ -84,7 +84,6 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
             fragmentTransaction.add(mElementGridFragmentContainer.getId(), mAlbumEditorElementGridFragment, "testTag");
         }
         mAlbumEditorElementGridFragment.setHasOptionsMenu(true);    // 옵션 메뉴 변경
-        addDataChangeListener(mAlbumEditorElementGridFragment);     // 리스너에 등록
 
         mAlbumEditorHorizontalPageListFragment = (AlbumEditorHorizontalPageListFragment) mFragmentManager.findFragmentByTag("testTag2");
         if (mAlbumEditorHorizontalPageListFragment == null) {
@@ -92,7 +91,6 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
             mAlbumEditorHorizontalPageListFragment.setArguments(mBundle);
             fragmentTransaction.add(mHorizontalPageListFragmentContainer.getId(), mAlbumEditorHorizontalPageListFragment, "testTag2");
         }
-        addDataChangeListener(mAlbumEditorHorizontalPageListFragment);
 
         mAlbumEditorPageListFragment = (AlbumEditorPageListFragment) mFragmentManager.findFragmentByTag("testTag3");
         if (mAlbumEditorPageListFragment == null) {
@@ -100,7 +98,16 @@ public class AlbumEditorActivity extends DataChangeObserverActivity {
             mAlbumEditorPageListFragment.setArguments(mBundle);
             fragmentTransaction.add(mPageListFragmentContainer.getId(), mAlbumEditorPageListFragment, "testTag3");
         }
-        addDataChangeListener(mAlbumEditorPageListFragment);
+
+        /* 서로 옵저빙 */
+        mAlbumEditorElementGridFragment.addObserver("HorizontalPageListFragment", mAlbumEditorHorizontalPageListFragment);
+        mAlbumEditorElementGridFragment.addObserver("PageListFragment", mAlbumEditorPageListFragment);
+
+        mAlbumEditorHorizontalPageListFragment.addObserver("ElementGridFragment", mAlbumEditorElementGridFragment);
+        mAlbumEditorHorizontalPageListFragment.addObserver("PageListFragment", mAlbumEditorPageListFragment);
+
+        mAlbumEditorPageListFragment.addObserver("ElementGridFragment", mAlbumEditorElementGridFragment);
+        mAlbumEditorPageListFragment.addObserver("HorizontalPageListFragment", mAlbumEditorHorizontalPageListFragment);
 
         fragmentTransaction.commit(); // 완료
     }

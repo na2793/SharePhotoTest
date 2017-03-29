@@ -2,6 +2,11 @@ package com.study.hancom.sharephototest.util;
 
 import android.util.Log;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.util.Zip4jConstants;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,11 +16,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class FileUtil {
-
     private static final String TAG = FileUtil.class.getName();
     private static final int BUFFER_SIZE = 1024 * 2;
 
-    public File makeDirectory(String dir_path) {
+    private FileUtil() {}
+
+    public static File createDirectory(String dir_path) {
         File dir = new File(dir_path);
         if (!dir.exists()) {
             boolean isDirectoryCreated = dir.mkdirs();
@@ -30,11 +36,11 @@ public class FileUtil {
         return dir;
     }
 
-    public File createFile(File dir, String file_path) {
+    public static File createFile(File dir, String filePath) {
         File file = null;
         boolean isSuccess = false;
         if (dir.isDirectory()) {
-            file = new File(file_path);
+            file = new File(filePath);
             if (!file.exists()) {
                 Log.i(TAG, " 파일 없음");
                 try {
@@ -51,9 +57,7 @@ public class FileUtil {
         return file;
     }
 
-    public boolean copyFile(File file, String save_file) {
-        boolean result = false;
-
+    public static boolean copyFile(File file, String save_file) {
         try {
             FileInputStream fis = new FileInputStream(file);
             FileOutputStream newFos = new FileOutputStream(save_file);
@@ -62,20 +66,20 @@ public class FileUtil {
             while ((readCount = fis.read(buffer, 0, BUFFER_SIZE)) != -1) {
                 newFos.write(buffer, 0, readCount);
             }
-
-            result = true;
             newFos.close();
             fis.close();
+
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-        return result;
+        return false;
     }
 
-    public boolean deleteFolder(File targetFolder) {
-        if (!targetFolder.exists()) return false;
+    public static boolean deleteFolder(File targetFolder) {
+        if (!targetFolder.exists()) {
+            return false;
+        }
 
         File[] childFile = targetFolder.listFiles();
         int size = childFile.length;
@@ -89,15 +93,10 @@ public class FileUtil {
                 }
             }
         }
-        if (targetFolder.delete()) {
-            Log.i(TAG, targetFolder.getName() + " 폴더 삭제 성공");
-        } else {
-            Log.i(TAG, targetFolder.getName() + " 폴더 삭제 실패");
-        }
-        return (!targetFolder.exists());
+        return targetFolder.delete();
     }
 
-    public void writeFile(File file, String content) {
+    public static void writeFile(File file, String content) {
         FileOutputStream fos;
         try {
             fos = new FileOutputStream(file);
@@ -114,7 +113,7 @@ public class FileUtil {
 
     }
 
-    public String copyAssetFile(InputStream file) {
+    public static String fileToString(InputStream file) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             int readCount;
@@ -123,11 +122,25 @@ public class FileUtil {
                 byteArrayOutputStream.write(buffer, 0, readCount);
             }
             byteArrayOutputStream.flush();
-            Log.i(TAG, "Assets 폴더 접근 성공");
-        } catch (Exception e) {
-            Log.i(TAG, "Assets 폴더 접근 실패");
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return new String(byteArrayOutputStream.toByteArray());
+    }
+
+    public static boolean zipFolder(String srcFolder, String destZipFile) {
+        try {
+            ZipFile zipFile = new ZipFile(destZipFile);
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+            zipFile.addFolder(srcFolder + "OEBPS", parameters);
+            zipFile.addFolder(srcFolder + "META-INF", parameters);
+            zipFile.addFile(new File(srcFolder + "mimetype"), parameters);
+            return true;
+        } catch (ZipException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

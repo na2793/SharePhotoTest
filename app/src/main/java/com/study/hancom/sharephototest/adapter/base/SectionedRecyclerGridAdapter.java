@@ -3,13 +3,12 @@ package com.study.hancom.sharephototest.adapter.base;
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.ViewHolder, CVH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.ViewHolder, CVH extends RecyclerView.ViewHolder> extends RecyclerClickableItemAdapter<RecyclerView.ViewHolder> {
     private static final int ITEM_VIEW_TYPE_HEADER = 0;
     private static final int ITEM_VIEW_TYPE_CONTENT = 1;
 
@@ -68,6 +67,10 @@ abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.V
         return rawPosition - sectionPosition - 1;
     }
 
+    public int positionToRawPosition(int section, int position) {
+        return mSectionPositionList.get(section) + position;
+    }
+
     public int getSectionFor(int rawPosition) {
         int section = -1;
         for (int eachSectionPosition : mSectionPositionList) {
@@ -92,7 +95,9 @@ abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.V
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int rawPosition) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int rawPosition) {
+        super.onBindViewHolder(holder, rawPosition);
+
         int section = getSectionFor(rawPosition);
 
         if (isHeader(rawPosition)) {

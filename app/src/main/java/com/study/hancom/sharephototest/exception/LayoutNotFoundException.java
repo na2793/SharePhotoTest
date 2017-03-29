@@ -1,6 +1,8 @@
 package com.study.hancom.sharephototest.exception;
 
-public class LayoutNotFoundException extends Exception {
+import java.io.FileNotFoundException;
+
+public class LayoutNotFoundException extends FileNotFoundException {
     public LayoutNotFoundException() {
         super();
     }

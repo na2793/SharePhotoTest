@@ -1,33 +1,47 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetManager;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
+import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.FileUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
-public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHolder> {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+
+public class PageListAdapter extends RecyclerClickableItemAdapter<PageListAdapter.ViewHolder> {
     private Context mContext;
     private Album mAlbum;
     private boolean mHorizontal;
 
-    private boolean mFirstLoading = true;
+    private int mSelectedPosition = -1;
+    private Set<View> mWebViewSet = new HashSet<>();
 
-    private WebViewUtil mWebViewUtil = new WebViewUtil();
-
-    public PageListAdapter(Context context, Album album){
+    public PageListAdapter(Context context, Album album) {
         this(context, album, false);
     }
 
-    public PageListAdapter(Context context, Album album, boolean horizontal){
+    public PageListAdapter(Context context, Album album, boolean horizontal) {
         mContext = context;
         mAlbum = album;
         mHorizontal = horizontal;
@@ -55,44 +69,78 @@ public class PageListAdapter extends RecyclerView.Adapter<PageListAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final PageListAdapter.ViewHolder holder, final int position) {
+        super.onBindViewHolder(holder, position);
+
+        if (mSelectedPosition == position) {
+            holder.textView.setBackgroundColor(mContext.getResources().getColor(R.color.colorWhite));
+        } else {
+            holder.textView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLightGray));
+        }
+
+        holder.textView.setText(Integer.toString(position + 1));
+
+        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                return performItemClick(holder.itemView, position);
+            }
+        });
+
+        holder.webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return webViewGestureDetector.onTouchEvent(event);
+            }
+        });
+
         // Add a WebViewClient
         holder.webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
-                mFirstLoading = false;
+                mWebViewSet.add(view);
             }
         });
 
-        if (!mFirstLoading) {
+        if (mWebViewSet.contains(holder.webView)) {
             injectAll(position, holder.webView);
         }
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-        WebView webView;
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
 
-        ViewHolder(View itemView) {
-            super(itemView);
-            webView = (WebView) itemView.findViewById(R.id.page_list_item_webview);
-            webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
-        }
+    public void setSelectedPosition(int position) {
+        mSelectedPosition = position;
     }
 
     private void injectAll(int position, WebView view) {
         final Page page = mAlbum.getPage(position);
         int pictureCount = page.getPictureCount();
-        mWebViewUtil.injectDivByScript(view, pictureCount);
+        WebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
+            WebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
             } else {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
+        }
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView textView;
+        WebView webView;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.page_list_item_text);
+            webView = (WebView) itemView.findViewById(R.id.page_list_item_webview);
+            webView.loadDataWithBaseURL("file:///android_asset/", WebViewUtil.getDefaultHTMLData(mContext), "text/html", "UTF-8", null);
         }
     }
 }

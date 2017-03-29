@@ -1,12 +1,11 @@
 package com.study.hancom.sharephototest.activity;
 
-import android.graphics.Bitmap;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -15,14 +14,18 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.FileUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
     private Album mAlbum;
     private int mCurrentPageIndex;
 
+    private String mDefaultHTMLData;
     private WebView mWebView;
-    private WebViewUtil mWebViewUtil = new WebViewUtil();
 
     private Button mButtonPrevious;
     private Button mButtonNext;
@@ -32,6 +35,15 @@ public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_editor_page_full_size_webview_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        AssetManager assetManager = getAssets();
+        InputStream inputStream = null;
+        try {
+            inputStream = assetManager.open(getResources().getString(R.string.epubData_fileName_default_html));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mDefaultHTMLData = FileUtil.fileToString(inputStream);
 
         /* 인텐트 데이터 처리 */
         Bundle bundle = getIntent().getExtras();
@@ -48,7 +60,7 @@ public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
             }
         });
 
-        mWebView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+        mWebView.loadDataWithBaseURL("file:///android_asset/", mDefaultHTMLData, "text/html", "UTF-8", null);
 
         /* 버튼 처리 */
         mButtonPrevious = (Button) findViewById(R.id.button_previous);
@@ -90,15 +102,15 @@ public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
     private void injectAll(int position, WebView view) {
         final Page page = mAlbum.getPage(position);
         int pictureCount = page.getPictureCount();
-        mWebViewUtil.injectDivByScript(view, pictureCount);
+        WebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
+            WebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
             } else {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
         }
     }

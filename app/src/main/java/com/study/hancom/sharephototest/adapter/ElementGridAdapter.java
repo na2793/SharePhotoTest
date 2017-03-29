@@ -1,11 +1,11 @@
 package com.study.hancom.sharephototest.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,40 +17,32 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
+import com.study.hancom.sharephototest.activity.AlbumEditorNewLayoutSelectionActivity;
 import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
 import com.study.hancom.sharephototest.adapter.base.SectionedRecyclerGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumAction;
+import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.AnimationUtil;
+import com.study.hancom.sharephototest.util.WobbleAnimator;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, ElementGridAdapter.HeaderViewHolder, ElementGridAdapter.ContentViewHolder> {
-    private AlbumAction mAlbumAction = new AlbumAction();
-
     private boolean mEnableMultipleSelectMode = false;
 
     private int mSelectedSection = 0;
     private Set<Integer> mSelectedContentRawPositionSet = new HashSet<>();
     private int mSelectedContentRawPosition = -1;
 
-    private OnContentSelectListener mOnContentSelectListener;
     private OnDataChangeListener mOnDataChangeListener;
 
-    private AnimationUtil mAnimationUtil = new AnimationUtil();
+    private WobbleAnimator mWobbleAnimator = new WobbleAnimator();
 
     public ElementGridAdapter(Context context, Album data, GridLayoutManager layoutManager) {
         super(context, data, layoutManager);
-    }
-
-    public Picture getContent(int section, int position) {
-        return mData.getPage(section).getPicture(position);
     }
 
     @Override
@@ -65,6 +57,10 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
 
     public Picture getContent(int rawPosition) {
         return mData.getPage(getSectionFor(rawPosition)).getPicture(rawPositionToPosition(rawPosition));
+    }
+
+    public Picture getContent(int section, int position) {
+        return mData.getPage(section).getPicture(position);
     }
 
     public int getSelectedContentRawPosition() {
@@ -104,12 +100,19 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 mContext.startActivity(intent);
             }
         });
-        holder.buttonChangeLayout.setEnabled(false);
+        holder.buttonChangeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, AlbumEditorNewLayoutSelectionActivity.class);
+                intent.putExtra("currentElementNum",mData.getPage(mSelectedSection).getLayout().getElementNum());
+                ((Activity) mContext).startActivityForResult(intent, 1);
+            }
+        });
         holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    mAlbumAction.removePage(mData, mSelectedSection);
+                    AlbumManager.removePage(mData, mSelectedSection);
                     mSelectedContentRawPosition = -1;
                     mOnDataChangeListener.onDataChanged();
                 } catch (LayoutNotFoundException e) {
@@ -163,23 +166,9 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     @Override
-    public void onBindContentViewHolder(ContentViewHolder holder, final int section, final int position, final int rawPosition) {
+    public void onBindContentViewHolder(final ContentViewHolder holder, final int section, final int position, final int rawPosition) {
         if (mEnableMultipleSelectMode) {
-            holder.view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setSelectedSection(section);
-                    if (!removeMultipleSelectedContentPosition(rawPosition)) {
-                        addMultipleSelectedContentPosition(rawPosition);
-                        mOnContentSelectListener.onSelect(section, rawPositionToPosition(rawPosition));
-                    } else {
-                        mOnContentSelectListener.onCancel();
-                    }
-                    notifyDataSetChanged();
-                }
-            });
-
-            mAnimationUtil.startWobbleAnimation(holder.view);
+            mWobbleAnimator.startWobbleAnimation(holder.view);
             holder.view.setAlpha(1);
 
             holder.checkBox.setVisibility(View.VISIBLE);
@@ -189,34 +178,7 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 holder.checkBox.setChecked(false);
             }
         } else {
-            holder.view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setSelectedSection(section);
-                    if (mSelectedContentRawPosition != rawPosition) {
-                        setSelectedContentPosition(rawPosition);
-                        mOnContentSelectListener.onSelect(section, rawPositionToPosition(rawPosition));
-                    } else {
-                        setSelectedContentPosition(-1);
-                        mOnContentSelectListener.onCancel();
-                    }
-                    notifyDataSetChanged();
-                }
-            });
-            holder.view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    setSelectedSection(section);
-                    setSelectedContentPosition(-1);
-                    startMultipleSelectMode(rawPosition);
-                    mOnContentSelectListener.onSelect(section, rawPositionToPosition(rawPosition));
-                    notifyDataSetChanged();
-
-                    return false;
-                }
-            });
-
-            mAnimationUtil.stopWobbleAll();
+            mWobbleAnimator.stopWobbleAll();
             holder.view.setRotation(0);
 
             if (mSelectedSection == section) {
@@ -301,10 +263,6 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         mSelectedContentRawPositionSet.clear();
     }
 
-    public void setOnContentSelectListener(OnContentSelectListener listener) {
-        mOnContentSelectListener = listener;
-    }
-
     public void setOnDataChangeListener(OnDataChangeListener listener) {
         mOnDataChangeListener = listener;
     }
@@ -344,12 +302,6 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     /* 리스너 인터페이스 */
-    public interface OnContentSelectListener {
-        void onSelect(int section, int position);
-
-        void onCancel();
-    }
-
     public interface OnDataChangeListener {
         void onDataChanged();
     }

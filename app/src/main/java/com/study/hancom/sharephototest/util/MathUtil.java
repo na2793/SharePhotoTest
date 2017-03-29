@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class MathUtil {
-    public List<Integer> getRandomNumberList(List<Integer> usableNumberList, final int totalCount) {
+    private MathUtil() {}
+
+    public static List<Integer> getRandomNumberList(List<Integer> usableNumberList, final int totalCount) {
         if (usableNumberList.isEmpty()) {
             return null;
         }
@@ -36,7 +38,7 @@ public class MathUtil {
         return randomNumberList;
     }
 
-    public int getRandomMath(int max, int min) {
+    public static int getRandomMath(int max, int min) {
         return (int) (Math.random() * (max - min + 1) + min);
     }
 }

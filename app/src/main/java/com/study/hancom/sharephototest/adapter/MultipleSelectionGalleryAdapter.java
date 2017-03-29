@@ -4,12 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 
-import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.GalleryFullSizePictureActivity;
 import com.study.hancom.sharephototest.adapter.base.GalleryAdapter;
 
@@ -46,7 +41,6 @@ public class MultipleSelectionGalleryAdapter extends GalleryAdapter {
                 mOnMultipleItemSelectListener.onSelect();
             }
         });
-
         holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,6 +48,7 @@ public class MultipleSelectionGalleryAdapter extends GalleryAdapter {
                 intent.putStringArrayListExtra("picturePathList", mPicturePathList);
                 intent.putIntegerArrayListExtra("selectedPicturePositionList", new ArrayList<>(mSelectedPositionSet));
                 intent.putExtra("currentPictureIndex", position);
+                intent.putExtra("isMultipleSelection", true);
                 ((Activity) mContext).startActivityForResult(intent, REQUEST_CODE);
             }
         });
