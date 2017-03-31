@@ -88,24 +88,15 @@ public class AlbumGridAdapter extends RecyclerClickableItemAdapter<AlbumGridAdap
         });
 
        /* 웹뷰 처리 */
-        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
+        holder.webView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
+            public void onClick(View v) {
                 Intent intent = new Intent(mContext, AlbumFullSizeWebViewActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("album", mAlbum);
                 bundle.putInt("pageIndex", position);
                 intent.putExtras(bundle);
                 mContext.startActivity(intent);
-
-                return false;
-            }
-        });
-
-        holder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return webViewGestureDetector.onTouchEvent(event);
             }
         });
 

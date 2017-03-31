@@ -1,5 +1,6 @@
 package com.study.hancom.sharephototest.activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.activity.base.IObservable;
 import com.study.hancom.sharephototest.activity.base.IObserver;
 import com.study.hancom.sharephototest.adapter.PageListAdapter;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.AlbumManager;
@@ -24,6 +26,8 @@ public class AlbumEditorPageListFragment extends Fragment implements IObservable
     static final String STATE_ALBUM = "album";
 
     private Map<String, IObserver> mObserverMap = new HashMap<>();
+
+    private Activity mParent;
 
     private Album mAlbum;
 
@@ -41,6 +45,8 @@ public class AlbumEditorPageListFragment extends Fragment implements IObservable
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mParent = getActivity();
+
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_page_list, container, false);
 
@@ -49,7 +55,16 @@ public class AlbumEditorPageListFragment extends Fragment implements IObservable
         }
 
         mPageListView = (AutoFitRecyclerGridView) view.findViewById(R.id.page_list_view);
-        mPageListAdapter = new PageListAdapter(getActivity(), mAlbum);
+        mPageListAdapter = new PageListAdapter(mParent, mAlbum);
+        mPageListAdapter.setOnOnItemClickListener(new RecyclerClickableItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                mParent.onBackPressed();
+                Bundle out = new Bundle();
+                out.putInt("selectedPageNum", position);
+                notifyChangedAll(out);
+            }
+        });
         mPageListView.setAdapter(mPageListAdapter);
 
         mButtonAddPage = (Button) view.findViewById(R.id.button_add_page);
@@ -60,6 +75,7 @@ public class AlbumEditorPageListFragment extends Fragment implements IObservable
                     AlbumManager.addPage(mAlbum, 1);
                     AlbumManager.addPicture(mAlbum, mAlbum.getPageCount() - 1, null);
                     mPageListAdapter.notifyDataSetChanged();
+                    mPageListView.smoothScrollToPosition(mPageListAdapter.getItemCount() - 1);
                     notifyChangedAll();
                 } catch (LayoutNotFoundException e) {
                     //TODO : 토스트메시지 "페이지를 추가하지 못했습니다"

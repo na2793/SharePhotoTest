@@ -13,6 +13,7 @@ import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
+import com.study.hancom.sharephototest.util.EpubMaker;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 import java.util.ArrayList;
@@ -108,9 +109,12 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_album_confirm:  /* 저장 */
-                /*Intent intentSave = new Intent(this, AlbumSaveActivity.class);
-                intentSave.putExtra("album", mAlbum);
-                startActivity(intentSave);*/
+                // @임시
+                new Thread(new Runnable() {
+                    public void run() {
+                        new EpubMaker(mAlbum, getApplicationContext()).createFile("test");
+                    }
+                }).start();
                 return true;
 
             default:

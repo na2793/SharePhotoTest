@@ -16,7 +16,7 @@ public class MultipleSelectionGalleryAdapter extends GalleryAdapter {
     private static final int REQUEST_CODE = 1;
 
     private Set<Integer> mSelectedPositionSet = new HashSet<>();
-    
+
     private OnMultipleItemSelectListener mOnMultipleItemSelectListener;
 
     public MultipleSelectionGalleryAdapter(Context context, ArrayList<String> picturePaths) {
@@ -24,7 +24,7 @@ public class MultipleSelectionGalleryAdapter extends GalleryAdapter {
     }
 
     @Override
-    protected void bindView(GalleryAdapter.ViewHolder holder, final int position) {
+    protected void bindView(ViewHolder holder, final int position) {
         if (mSelectedPositionSet.contains(position)) {
             holder.checkBox.setChecked(true);
         } else {

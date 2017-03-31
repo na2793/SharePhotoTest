@@ -104,7 +104,10 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, AlbumEditorNewLayoutSelectionActivity.class);
-                intent.putExtra("currentElementNum",mData.getPage(mSelectedSection).getLayout().getElementNum());
+                Bundle bundle = new Bundle();
+                bundle.putInt("currentSection",mSelectedSection);
+                bundle.putParcelable("currentPageLayout", mData.getPage(mSelectedSection).getLayout());
+                intent.putExtras(bundle);
                 ((Activity) mContext).startActivityForResult(intent, 1);
             }
         });

@@ -1,5 +1,6 @@
 package com.study.hancom.sharephototest.activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements I
 
     private Map<String, IObserver> mObserverMap = new HashMap<>();
 
-    private Context mContext;
+    private Activity mParent;
 
     private Album mAlbum;
 
@@ -48,7 +49,7 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements I
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mContext = getActivity();
+        mParent = getActivity();
 
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_horizontal_page_list, container, false);
@@ -58,14 +59,12 @@ public class AlbumEditorHorizontalPageListFragment extends Fragment implements I
         }
 
         mPageListView = (RecyclerView) view.findViewById(R.id.page_list_view);
-        mLayoutManager = new GridLayoutManager(mContext, 1, GridLayoutManager.HORIZONTAL, false);
+        mLayoutManager = new GridLayoutManager(mParent, 1, GridLayoutManager.HORIZONTAL, false);
         mPageListView.setLayoutManager(mLayoutManager);
-        mPageListAdapter = new PageListAdapter(mContext, mAlbum, true);
+        mPageListAdapter = new PageListAdapter(mParent, mAlbum, true);
         mPageListAdapter.setOnOnItemClickListener(new RecyclerClickableItemAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                mPageListAdapter.setSelectedPosition(position);
-                mPageListAdapter.notifyDataSetChanged();
                 Bundle out = new Bundle();
                 out.putInt("selectedPageNum", position);
                 notifyChangedAll(out);

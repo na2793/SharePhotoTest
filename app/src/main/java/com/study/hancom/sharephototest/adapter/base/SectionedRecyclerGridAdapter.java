@@ -68,7 +68,7 @@ abstract public class SectionedRecyclerGridAdapter<T, HVH extends RecyclerView.V
     }
 
     public int positionToRawPosition(int section, int position) {
-        return mSectionPositionList.get(section) + position;
+        return mSectionPositionList.get(section) + (position + 1);
     }
 
     public int getSectionFor(int rawPosition) {

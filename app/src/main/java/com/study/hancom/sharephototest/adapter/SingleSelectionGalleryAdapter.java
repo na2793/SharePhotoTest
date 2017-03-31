@@ -17,6 +17,8 @@ public class SingleSelectionGalleryAdapter extends GalleryAdapter {
     private int mSelectedPosition = -1;
     private ArrayList<String> mInvalidPicturePathList;
 
+    private OnSingleItemSelectListener mOnSingleItemSelectListener;
+
     public SingleSelectionGalleryAdapter(Context context, ArrayList<String> picturePathList) {
         super(context, picturePathList);
     }
@@ -48,8 +50,7 @@ public class SingleSelectionGalleryAdapter extends GalleryAdapter {
             @Override
             public void onClick(View v) {
                 if (!mInvalidPicturePathList.contains(getItem(position))) {
-                    mSelectedPosition = position;
-                    notifyDataSetChanged();
+                    mOnSingleItemSelectListener.onSelect(position);
                 }
             }
         });
@@ -59,6 +60,7 @@ public class SingleSelectionGalleryAdapter extends GalleryAdapter {
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, GalleryFullSizePictureActivity.class);
                 intent.putStringArrayListExtra("picturePathList", mPicturePathList);
+                intent.putStringArrayListExtra("invalidPicturePathList",mInvalidPicturePathList);
                 intent.putExtra("currentPictureIndex", position);
                 intent.putExtra("isMultipleSelection", false);
                 ((Activity) mContext).startActivityForResult(intent, REQUEST_CODE);
@@ -73,4 +75,25 @@ public class SingleSelectionGalleryAdapter extends GalleryAdapter {
     public int getSelectedPosition() {
         return mSelectedPosition;
     }
+
+    public void setSelectedPosition(int position) {
+        mSelectedPosition = position;
+    }
+
+    public void addSelectedPosition(String path) {
+        mInvalidPicturePathList.add(path);
+    }
+
+    public void deselectAll() {
+        mInvalidPicturePathList.clear();
+    }
+
+    public void setOnSingleItemSelectListener(OnSingleItemSelectListener listener) {
+        mOnSingleItemSelectListener = listener;
+    }
+
+    public interface OnSingleItemSelectListener {
+        void onSelect(int position);
+    }
+
 }

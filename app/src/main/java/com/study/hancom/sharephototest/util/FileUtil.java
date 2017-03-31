@@ -77,9 +77,7 @@ public class FileUtil {
     }
 
     public static boolean deleteFolder(File targetFolder) {
-        if (!targetFolder.exists()) {
-            return false;
-        }
+        if (!targetFolder.exists()) return false;
 
         File[] childFile = targetFolder.listFiles();
         int size = childFile.length;
@@ -87,13 +85,20 @@ public class FileUtil {
         if (size > 0) {
             for (int i = 0; i < size; i++) {
                 if (childFile[i].isFile()) {
-                    childFile[i].delete();
+                    if(childFile[i].delete()) {
+                        Log.i(TAG, childFile[i].getName() + " 파일 삭제 성공");
+                    }
                 } else {
                     deleteFolder(childFile[i]);
                 }
             }
         }
-        return targetFolder.delete();
+        if(targetFolder.delete()){
+            Log.i(TAG, targetFolder.getName() + " 폴더 삭제 성공");
+        }else{
+            Log.i(TAG, targetFolder.getName() + " 폴더 삭제 실패");
+        }
+        return (!targetFolder.exists());
     }
 
     public static void writeFile(File file, String content) {

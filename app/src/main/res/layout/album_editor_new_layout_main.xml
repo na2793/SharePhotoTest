@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:horizontalSpacing="2dip"
-        android:columnWidth="120dp"
+        android:columnWidth="100dp"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
         android:listSelector="@drawable/selector"

@@ -20,6 +20,8 @@ import java.util.Set;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
     private ArrayList<String> mPicturePathList;
+
+    private ArrayList<String> mInvalidPicturePathList;
     private Set<Integer> mSelectedIndexSet;
     private int mCurrentPictureIndex;
 
@@ -42,6 +44,8 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         mCurrentPictureIndex = bundle.getInt("currentPictureIndex");
         if (mIsMultipleSelection) {
             mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
+        } else {
+            mInvalidPicturePathList = new ArrayList<>(bundle.getStringArrayList("invalidPicturePathList"));
         }
 
         /* 이미지뷰 처리 */
@@ -108,6 +112,7 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.gallery_full_size_picture_main, menu);
         if (!mIsMultipleSelection) {
             MenuItem registrar = menu.findItem(R.id.action_check);
@@ -123,6 +128,8 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
                     changeActionBar();
                 }
             });
+            MenuItem registrar = menu.findItem(R.id.action_select);
+            registrar.setVisible(false);
         }
         changeActionBar();
 
@@ -133,17 +140,22 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (mIsMultipleSelection) {
-                    Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
-                    intent.putIntegerArrayListExtra("selectedPicturePositionList", new ArrayList<>(mSelectedIndexSet));
-                    setResult(RESULT_OK, intent);
-                }
-                finish();
+                onBackPressed();
                 return true;
 
             case R.id.action_check:
                 return true;
 
+            case R.id.action_select:
+                if (!mIsMultipleSelection) {
+                    Intent intent = new Intent(getApplicationContext(), GallerySingleSelectionActivity.class);
+                    intent.putStringArrayListExtra("InvalidPicturePathList", new ArrayList<>(mInvalidPicturePathList));
+                    if (!mInvalidPicturePathList.contains(mPicturePathList.get(mCurrentPictureIndex))) {
+                        intent.putExtra("selectedImage", mCurrentPictureIndex);
+                    }
+                    setResult(RESULT_OK, intent);
+                }
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }

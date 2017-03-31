@@ -2,6 +2,7 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,6 +54,8 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
 
     private Map<String, IObserver> mObserverMap = new HashMap<>();
 
+    private Activity mParent;
+
     private Album mAlbum;
 
     private Menu mMenu;
@@ -60,6 +63,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
     private int mMenuMode;
 
     private AutoFitRecyclerGridView mElementGridView;
+    private GridLayoutManager mLayoutManager;
     private ElementGridAdapter mElementGridAdapter;
 
     @Override
@@ -71,14 +75,17 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mParent = getActivity();
+        
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_element_grid, container, false);
         mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
+        mLayoutManager = (GridLayoutManager) mElementGridView.getLayoutManager();
 
         if (savedInstanceState != null) {
             mAlbum = savedInstanceState.getParcelable(STATE_ALBUM);
             mMenuMode = savedInstanceState.getInt(STATE_MENU_MODE);
-            mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
+            mElementGridAdapter = new ElementGridAdapter(mParent, mAlbum, mLayoutManager);
             mElementGridAdapter.setSelectedSection(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION));
             mElementGridAdapter.setSelectedContentPosition(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION));
             mElementGridAdapter.setMultipleSelectMode(savedInstanceState.getBoolean(STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED));
@@ -87,7 +94,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 mElementGridAdapter.addMultipleSelectedContentPosition(eachPosition);
             }
         } else {
-            mElementGridAdapter = new ElementGridAdapter(getActivity(), mAlbum, (GridLayoutManager) mElementGridView.getLayoutManager());
+            mElementGridAdapter = new ElementGridAdapter(mParent, mAlbum, mLayoutManager);
             mMenuMode = MENU_MODE_MAIN;
         }
 
@@ -163,36 +170,20 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                switch (mMenuMode) {
-                    case MENU_MODE_MAIN:
-                        getActivity().finish();
-                        break;
-                    case MENU_MODE_EMPTY_PICTURE:
-                        // pass ; MENU_MODE_SINGLE_SELECT와 동일
-                    case MENU_MODE_SINGLE_SELECT:
-                        mElementGridAdapter.setSelectedContentPosition(-1);
-                        mElementGridAdapter.notifyDataSetChanged();
-                        changeActionBar(MENU_MODE_MAIN);
-                        break;
-                    case MENU_MODE_MULTIPLE_SELECT:
-                        mElementGridAdapter.stopMultipleSelectMode();
-                        mElementGridAdapter.notifyDataSetChanged();
-                        changeActionBar(MENU_MODE_MAIN);
-                        break;
-                }
+                onBackPressed();
                 return true;
             case R.id.action_confirm:
                 // @임시
                 new Thread(new Runnable() {
                     public void run() {
-                        new EpubMaker(mAlbum, getActivity()).createFile("test");
+                        new EpubMaker(mAlbum, mParent).createFile("test");
                     }
                 }).start();
                 return true;
             case R.id.action_single_edit:
                 return true;
             case R.id.action_single_move: {
-                final NumberPicker pageNumberPicker = new NumberPicker(getActivity());
+                final NumberPicker pageNumberPicker = new NumberPicker(mParent);
                 pageNumberPicker.setMinValue(1);
                 pageNumberPicker.setMaxValue(mElementGridAdapter.getSectionCount());
                 pageNumberPicker.setValue(mElementGridAdapter.getSelectedSection() + 1);
@@ -215,7 +206,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_single_move_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_single_move_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -243,7 +234,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -260,7 +251,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -285,7 +276,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             case R.id.action_multiple_edit:
                 return true;
             case R.id.action_multiple_move: {
-                final NumberPicker pageNumberPicker = new NumberPicker(getActivity());
+                final NumberPicker pageNumberPicker = new NumberPicker(mParent);
                 pageNumberPicker.setMinValue(1);
                 pageNumberPicker.setMaxValue(mElementGridAdapter.getSectionCount());
                 pageNumberPicker.setValue(mElementGridAdapter.getSelectedSection() + 1);
@@ -321,7 +312,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_single_move_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_single_move_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -361,7 +352,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -390,7 +381,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -415,7 +406,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         }
                     }
                 }
-                Intent intent = new Intent(getActivity().getApplicationContext(), GallerySingleSelectionActivity.class);
+                Intent intent = new Intent(mParent.getApplicationContext(), GallerySingleSelectionActivity.class);
                 intent.putStringArrayListExtra("InvalidPicturePathList", usedPicturePathList);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
@@ -434,7 +425,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(getActivity(), getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(mParent, getString(R.string.toast_action_picture_delete_fail), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -446,9 +437,8 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         })
                         .create().show();
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public void changeActionBar(int mode) {
@@ -458,28 +448,28 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                     mMenu.clear();
                     mMenuInflater.inflate(R.menu.album_editor_main, mMenu);
                 }
-                getActivity().setTitle(R.string.title_album_editor_main);
+                mParent.setTitle(R.string.title_album_editor_main);
                 break;
             case MENU_MODE_SINGLE_SELECT:
                 if (mMenuMode != mode) {
                     mMenu.clear();
                     mMenuInflater.inflate(R.menu.album_editor_select_single_picture, mMenu);
                 }
-                getActivity().setTitle(R.string.title_album_editor_single_select);
+                mParent.setTitle(R.string.title_album_editor_single_select);
                 break;
             case MENU_MODE_MULTIPLE_SELECT:
                 if (mMenuMode != mode) {
                     mMenu.clear();
                     mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
                 }
-                getActivity().setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
+                mParent.setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
                 break;
             case MENU_MODE_EMPTY_PICTURE:
                 if (mMenuMode != mode) {
                     mMenu.clear();
                     mMenuInflater.inflate(R.menu.album_editor_select_empty_picture, mMenu);
                 }
-                getActivity().setTitle(R.string.title_album_editor_empty_picture);
+                mParent.setTitle(R.string.title_album_editor_empty_picture);
                 break;
         }
 
@@ -487,7 +477,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
     }
 
     private AlertDialog.Builder createDialog(String title, String message) {
-        return new AlertDialog.Builder(getActivity())
+        return new AlertDialog.Builder(mParent)
                 .setTitle(title)
                 .setMessage(message);
     }
@@ -505,14 +495,12 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
         if (resultCode == Activity.RESULT_OK) {
             Bundle bundle = data.getExtras();
-            Picture picture = new Picture(bundle.getString("selectedImage"));
             int section = mElementGridAdapter.getSelectedSection();
+            Picture picture = new Picture(bundle.getString("selectedImage"));
             int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
             AlbumManager.setPicture(mAlbum, section, position, picture);
-
             changeActionBar(MENU_MODE_SINGLE_SELECT);
             mElementGridAdapter.notifyDataSetChanged();
             notifyChangedAll();
@@ -566,10 +554,28 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
     public void update(Bundle in) {
         if (in != null) {
             int selectedSectionIndex = in.getInt("selectedPageNum");
-            mElementGridAdapter.setSelectedSection(selectedSectionIndex);
-            Log.v("tag", "인덱스 : " + selectedSectionIndex);
-            mElementGridView.smoothScrollToPosition(mElementGridAdapter.positionToRawPosition(selectedSectionIndex, 0));
+            int sectionPosition = mElementGridAdapter.positionToRawPosition(selectedSectionIndex, -1);
+            mLayoutManager.scrollToPositionWithOffset(sectionPosition, 0);
+        } else {
+            mElementGridAdapter.notifyDataSetChanged();
         }
-        mElementGridAdapter.notifyDataSetChanged();
+    }
+
+    public void onBackPressed() {
+        switch (mMenuMode) {
+            case MENU_MODE_EMPTY_PICTURE:
+                // pass ; MENU_MODE_SINGLE_SELECT와 동일
+            case MENU_MODE_SINGLE_SELECT:
+                mElementGridAdapter.setSelectedContentPosition(-1);
+                mElementGridAdapter.notifyDataSetChanged();
+                changeActionBar(MENU_MODE_MAIN);
+                return;
+            case MENU_MODE_MULTIPLE_SELECT:
+                mElementGridAdapter.stopMultipleSelectMode();
+                mElementGridAdapter.notifyDataSetChanged();
+                changeActionBar(MENU_MODE_MAIN);
+                return;
+        }
+        mParent.finish();
     }
 }

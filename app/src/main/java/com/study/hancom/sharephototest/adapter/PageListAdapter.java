@@ -34,7 +34,6 @@ public class PageListAdapter extends RecyclerClickableItemAdapter<PageListAdapte
     private Album mAlbum;
     private boolean mHorizontal;
 
-    private int mSelectedPosition = -1;
     private Set<View> mWebViewSet = new HashSet<>();
 
     public PageListAdapter(Context context, Album album) {
@@ -72,25 +71,12 @@ public class PageListAdapter extends RecyclerClickableItemAdapter<PageListAdapte
     public void onBindViewHolder(final PageListAdapter.ViewHolder holder, final int position) {
         super.onBindViewHolder(holder, position);
 
-        if (mSelectedPosition == position) {
-            holder.textView.setBackgroundColor(mContext.getResources().getColor(R.color.colorWhite));
-        } else {
-            holder.textView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLightGray));
-        }
-
         holder.textView.setText(Integer.toString(position + 1));
 
-        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
+        holder.webView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return performItemClick(holder.itemView, position);
-            }
-        });
-
-        holder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return webViewGestureDetector.onTouchEvent(event);
+            public void onClick(View v) {
+                performItemClick(holder.itemView, position);
             }
         });
 
@@ -106,14 +92,6 @@ public class PageListAdapter extends RecyclerClickableItemAdapter<PageListAdapte
         if (mWebViewSet.contains(holder.webView)) {
             injectAll(position, holder.webView);
         }
-    }
-
-    public int getSelectedPosition() {
-        return mSelectedPosition;
-    }
-
-    public void setSelectedPosition(int position) {
-        mSelectedPosition = position;
     }
 
     private void injectAll(int position, WebView view) {

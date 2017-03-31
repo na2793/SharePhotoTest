@@ -275,4 +275,9 @@ public class AlbumManager {
             toPage.addPicture(eachTarget);
         }
     }
+
+    public static void setLayout(Album album, int section, PageLayout pageLayout) {
+        Page page = album.getPage(section);
+        page.setLayout(pageLayout);
+    }
 }

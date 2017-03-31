@@ -67,12 +67,7 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenu = menu;
         getMenuInflater().inflate(R.menu.gallery_multiple_select_main, menu);
-        setTitle(String.format(getResources().getString(R.string.title_gallery_main), mGalleryAdapter.getSelectedPositionCount(), mPicturePathList.size()));
-        if (mGalleryAdapter.getSelectedPositionCount() > 0) {
-            mMenu.findItem(R.id.action_next).setEnabled(true);
-        } else {
-            mMenu.findItem(R.id.action_next).setEnabled(false);
-        }
+        changeActionBar();
 
         return true;
     }
@@ -92,6 +87,7 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
                     selectedPicturePathList.add(mGalleryAdapter.getItem(eachPosition));
                 }
                 Intent intent = new Intent(getApplicationContext(), AlbumOverviewActivity.class);
+
                 intent.putExtra("selectedPicturePathList", selectedPicturePathList);
                 startActivity(intent);
 

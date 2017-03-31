@@ -52,6 +52,7 @@ public class AlbumFullSizeWebViewActivity extends AppCompatActivity {
 
         /* 뷰 처리 */
         mWebView = (WebView) findViewById(R.id.show_webview);
+
         // Add a WebViewClient
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
