@@ -2,7 +2,6 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -142,11 +141,46 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 }
             }
         });
-        mElementGridAdapter.setOnDataChangeListener(new ElementGridAdapter.OnDataChangeListener() {
+
+        mElementGridAdapter.setOnHeaderClickListener(new ElementGridAdapter.OnHeaderClickListener() {
             @Override
-            public void onDataChanged() {
-                mElementGridAdapter.notifyDataSetChanged();
-                notifyChangedAll();
+            public void onClick(int section, int rawPosition, View v) {
+                switch (v.getId()) {
+                    case R.id.header_menu_button_preview: {
+                        Intent intent = new Intent(mParent, AlbumFullSizeWebViewActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("album", mAlbum);
+                        bundle.putInt("pageIndex", mElementGridAdapter.getSelectedSection());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+
+                        break;
+                    }
+                    case R.id.header_menu_button_change_layout: {
+                        int selectedSection = mElementGridAdapter.getSelectedSection();
+                        Intent intent = new Intent(mParent, AlbumEditorNewLayoutSelectionActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("currentSection", selectedSection);
+                        bundle.putParcelable("currentPageLayout", mAlbum.getPage(selectedSection).getLayout());
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent, 1);
+                        break;
+                    }
+                    case R.id.header_menu_button_delete: {
+                        int selectedSection = mElementGridAdapter.getSelectedSection();
+                        try {
+                            AlbumManager.removePage(mAlbum, selectedSection);
+                            mElementGridAdapter.setSelectedContentPosition(-1);
+                            changeActionBar(MENU_MODE_MAIN);
+                        } catch (LayoutNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    default:
+                        mElementGridAdapter.setSelectedSection(section);
+                        break;
+                }
             }
         });
 

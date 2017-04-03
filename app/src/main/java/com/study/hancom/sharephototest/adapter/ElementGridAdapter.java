@@ -37,7 +37,8 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     private Set<Integer> mSelectedContentRawPositionSet = new HashSet<>();
     private int mSelectedContentRawPosition = -1;
 
-    private OnDataChangeListener mOnDataChangeListener;
+    private OnHeaderClickListener mOnHeaderClickListener;
+    private OnContentClickListener mOnContentClickListener;
 
     private WobbleAnimator mWobbleAnimator = new WobbleAnimator();
 
@@ -86,44 +87,7 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     @Override
     public HeaderViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
         final View headerView = LayoutInflater.from(mContext).inflate(R.layout.album_editor_element_grid_item_header, parent, false);
-        HeaderViewHolder holder = new HeaderViewHolder(headerView);
-
-        /* 메뉴 */
-        holder.buttonPreview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, AlbumFullSizeWebViewActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("album", mData);
-                bundle.putInt("pageIndex", mSelectedSection);
-                intent.putExtras(bundle);
-                mContext.startActivity(intent);
-            }
-        });
-        holder.buttonChangeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, AlbumEditorNewLayoutSelectionActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("currentSection",mSelectedSection);
-                bundle.putParcelable("currentPageLayout", mData.getPage(mSelectedSection).getLayout());
-                intent.putExtras(bundle);
-                ((Activity) mContext).startActivityForResult(intent, 1);
-            }
-        });
-        holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    AlbumManager.removePage(mData, mSelectedSection);
-                    mSelectedContentRawPosition = -1;
-                    mOnDataChangeListener.onDataChanged();
-                } catch (LayoutNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
+        final HeaderViewHolder holder = new HeaderViewHolder(headerView);
         return holder;
     }
 
@@ -134,26 +98,42 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     @Override
-    public void onBindHeaderViewHolder(HeaderViewHolder holder, final int section, int rawPosition) {
-        /* 선택 영역 */
-        int maxSectionIndex = getSectionCount() - 1;
-        if (mSelectedSection > maxSectionIndex) {
-            mSelectedSection = maxSectionIndex;
-        }
-
+    public void onBindHeaderViewHolder(final HeaderViewHolder holder, final int section, final int rawPosition) {
         /* 전체 */
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setSelectedSection(section);
-                notifyDataSetChanged();
+                if (mOnHeaderClickListener != null) {
+                    mOnHeaderClickListener.onClick(section, rawPosition, v);
+                }
             }
         });
 
-        /* 텍스트 뷰 */
-        holder.textView.setText((section + 1) + " 페이지");    //** 리소스로 뺄 것
-
-        /* 메뉴 홀더 */
+        /* 메뉴 */
+        holder.buttonPreview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnHeaderClickListener != null) {
+                    mOnHeaderClickListener.onClick(section, rawPosition, v);
+                }
+            }
+        });
+        holder.buttonChangeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnHeaderClickListener != null) {
+                    mOnHeaderClickListener.onClick(section, rawPosition, v);
+                }
+            }
+        });
+        holder.buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnHeaderClickListener != null) {
+                    mOnHeaderClickListener.onClick(section, rawPosition, v);
+                }
+            }
+        });
         if (mEnableMultipleSelectMode) {
             holder.menuHolder.setVisibility(View.GONE);
             holder.view.setAlpha(1);
@@ -166,14 +146,52 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 holder.view.setAlpha(0.5f);
             }
         }
+
+        /* 텍스트 뷰 */
+        holder.textView.setText((section + 1) + " 페이지");    //** 리소스로 뺄 것
+        holder.textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnHeaderClickListener != null) {
+                    mOnHeaderClickListener.onClick(section, rawPosition, v);
+                }
+            }
+        });
     }
 
     @Override
     public void onBindContentViewHolder(final ContentViewHolder holder, final int section, final int position, final int rawPosition) {
-        if (mEnableMultipleSelectMode) {
-            mWobbleAnimator.startWobbleAnimation(holder.view);
-            holder.view.setAlpha(1);
+        /* 전체 */
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnContentClickListener != null) {
+                    mOnContentClickListener.onClick(section, position, rawPosition, v);
+                }
+            }
+        });
 
+        if (mEnableMultipleSelectMode) {
+            holder.view.setAlpha(1);
+        } else {
+            if (mSelectedSection == section) {
+                holder.view.setAlpha(1);
+            } else {
+                holder.view.setAlpha(0.5f);
+            }
+        }
+
+        /* 체크박스 */
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnContentClickListener != null) {
+                    mOnContentClickListener.onClick(section, position, rawPosition, v);
+                }
+            }
+        });
+
+        if (mEnableMultipleSelectMode) {
             holder.checkBox.setVisibility(View.VISIBLE);
             if (mSelectedContentRawPositionSet.contains(rawPosition)) {
                 holder.checkBox.setChecked(true);
@@ -181,15 +199,6 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 holder.checkBox.setChecked(false);
             }
         } else {
-            mWobbleAnimator.stopWobbleAll();
-            holder.view.setRotation(0);
-
-            if (mSelectedSection == section) {
-                holder.view.setAlpha(1);
-            } else {
-                holder.view.setAlpha(0.5f);
-            }
-
             if (mSelectedContentRawPosition == rawPosition) {
                 holder.checkBox.setVisibility(View.VISIBLE);
                 holder.checkBox.setChecked(true);
@@ -200,10 +209,26 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         }
 
         /* 텍스트 뷰 */
+        holder.textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnContentClickListener != null) {
+                    mOnContentClickListener.onClick(section, position, rawPosition, v);
+                }
+            }
+        });
         String elementNum = Integer.toString(rawPositionToPosition(rawPosition) + 1);
         holder.textView.setText(elementNum);
 
         /* 이미지 뷰 */
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnContentClickListener != null) {
+                    mOnContentClickListener.onClick(section, position, rawPosition, v);
+                }
+            }
+        });
         Picture picture = mData.getPage(section).getPicture(position);
         if (picture != null) {
             Glide.with(mContext).load(picture.getPath()).centerCrop().into(holder.imageView);
@@ -266,11 +291,15 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         mSelectedContentRawPositionSet.clear();
     }
 
-    public void setOnDataChangeListener(OnDataChangeListener listener) {
-        mOnDataChangeListener = listener;
+    public void setOnHeaderClickListener(OnHeaderClickListener listener) {
+        mOnHeaderClickListener = listener;
     }
 
-    class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public void setOnContentClickListener(OnContentClickListener listener) {
+        mOnContentClickListener = listener;
+    }
+
+    public class HeaderViewHolder extends RecyclerView.ViewHolder {
         View view;
         TextView textView;
         LinearLayout menuHolder;
@@ -289,7 +318,7 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         }
     }
 
-    class ContentViewHolder extends RecyclerView.ViewHolder {
+    public class ContentViewHolder extends RecyclerView.ViewHolder {
         View view;
         ImageView imageView;
         CheckBox checkBox;
@@ -305,7 +334,11 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     /* 리스너 인터페이스 */
-    public interface OnDataChangeListener {
-        void onDataChanged();
+    public interface OnHeaderClickListener {
+        void onClick(int section, int rawPosition, View v);
+    }
+
+    public interface OnContentClickListener {
+        void onClick(int section, int position, int rawPosition, View v);
     }
 }
