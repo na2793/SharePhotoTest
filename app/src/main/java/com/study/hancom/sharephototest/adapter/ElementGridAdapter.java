@@ -1,9 +1,6 @@
 package com.study.hancom.sharephototest.adapter;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,33 +14,27 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.AlbumEditorNewLayoutSelectionActivity;
-import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
 import com.study.hancom.sharephototest.adapter.base.SectionedRecyclerGridAdapter;
-import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
-import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.WobbleAnimator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, ElementGridAdapter.HeaderViewHolder, ElementGridAdapter.ContentViewHolder> {
-    private boolean mEnableMultipleSelectMode = false;
+    public static final int SELECT_MODE_SINGLE = 1;
+    public static final int SELECT_MODE_MULTIPLE = 2;
 
-    private int mSelectedSection = 0;
-    private Set<Integer> mSelectedContentRawPositionSet = new HashSet<>();
-    private int mSelectedContentRawPosition = -1;
+    private int mSelectMode = SELECT_MODE_SINGLE;
+
+    private int mSelectedSectionIndex = 0;
+    private List<Integer> mSelectedRawPositionList = new ArrayList<>();
 
     private OnHeaderClickListener mOnHeaderClickListener;
-    private OnContentClickListener mOnContentClickListener;
-
-    private WobbleAnimator mWobbleAnimator = new WobbleAnimator();
 
     public ElementGridAdapter(Context context, Album data, GridLayoutManager layoutManager) {
         super(context, data, layoutManager);
+        clearSelected();
     }
 
     @Override
@@ -64,19 +55,19 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         return mData.getPage(section).getPicture(position);
     }
 
-    public int getSelectedContentRawPosition() {
-        return mSelectedContentRawPosition;
+    public int getSelectedItemRawPosition() {
+        return mSelectedRawPositionList.get(0);
     }
 
-    public ArrayList<Integer> getMultipleSelectedContentRawPosition() {
-        return new ArrayList<>(mSelectedContentRawPositionSet);
+    public ArrayList<Integer> getSelectedItemRawPositions() {
+        return new ArrayList<>(mSelectedRawPositionList);
     }
 
-    public int getSelectedContentCount() {
-        if (mEnableMultipleSelectMode) {
-            return mSelectedContentRawPositionSet.size();
+    public int getSelectedItemCount() {
+        if (mSelectMode == SELECT_MODE_MULTIPLE) {
+            return mSelectedRawPositionList.size();
         } else {
-            if (mSelectedContentRawPosition > -1) {
+            if (mSelectedRawPositionList.get(0) > -1) {
                 return 1;
             } else {
                 return 0;
@@ -134,11 +125,11 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
                 }
             }
         });
-        if (mEnableMultipleSelectMode) {
+        if (mSelectMode == SELECT_MODE_MULTIPLE) {
             holder.menuHolder.setVisibility(View.GONE);
             holder.view.setAlpha(1);
         } else {
-            if (mSelectedSection == section) {
+            if (mSelectedSectionIndex == section) {
                 holder.menuHolder.setVisibility(View.VISIBLE);
                 holder.view.setAlpha(1);
             } else {
@@ -162,19 +153,10 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     @Override
     public void onBindContentViewHolder(final ContentViewHolder holder, final int section, final int position, final int rawPosition) {
         /* 전체 */
-        holder.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnContentClickListener != null) {
-                    mOnContentClickListener.onClick(section, position, rawPosition, v);
-                }
-            }
-        });
-
-        if (mEnableMultipleSelectMode) {
+        if (mSelectMode == SELECT_MODE_MULTIPLE) {
             holder.view.setAlpha(1);
         } else {
-            if (mSelectedSection == section) {
+            if (mSelectedSectionIndex == section) {
                 holder.view.setAlpha(1);
             } else {
                 holder.view.setAlpha(0.5f);
@@ -182,24 +164,15 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         }
 
         /* 체크박스 */
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnContentClickListener != null) {
-                    mOnContentClickListener.onClick(section, position, rawPosition, v);
-                }
-            }
-        });
-
-        if (mEnableMultipleSelectMode) {
+        if (mSelectMode == SELECT_MODE_MULTIPLE) {
             holder.checkBox.setVisibility(View.VISIBLE);
-            if (mSelectedContentRawPositionSet.contains(rawPosition)) {
+            if (mSelectedRawPositionList.contains(rawPosition)) {
                 holder.checkBox.setChecked(true);
             } else {
                 holder.checkBox.setChecked(false);
             }
         } else {
-            if (mSelectedContentRawPosition == rawPosition) {
+            if (mSelectedRawPositionList.get(0) == rawPosition) {
                 holder.checkBox.setVisibility(View.VISIBLE);
                 holder.checkBox.setChecked(true);
             } else {
@@ -209,26 +182,10 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
         }
 
         /* 텍스트 뷰 */
-        holder.textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnContentClickListener != null) {
-                    mOnContentClickListener.onClick(section, position, rawPosition, v);
-                }
-            }
-        });
         String elementNum = Integer.toString(rawPositionToPosition(rawPosition) + 1);
         holder.textView.setText(elementNum);
 
         /* 이미지 뷰 */
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnContentClickListener != null) {
-                    mOnContentClickListener.onClick(section, position, rawPosition, v);
-                }
-            }
-        });
         Picture picture = mData.getPage(section).getPicture(position);
         if (picture != null) {
             Glide.with(mContext).load(picture.getPath()).centerCrop().into(holder.imageView);
@@ -238,65 +195,45 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     public int getSelectedSection() {
-        return mSelectedSection;
+        return mSelectedSectionIndex;
     }
 
     public void setSelectedSection(int sectionIndex) {
         if (sectionIndex < 0) {
-            mSelectedSection = -1;
+            mSelectedSectionIndex = -1;
         } else {
-            mSelectedSection = sectionIndex;
+            mSelectedSectionIndex = sectionIndex;
         }
     }
 
-    public void setSelectedContentPosition(int rawPosition) {
-        if (rawPosition < 0) {
-            mSelectedContentRawPosition = -1;
-        } else {
-            mSelectedContentRawPosition = rawPosition;
-        }
+    public void setSelectedItemPosition(Integer rawPosition) {
+        mSelectedRawPositionList.set(0, rawPosition);
     }
 
-    public void addMultipleSelectedContentPosition(int rawPosition) {
-        mSelectedContentRawPositionSet.add(rawPosition);
+    public void addSelectedItemPosition(Integer rawPosition) {
+        mSelectedRawPositionList.add(rawPosition);
     }
 
-    public boolean removeMultipleSelectedContentPosition(int rawPosition) {
-        return mSelectedContentRawPositionSet.remove(rawPosition);
+    public boolean removeSelectedItemPosition(Integer rawPosition) {
+        return mSelectedRawPositionList.remove(rawPosition);
     }
 
-    public boolean isMultipleSelectModeEnabled() {
-        return mEnableMultipleSelectMode;
+    public void clearSelected() {
+        mSelectedRawPositionList.clear();
+        mSelectedRawPositionList.add(-1);
     }
 
-    public void setMultipleSelectMode(boolean enable) {
-        if (enable) {
-            startMultipleSelectMode();
-        } else {
-            stopMultipleSelectMode();
-        }
+    public int getSelectMode() {
+        return mSelectMode;
     }
 
-    public void startMultipleSelectMode() {
-        mEnableMultipleSelectMode = true;
-    }
-
-    public void startMultipleSelectMode(int rawPosition) {
-        mEnableMultipleSelectMode = true;
-        mSelectedContentRawPositionSet.add(rawPosition);
-    }
-
-    public void stopMultipleSelectMode() {
-        mEnableMultipleSelectMode = false;
-        mSelectedContentRawPositionSet.clear();
+    public void setSelectMode(int mode) {
+        mSelectMode = mode;
+        clearSelected();
     }
 
     public void setOnHeaderClickListener(OnHeaderClickListener listener) {
         mOnHeaderClickListener = listener;
-    }
-
-    public void setOnContentClickListener(OnContentClickListener listener) {
-        mOnContentClickListener = listener;
     }
 
     public class HeaderViewHolder extends RecyclerView.ViewHolder {
@@ -336,9 +273,5 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     /* 리스너 인터페이스 */
     public interface OnHeaderClickListener {
         void onClick(int section, int rawPosition, View v);
-    }
-
-    public interface OnContentClickListener {
-        void onClick(int section, int position, int rawPosition, View v);
     }
 }

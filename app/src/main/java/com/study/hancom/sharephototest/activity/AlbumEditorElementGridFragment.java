@@ -41,15 +41,15 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
 
     private static final int MENU_MODE_MAIN = 1;
     private static final int MENU_MODE_SINGLE_SELECT = 2;
-    private static final int MENU_MODE_MULTIPLE_SELECT = 3;
+    private static final int MENU_MODE_MULTIPLE = 3;
     private static final int MENU_MODE_EMPTY_PICTURE = 4;
 
     static final String STATE_ALBUM = "album";
     static final String STATE_MENU_MODE = "menuMode";
     static final String STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION = "elementGridAdapterSelectedSection";
-    static final String STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED = "elementGridAdapterIsMultipleSelectModeEnabled";
+    static final String STATE_ELEMENT_GRID_ADAPTER_ACTION_MODE = "elementGridAdapterSelectMode";
     static final String STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION = "elementGridAdapterSelectedContentRawPosition";
-    static final String STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION = "elementGridAdapterMultipleSelectedContentRawPosition";
+    static final String STATE_ELEMENT_GRID_ADAPTER_MULTIPLEED_CONTENT_RAW_POSITION = "elementGridAdapterMultipleSelectedContentRawPosition";
 
     private Map<String, IObserver> mObserverMap = new HashMap<>();
 
@@ -75,7 +75,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mParent = getActivity();
-        
+
         /* 뷰 생성 */
         View view = inflater.inflate(R.layout.album_editor_element_grid, container, false);
         mElementGridView = (AutoFitRecyclerGridView) view.findViewById(R.id.element_grid_view);
@@ -86,11 +86,11 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             mMenuMode = savedInstanceState.getInt(STATE_MENU_MODE);
             mElementGridAdapter = new ElementGridAdapter(mParent, mAlbum, mLayoutManager);
             mElementGridAdapter.setSelectedSection(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION));
-            mElementGridAdapter.setSelectedContentPosition(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION));
-            mElementGridAdapter.setMultipleSelectMode(savedInstanceState.getBoolean(STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED));
-            ArrayList<Integer> selectedPositionList = savedInstanceState.getIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION);
+            mElementGridAdapter.setSelectedItemPosition(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION));
+            mElementGridAdapter.setSelectMode(savedInstanceState.getInt(STATE_ELEMENT_GRID_ADAPTER_ACTION_MODE));
+            ArrayList<Integer> selectedPositionList = savedInstanceState.getIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLEED_CONTENT_RAW_POSITION);
             for (int eachPosition : selectedPositionList) {
-                mElementGridAdapter.addMultipleSelectedContentPosition(eachPosition);
+                mElementGridAdapter.addSelectedItemPosition(eachPosition);
             }
         } else {
             mElementGridAdapter = new ElementGridAdapter(mParent, mAlbum, mLayoutManager);
@@ -102,24 +102,23 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             @Override
             public void onItemClick(View view, int position) {
                 int section = mElementGridAdapter.getSectionFor(position);
-                if (mElementGridAdapter.isMultipleSelectModeEnabled()) {
-                    mElementGridAdapter.setSelectedSection(section);
-                    if (!mElementGridAdapter.removeMultipleSelectedContentPosition(position)) {
-                        mElementGridAdapter.addMultipleSelectedContentPosition(position);
+                mElementGridAdapter.setSelectedSection(section);
+                if (mElementGridAdapter.getSelectMode() == ElementGridAdapter.SELECT_MODE_MULTIPLE) {
+                    if (!mElementGridAdapter.removeSelectedItemPosition(position)) {
+                        mElementGridAdapter.addSelectedItemPosition(position);
                     }
-                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                    changeActionBar(MENU_MODE_MULTIPLE);
                     mElementGridAdapter.notifyDataSetChanged();
                 } else {
-                    mElementGridAdapter.setSelectedSection(section);
-                    if (mElementGridAdapter.getSelectedContentRawPosition() != position) {
-                        mElementGridAdapter.setSelectedContentPosition(position);
+                    if (mElementGridAdapter.getSelectedItemRawPosition() != position) {
+                        mElementGridAdapter.setSelectedItemPosition(position);
                         if (mElementGridAdapter.getContent(section, mElementGridAdapter.rawPositionToPosition(position)) != null) {
                             changeActionBar(MENU_MODE_SINGLE_SELECT);
                         } else {
                             changeActionBar(MENU_MODE_EMPTY_PICTURE);
                         }
                     } else {
-                        mElementGridAdapter.setSelectedContentPosition(-1);
+                        mElementGridAdapter.setSelectedItemPosition(-1);
                         changeActionBar(MENU_MODE_MAIN);
                     }
                     mElementGridAdapter.notifyDataSetChanged();
@@ -129,13 +128,13 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
         mElementGridAdapter.setOnOnItemLongClickListener(new SectionedRecyclerGridAdapter.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(View view, int position) {
-                if (mElementGridAdapter.isMultipleSelectModeEnabled()) {
+                if (mElementGridAdapter.getSelectMode() == ElementGridAdapter.SELECT_MODE_MULTIPLE) {
                     return false;
                 } else {
                     mElementGridAdapter.setSelectedSection(mElementGridAdapter.getSectionFor(position));
-                    mElementGridAdapter.setSelectedContentPosition(-1);
-                    mElementGridAdapter.startMultipleSelectMode(position);
-                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                    mElementGridAdapter.setSelectedItemPosition(-1);
+                    mElementGridAdapter.setSelectMode(ElementGridAdapter.SELECT_MODE_MULTIPLE);
+                    changeActionBar(MENU_MODE_MULTIPLE);
                     mElementGridAdapter.notifyDataSetChanged();
                     return true;
                 }
@@ -170,7 +169,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         int selectedSection = mElementGridAdapter.getSelectedSection();
                         try {
                             AlbumManager.removePage(mAlbum, selectedSection);
-                            mElementGridAdapter.setSelectedContentPosition(-1);
+                            mElementGridAdapter.setSelectedItemPosition(-1);
                             changeActionBar(MENU_MODE_MAIN);
                         } catch (LayoutNotFoundException e) {
                             e.printStackTrace();
@@ -227,14 +226,14 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int fromSection = mElementGridAdapter.getSelectedSection();
-                                int fromPosition = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                int fromPosition = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedItemRawPosition());
                                 int toSection = pageNumberPicker.getValue() - 1;
                                 int toPosition = mAlbum.getPage(toSection).getPictureCount();
 
                                 try {
                                     AlbumManager.reorderPicture(mAlbum, fromSection, fromPosition, toSection, toPosition);
                                     mElementGridAdapter.setSelectedSection(toSection);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
+                                    mElementGridAdapter.setSelectedItemPosition(-1);
                                     changeActionBar(MENU_MODE_MAIN);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
@@ -260,9 +259,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     int section = mElementGridAdapter.getSelectedSection();
-                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedItemRawPosition());
                                     AlbumManager.removePicture(mAlbum, section, position, true);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
+                                    mElementGridAdapter.setSelectedItemPosition(-1);
                                     changeActionBar(MENU_MODE_MAIN);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
@@ -277,9 +276,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     int section = mElementGridAdapter.getSelectedSection();
-                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedItemRawPosition());
                                     AlbumManager.removePicture(mAlbum, section, position, false);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
+                                    mElementGridAdapter.setSelectedItemPosition(-1);
                                     changeActionBar(MENU_MODE_MAIN);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
@@ -301,10 +300,10 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 int itemCount = mElementGridAdapter.getItemCount();
                 for (int eachPosition = 0; eachPosition < itemCount; eachPosition++) {
                     if (!mElementGridAdapter.isHeader(eachPosition)) {
-                        mElementGridAdapter.addMultipleSelectedContentPosition(eachPosition);
+                        mElementGridAdapter.addSelectedItemPosition(eachPosition);
                     }
                 }
-                changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                changeActionBar(MENU_MODE_MULTIPLE);
                 mElementGridAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_multiple_edit:
@@ -320,7 +319,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int toSection = pageNumberPicker.getValue() - 1;
-                                List<Integer> fromRawPositionList = mElementGridAdapter.getMultipleSelectedContentRawPosition();
+                                List<Integer> fromRawPositionList = mElementGridAdapter.getSelectedItemRawPositions();
                                 Map<Integer, List<Integer>> fromPositionMap = new HashMap<>();
                                 for (int eachRawPosition : fromRawPositionList) {
                                     int section = mElementGridAdapter.getSectionFor(eachRawPosition);
@@ -339,9 +338,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                     AlbumManager.reorderMultiplePicture(mAlbum, fromPositionMap, toSection);
                                     mElementGridAdapter.setSelectedSection(toSection);
                                     for (int eachPosition : fromRawPositionList) {
-                                        mElementGridAdapter.removeMultipleSelectedContentPosition(eachPosition);
+                                        mElementGridAdapter.removeSelectedItemPosition(eachPosition);
                                     }
-                                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                                    changeActionBar(MENU_MODE_MULTIPLE);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
@@ -364,7 +363,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         .setPositiveButton(getString(R.string.dialog_button_remain), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                List<Integer> selectedRawPositionList = mElementGridAdapter.getMultipleSelectedContentRawPosition();
+                                List<Integer> selectedRawPositionList = mElementGridAdapter.getSelectedItemRawPositions();
                                 Map<Integer, List<Integer>> selectedPositionMap = new HashMap<>();
                                 for (int eachRawPosition : selectedRawPositionList) {
                                     int section = mElementGridAdapter.getSectionFor(eachRawPosition);
@@ -379,9 +378,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                 try {
                                     AlbumManager.removeMultiplePicture(mAlbum, selectedPositionMap, true);
                                     for (int eachPosition : selectedRawPositionList) {
-                                        mElementGridAdapter.removeMultipleSelectedContentPosition(eachPosition);
+                                        mElementGridAdapter.removeSelectedItemPosition(eachPosition);
                                     }
-                                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                                    changeActionBar(MENU_MODE_MULTIPLE);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
@@ -393,7 +392,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         .setNegativeButton(getString(R.string.dialog_button_remove), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                List<Integer> selectedRawPositionList = mElementGridAdapter.getMultipleSelectedContentRawPosition();
+                                List<Integer> selectedRawPositionList = mElementGridAdapter.getSelectedItemRawPositions();
                                 Map<Integer, List<Integer>> selectedPositionMap = new HashMap<>();
                                 for (int eachRawPosition : selectedRawPositionList) {
                                     int section = mElementGridAdapter.getSectionFor(eachRawPosition);
@@ -408,9 +407,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                                 try {
                                     AlbumManager.removeMultiplePicture(mAlbum, selectedPositionMap, false);
                                     for (int eachPosition : selectedRawPositionList) {
-                                        mElementGridAdapter.removeMultipleSelectedContentPosition(eachPosition);
+                                        mElementGridAdapter.removeSelectedItemPosition(eachPosition);
                                     }
-                                    changeActionBar(MENU_MODE_MULTIPLE_SELECT);
+                                    changeActionBar(MENU_MODE_MULTIPLE);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
                                 } catch (LayoutNotFoundException e) {
@@ -451,9 +450,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     int section = mElementGridAdapter.getSelectedSection();
-                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+                                    int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedItemRawPosition());
                                     AlbumManager.removePicture(mAlbum, section, position, false);
-                                    mElementGridAdapter.setSelectedContentPosition(-1);
+                                    mElementGridAdapter.setSelectedItemPosition(-1);
                                     changeActionBar(MENU_MODE_MAIN);
                                     mElementGridAdapter.notifyDataSetChanged();
                                     notifyChangedAll();
@@ -491,12 +490,12 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 }
                 mParent.setTitle(R.string.title_album_editor_single_select);
                 break;
-            case MENU_MODE_MULTIPLE_SELECT:
+            case MENU_MODE_MULTIPLE:
                 if (mMenuMode != mode) {
                     mMenu.clear();
                     mMenuInflater.inflate(R.menu.album_editor_select_multiple_picture, mMenu);
                 }
-                mParent.setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedContentCount(), mElementGridAdapter.getContentCount()));
+                mParent.setTitle(String.format(getResources().getString(R.string.title_album_editor_multiple_select), mElementGridAdapter.getSelectedItemCount(), mElementGridAdapter.getContentCount()));
                 break;
             case MENU_MODE_EMPTY_PICTURE:
                 if (mMenuMode != mode) {
@@ -521,9 +520,9 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
         outState.putParcelable(STATE_ALBUM, mAlbum);
         outState.putInt(STATE_MENU_MODE, mMenuMode);
         outState.putInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_SECTION, mElementGridAdapter.getSelectedSection());
-        outState.putBoolean(STATE_ELEMENT_GRID_ADAPTER_IS_MULTIPLE_SELECT_MODE_ENABLED, mElementGridAdapter.isMultipleSelectModeEnabled());
-        outState.putInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION, mElementGridAdapter.getSelectedContentRawPosition());
-        outState.putIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLE_SELECTED_CONTENT_RAW_POSITION, mElementGridAdapter.getMultipleSelectedContentRawPosition());
+        outState.putInt(STATE_ELEMENT_GRID_ADAPTER_ACTION_MODE, mElementGridAdapter.getSelectMode());
+        outState.putInt(STATE_ELEMENT_GRID_ADAPTER_SELECTED_CONTENT_RAW_POSITION, mElementGridAdapter.getSelectedItemRawPosition());
+        outState.putIntegerArrayList(STATE_ELEMENT_GRID_ADAPTER_MULTIPLEED_CONTENT_RAW_POSITION, mElementGridAdapter.getSelectedItemRawPositions());
         super.onSaveInstanceState(outState);
     }
 
@@ -533,7 +532,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             Bundle bundle = data.getExtras();
             int section = mElementGridAdapter.getSelectedSection();
             Picture picture = new Picture(bundle.getString("selectedImage"));
-            int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedContentRawPosition());
+            int position = mElementGridAdapter.rawPositionToPosition(mElementGridAdapter.getSelectedItemRawPosition());
             AlbumManager.setPicture(mAlbum, section, position, picture);
             changeActionBar(MENU_MODE_SINGLE_SELECT);
             mElementGridAdapter.notifyDataSetChanged();
@@ -600,12 +599,12 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             case MENU_MODE_EMPTY_PICTURE:
                 // pass ; MENU_MODE_SINGLE_SELECT와 동일
             case MENU_MODE_SINGLE_SELECT:
-                mElementGridAdapter.setSelectedContentPosition(-1);
+                mElementGridAdapter.setSelectedItemPosition(-1);
                 mElementGridAdapter.notifyDataSetChanged();
                 changeActionBar(MENU_MODE_MAIN);
                 return;
-            case MENU_MODE_MULTIPLE_SELECT:
-                mElementGridAdapter.stopMultipleSelectMode();
+            case MENU_MODE_MULTIPLE:
+                mElementGridAdapter.setSelectMode(ElementGridAdapter.SELECT_MODE_SINGLE);
                 mElementGridAdapter.notifyDataSetChanged();
                 changeActionBar(MENU_MODE_MAIN);
                 return;
