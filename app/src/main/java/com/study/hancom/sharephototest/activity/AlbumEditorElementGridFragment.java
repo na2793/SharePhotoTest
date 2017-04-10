@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -130,21 +132,28 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             public boolean onItemLongClick(View view, int position) {
                 if (mElementGridAdapter.getSelectMode() == ElementGridAdapter.SELECT_MODE_MULTIPLE) {
                     return false;
-                } else {
-                    mElementGridAdapter.setSelectedSection(mElementGridAdapter.getSectionFor(position));
-                    mElementGridAdapter.setSelectedItemPosition(-1);
-                    mElementGridAdapter.setSelectMode(ElementGridAdapter.SELECT_MODE_MULTIPLE);
-                    changeActionBar(MENU_MODE_MULTIPLE);
-                    mElementGridAdapter.notifyDataSetChanged();
-                    return true;
                 }
+
+                if (mElementGridAdapter.isHeader(position)) {
+                    return false;
+                }
+
+                mElementGridAdapter.setSelectedSection(mElementGridAdapter.getSectionFor(position));
+                mElementGridAdapter.setSelectedItemPosition(-1);
+                mElementGridAdapter.setSelectMode(ElementGridAdapter.SELECT_MODE_MULTIPLE);
+                changeActionBar(MENU_MODE_MULTIPLE);
+                mElementGridAdapter.notifyDataSetChanged();
+
+                return true;
+
             }
         });
 
         mElementGridAdapter.setOnHeaderClickListener(new ElementGridAdapter.OnHeaderClickListener() {
             @Override
             public void onClick(int section, int rawPosition, View v) {
-                switch (v.getId()) {
+                int viewId = v.getId();
+                switch (viewId) {
                     case R.id.header_menu_button_preview: {
                         Intent intent = new Intent(mParent, AlbumFullSizeWebViewActivity.class);
                         Bundle bundle = new Bundle();
@@ -152,7 +161,6 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         bundle.putInt("pageIndex", mElementGridAdapter.getSelectedSection());
                         intent.putExtras(bundle);
                         startActivity(intent);
-
                         break;
                     }
                     case R.id.header_menu_button_change_layout: {
@@ -178,13 +186,118 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                     }
                     default:
                         mElementGridAdapter.setSelectedSection(section);
+                        mElementGridAdapter.setSelectedItemPosition(-1);
+                        changeActionBar(MENU_MODE_MAIN);
                         break;
                 }
+                mElementGridAdapter.notifyDataSetChanged();
             }
         });
 
         /* 뷰에 어댑터 붙이기 */
         mElementGridView.setAdapter(mElementGridAdapter);
+
+        /* 터치 헬퍼 붙이기 */
+        // Extend the Callback class
+        ItemTouchHelper.Callback itemTouchHelperCallback = new ItemTouchHelper.Callback() {
+            //TODO: 스크롤 시에는 onMove 수행하지 않게 할 것
+            //defines the enabled move directions in each state (idle, swiping, dragging).
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder source) {
+                // Set movement flags based on the layout manager
+                if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                    int sourceRawPosition = source.getAdapterPosition();
+                    if (!mElementGridAdapter.isHeader(sourceRawPosition)) {
+                        final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                        final int swipeFlags = 0;
+                        return makeMovementFlags(dragFlags, swipeFlags);
+                    }
+                } else {
+                    final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+                    final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+                    return makeMovementFlags(dragFlags, swipeFlags);
+                }
+
+                return makeMovementFlags(0, 0);
+            }
+
+            //and in your implementaion of
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
+                boolean isAdded = false;
+
+                // get the viewHolder's and target's positions in your adapter data, swap them
+                int sourceRawPosition = source.getAdapterPosition();
+                if (mElementGridAdapter.isHeader(sourceRawPosition)) {
+                    return false;
+                }
+
+                int targetRawPosition = target.getAdapterPosition();
+                if (mElementGridAdapter.isHeader(targetRawPosition)) {
+                    return false;
+                }
+
+                int fromSection = mElementGridAdapter.getSectionFor(sourceRawPosition);
+                int fromPosition = mElementGridAdapter.rawPositionToPosition(sourceRawPosition);
+                int toSection = mElementGridAdapter.getSectionFor(targetRawPosition);
+                int toPosition = mElementGridAdapter.rawPositionToPosition(targetRawPosition);
+
+                if (fromSection < toSection) {
+                    if (mElementGridAdapter.getCountInSection(fromSection) > 1) {
+                        toPosition++;
+                    } else {
+                        isAdded = true;
+                    }
+                }
+
+                try {
+                    Log.v("tag", (fromSection + 1) + " : " + (fromPosition + 1) + " -> " + (toSection + 1) + " : " + (toPosition + 1));
+                    AlbumManager.reorderPicture(mAlbum, fromSection, fromPosition, toSection, toPosition);
+                    if (isAdded) {
+                        //**레인지를 제한할 필요가 있을까? use itemCount
+                        mElementGridAdapter.notifyItemRangeChanged(sourceRawPosition + 1, mElementGridAdapter.getItemCount());
+                    }
+                    mElementGridAdapter.notifyItemMoved(sourceRawPosition, targetRawPosition);
+
+                    return true;
+                } catch (LayoutNotFoundException e) {
+                    //TODO: 아이템 삽입 불가 애니메이션
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder source, int direction) {
+                // swipe to dismiss 사용하지 않습니다. (do nothing)
+                /*int sourceRawPosition = source.getAdapterPosition();
+                int section = mElementGridAdapter.getSectionFor(holderRawPosition);
+                int position = mElementGridAdapter.rawPositionToPosition(holderRawPosition);
+                try {
+                    if (mElementGridAdapter.getContent(section, position) != null) {
+                        AlbumManager.removePicture(mAlbum, section, position, true);
+                    } else {
+                        AlbumManager.removePicture(mAlbum, section, position, false);
+                    }
+
+                    mElementGridAdapter.notifyItemRemoved(holderRawPosition);
+                } catch (LayoutNotFoundException e) {
+                    e.printStackTrace();
+                }*/
+            }
+
+            @Override
+            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder source) {
+                super.clearView(recyclerView, source);
+                if (!recyclerView.isComputingLayout()) {
+                    mElementGridAdapter.setSelectMode(ElementGridAdapter.SELECT_MODE_SINGLE);
+                    changeActionBar(MENU_MODE_MAIN);
+                    mElementGridAdapter.notifyDataSetChanged();
+                }
+            }
+        };
+
+        ItemTouchHelper ith = new ItemTouchHelper(itemTouchHelperCallback);
+        ith.attachToRecyclerView(mElementGridView);
 
         return view;
     }
