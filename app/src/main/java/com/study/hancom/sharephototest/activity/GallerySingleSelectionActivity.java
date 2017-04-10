@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GallerySingleSelectionActivity extends AppCompatActivity {
+    static final String STATE_PICTURE_PATH_LIST = "picturePathList";
+    static final String STATE_INVALID_PICTURE_PATH_LIST = "invalidPicturePathList";
+    static final String STATE_GALLERY_ADAPTER_SELECTED_POSITION = "galleryAdapterSelectedPosition";
+
     private ArrayList<String> mPicturePathList;
     private ArrayList<String> mInvalidPicturePathList;
 
@@ -34,17 +38,22 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /* 데이터 파싱 */
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-
-        mInvalidPicturePathList = bundle.getStringArrayList("InvalidPicturePathList");
-
+        int selectedPosition = -1;
+        if (savedInstanceState != null) {
+            mPicturePathList = savedInstanceState.getStringArrayList(STATE_PICTURE_PATH_LIST);
+            mInvalidPicturePathList = savedInstanceState.getStringArrayList(STATE_INVALID_PICTURE_PATH_LIST);
+            selectedPosition = savedInstanceState.getInt(STATE_GALLERY_ADAPTER_SELECTED_POSITION);
+        } else {
+            Intent intent = getIntent();
+            Bundle bundle = intent.getExtras();
+            mPicturePathList = ImageUtil.getMediaImage(this);
+            mInvalidPicturePathList = bundle.getStringArrayList("InvalidPicturePathList");
+        }
 
         mGalleryView = (GridView) findViewById(R.id.gallery_image_grid_view);
-        mPicturePathList = ImageUtil.getMediaImage(this);
         mGalleryAdapter = new SingleSelectionGalleryAdapter(this, mPicturePathList);
         mGalleryAdapter.setInvalidPicturePathList(mInvalidPicturePathList);
+        mGalleryAdapter.setSelectedPosition(selectedPosition);
         mGalleryAdapter.setOnSingleItemSelectListener(new SingleSelectionGalleryAdapter.OnSingleItemSelectListener() {
             @Override
             public void onSelect(int position) {
@@ -114,5 +123,13 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList(STATE_PICTURE_PATH_LIST, mPicturePathList);
+        outState.putStringArrayList(STATE_INVALID_PICTURE_PATH_LIST, mInvalidPicturePathList);
+        outState.putInt(STATE_GALLERY_ADAPTER_SELECTED_POSITION, mGalleryAdapter.getSelectedPosition());
+        super.onSaveInstanceState(outState);
     }
 }
