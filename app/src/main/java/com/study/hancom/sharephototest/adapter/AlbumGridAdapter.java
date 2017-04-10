@@ -2,16 +2,12 @@ package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.CheckBox;
@@ -23,16 +19,10 @@ import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.FileUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
-import com.study.hancom.sharephototest.view.HDSizeWebView;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class AlbumGridAdapter extends RecyclerClickableItemAdapter<AlbumGridAdapter.ViewHolder> {

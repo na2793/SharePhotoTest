@@ -3,6 +3,7 @@ package com.study.hancom.sharephototest.adapter;
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
 import com.study.hancom.sharephototest.adapter.base.SectionedRecyclerGridAdapter;
+import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Album;
+import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
 
 import java.util.ArrayList;
@@ -154,12 +157,12 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     public void onBindContentViewHolder(final ContentViewHolder holder, final int section, final int position, final int rawPosition) {
         /* 전체 */
         if (mSelectMode == SELECT_MODE_MULTIPLE) {
-            holder.view.setAlpha(1);
+            holder.itemView.setAlpha(1);
         } else {
             if (mSelectedSectionIndex == section) {
-                holder.view.setAlpha(1);
+                holder.itemView.setAlpha(1);
             } else {
-                holder.view.setAlpha(0.5f);
+                holder.itemView.setAlpha(0.5f);
             }
         }
 
@@ -256,14 +259,12 @@ public class ElementGridAdapter extends SectionedRecyclerGridAdapter<Album, Elem
     }
 
     public class ContentViewHolder extends RecyclerView.ViewHolder {
-        View view;
         ImageView imageView;
         CheckBox checkBox;
         TextView textView;
 
         ContentViewHolder(View itemView) {
             super(itemView);
-            view = itemView;
             imageView = (ImageView) itemView.findViewById(R.id.item_content_image);
             checkBox = (CheckBox) itemView.findViewById(R.id.item_content_checkbox);
             textView = (TextView) itemView.findViewById(R.id.item_content_text);

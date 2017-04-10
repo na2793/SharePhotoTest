@@ -119,20 +119,29 @@ public class AlbumManager {
         page.addPicture(picture);
     }
 
-    public static void removePicture(Album album, int section, int position, boolean nullable) throws LayoutNotFoundException {
+    public static void addPicture(Album album, int section, int position, Picture picture) {
+        Page page = album.getPage(section);
+        page.addPicture(position, picture);
+    }
+
+    public static Picture removePicture(Album album, int section, int position, boolean nullable) throws LayoutNotFoundException {
+        Picture oldPicture = null;
+
         if (nullable) {
-            album.getPage(section).removePicture(position);
+            oldPicture = album.getPage(section).removePicture(position);
             album.getPage(section).addPicture(position, null);
         } else {
             Page page = album.getPage(section);
             int pictureCount = page.getPictureCount();
+            oldPicture = page.removePicture(position);
             if (pictureCount > 1) {
                 page.setLayout(pictureCount - 1);
-                page.removePicture(position);
             } else {
                 removePage(album, section);
             }
         }
+
+        return oldPicture;
     }
 
     public static void removeMultiplePicture(Album album, Map<Integer, List<Integer>> positionMap, boolean nullable) throws LayoutNotFoundException {
@@ -185,6 +194,7 @@ public class AlbumManager {
     }
 
     public static void reorderPicture(Album album, int fromSection, int fromPosition, int toSection, int toPosition) throws LayoutNotFoundException {
+        boolean isAdded = false;
         Page toPage = album.getPage(toSection);
         if (fromSection != toSection) {
             PageLayout toPageLayoutBackup = toPage.getLayout();

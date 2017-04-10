@@ -2,20 +2,14 @@ package com.study.hancom.sharephototest.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.study.hancom.sharephototest.util.WebViewUtil;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 @SuppressLint({"SetJavaScriptEnabled"})
 public class HDSizeWebView extends WebView {
@@ -49,12 +43,12 @@ public class HDSizeWebView extends WebView {
         WebSettings webSettings = getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
         setVerticalScrollBarEnabled(false);
         setHorizontalScrollBarEnabled(false);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
-        setInitialScale(16);
+        setInitialScale(1);
     }
 
     @Override
