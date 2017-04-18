@@ -9,6 +9,6 @@
         android:id="@+id/album_overview_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="120dp"/>
+        android:columnWidth="120dp" />
 
 </LinearLayout>

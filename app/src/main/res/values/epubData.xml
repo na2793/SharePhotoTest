@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="epubData_OEBPS_package_manifest_html"><![CDATA[<item id=\"content%1$d\" href=\"xhtml/Chapter00%1$d.html\" media-type=\"application/xhtml+xm\" properties=\"scripted\" />]]></string>
-    <string name="epubData_OEBPS_package_manifest_css"><![CDATA[<item id=\"css%1$s\" href=\"xhtml/css/%2$s\" media-type=\"text/css\" charset=\"utf-8\"/>]]></string>
+    <string name="epubData_OEBPS_package_manifest_html"><![CDATA[<item id=\"content%1$d\" href=\"xhtml/Chapter00%1$d.html\" media-type=\"application/xhtml+xml\" properties=\"scripted\" />]]></string>
+    <string name="epubData_OEBPS_package_manifest_css"><![CDATA[<item id=\"css%1$s\" href=\"xhtml/css/%2$s\" media-type=\"text/css\" />]]></string>
     <string name="epubData_OEBPS_package_manifest_nav"><![CDATA[<item id=\"nav\" href=\"xhtml/nav.xhtml\" media-type=\"application/xhtml+xml\" properties=\"nav\"/>]]></string>
     <string name="epubData_OEBPS_package_manifest_ncx"><![CDATA[<item id=\"ncx\" href=\"toc.ncx\" media-type=\"application/x-dtbncx+xml\"/>]]></string>
     <string name="epubData_OEBPS_package_spine"><![CDATA[<itemref idref=\"content%1$d\" />]]></string>
     <string name="epubData_OEBPS_package_metaData">
         <![CDATA[
-        <dc:title>Test</dc:title>
-        <dc:creator>임하림</dc:creator>
-        <dc:date>2017-03-21</dc:date>
-        <dc:publisher>Unknown</dc:publisher>
+        <dc:title>%1$s</dc:title>
+        <dc:creator>%2$s</dc:creator>
+        <dc:date>%3$s</dc:date>
+        <dc:publisher>%4$s</dc:publisher>
         <dc:identifier id=\"uid\">urn:uuid:CE0CE046-4238-4153-925B-B3691D51F2DB</dc:identifier>
         <meta property=\"dcterms:modified\">2017-02-15T15:23:18Z</meta>
         ]]></string>
@@ -23,7 +23,7 @@
     <string name="epubData_xhtml_nav_body_title"><![CDATA[<h1>%1$s</h1>]]></string>
     <string name="epubData_xhtml_nav_item"><![CDATA[<li><a href=\"Chapter00%1$d.html\" id=\"np-%1$d\">%1$d</a></li>]]></string>
 
-    <string name="epubData_xhtml_html_css"><![CDATA[<link rel=\"stylesheet\" href=\"css/%1$d.css\" type=\"text/css\" />]]></string>
+    <string name="epubData_xhtml_html_css"><![CDATA[<link rel=\"stylesheet\" href=\"css/%1$s\" type=\"text/css\" />]]></string>
     <string name="epubData_xhtml_html_image"><![CDATA[<div id=\"_%1$d\" style=\"background-image:url(image/%2$d/%3$s);\"></div>]]></string>
     <!--string name="epubData_xhtml_html_image"><![CDATA[<div id=\"_%1$d\"><img src=\"image/%2$d/%3$s\" /></div>]]></string-->
     <string name="epubData_xhtml_html_name">Chapter00%1$d.html</string>

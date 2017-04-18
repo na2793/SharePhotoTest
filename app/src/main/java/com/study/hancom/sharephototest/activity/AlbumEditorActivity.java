@@ -154,14 +154,20 @@ public class AlbumEditorActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             Bundle bundle = data.getExtras();
 
+            /* 데이터 파싱 */
             int section = bundle.getInt("currentSection");
-            int originPageElementNum = mAlbum.getPage(section).getPictureCount();
             PageLayout pageLayout = bundle.getParcelable("currentPageLayout");
+
+            /* 빈요소 추가 작업 */
+            int originPageElementNum = mAlbum.getPage(section).getPictureCount();
             int changePageElementNum = pageLayout.getElementNum();
+
             AlbumManager.setLayout(mAlbum, section, pageLayout);
             for (int i = 0; i < changePageElementNum - originPageElementNum ; i++) {
                 AlbumManager.addPicture(mAlbum , section, null);
             }
+
+            /* 하나의 fragment 에 데이터가 바뀌었음을 알림 */
             mAlbumEditorPageListFragment.update(null);
             mAlbumEditorPageListFragment.notifyChangedAll();
         }

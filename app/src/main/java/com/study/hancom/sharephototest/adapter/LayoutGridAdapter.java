@@ -1,21 +1,15 @@
 package com.study.hancom.sharephototest.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.GestureDetector;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.BaseAdapter;
-import android.widget.RadioButton;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.model.PageLayout;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
@@ -23,13 +17,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LayoutGridAdapter extends BaseAdapter {
-
+public class LayoutGridAdapter extends RecyclerClickableItemAdapter<LayoutGridAdapter.ViewHolder> {
     private Context mContext;
 
     private List<PageLayout> mPageLayoutList;
     private int mSelectedPosition;
-    private OnLayoutSelectListener mOnLayoutSelectListener;
 
     private Set<View> mWebViewSet = new HashSet<>();
 
@@ -39,7 +31,6 @@ public class LayoutGridAdapter extends BaseAdapter {
         mSelectedPosition = -1;
     }
 
-    @Override
     public PageLayout getItem(int position) {
         return mPageLayoutList.get(position);
     }
@@ -50,50 +41,26 @@ public class LayoutGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return mPageLayoutList.size();
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        final ViewHolder viewHolder;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final View view = LayoutInflater.from(mContext).inflate(R.layout.album_editor_new_layout_item, parent, false);
+        return new ViewHolder(view);
+    }
 
-        if (convertView == null) {
-            viewHolder = new ViewHolder();
-
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.album_editor_new_layout_item, parent, false);
-            viewHolder.webView = (WebView) convertView.findViewById(R.id.new_layout_grid_item_web_view);
-            viewHolder.webView.loadDataWithBaseURL("file:///android_asset/", WebViewUtil.getDefaultHTMLData(mContext), "text/html", "UTF-8", null);
-
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        super.onBindViewHolder(holder, position);
         if (mSelectedPosition == position) {
-            viewHolder.webView.setAlpha(0.2f);
+            holder.webView.setAlpha(0.2f);
         } else {
-            viewHolder.webView.setAlpha(1.0f);
+            holder.webView.setAlpha(1.0f);
         }
 
-        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                mSelectedPosition = position;
-                mOnLayoutSelectListener.onSelect();
-                return false;
-            }
-        });
-
-        viewHolder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return webViewGestureDetector.onTouchEvent(event);
-            }
-        });
-
-        viewHolder.webView.setClickable(false);
-        viewHolder.webView.setWebViewClient(new WebViewClient() {
+        holder.webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
@@ -101,11 +68,9 @@ public class LayoutGridAdapter extends BaseAdapter {
             }
         });
 
-        if (mWebViewSet.contains(viewHolder.webView)) {
-            injectAll(position, viewHolder.webView);
+        if (mWebViewSet.contains(holder.webView)) {
+            injectAll(position, holder.webView);
         }
-
-        return convertView;
     }
 
     public void setPageLayoutList(List<PageLayout> pageLayoutList) {
@@ -113,7 +78,7 @@ public class LayoutGridAdapter extends BaseAdapter {
     }
 
     public void setSelectedPosition(int position) {
-        mSelectedPosition  = position;
+        mSelectedPosition = position;
     }
 
     public int getSelectedPosition() {
@@ -121,7 +86,7 @@ public class LayoutGridAdapter extends BaseAdapter {
     }
 
     private boolean injectAll(int position, WebView view) {
-        PageLayout pageLayout = getItem(position);
+        PageLayout pageLayout = mPageLayoutList.get(position);
         int elementNum = pageLayout.getElementNum();
 
         WebViewUtil.injectDivByScript(view, elementNum);
@@ -135,15 +100,14 @@ public class LayoutGridAdapter extends BaseAdapter {
         return true;
     }
 
-    private class ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         WebView webView;
-    }
 
-    public void setOnLayoutSelectListener(OnLayoutSelectListener listener) {
-        mOnLayoutSelectListener = listener;
-    }
+        ViewHolder(View itemView) {
+            super(itemView);
+            webView = (WebView) itemView.findViewById(R.id.new_layout_grid_item_web_view);
+            webView.loadDataWithBaseURL("file:///android_asset/", WebViewUtil.getDefaultHTMLData(mContext), "text/html", "UTF-8", null);
 
-    public interface OnLayoutSelectListener {
-        void onSelect();
+        }
     }
 }

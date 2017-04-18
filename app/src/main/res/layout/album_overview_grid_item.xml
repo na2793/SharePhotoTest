@@ -27,7 +27,7 @@
 
     </LinearLayout>
 
-    <com.study.hancom.sharephototest.view.HDSizeWebView
+    <com.study.hancom.sharephototest.view.CustomWebView
         android:id="@+id/page_web_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

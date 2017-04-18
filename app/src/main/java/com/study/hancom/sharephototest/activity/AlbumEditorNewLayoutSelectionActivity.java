@@ -22,6 +22,7 @@ import com.study.hancom.sharephototest.adapter.LayoutGridAdapter;
 import com.study.hancom.sharephototest.exception.LayoutNotFoundException;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.PageLayout;
+import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +33,7 @@ public class AlbumEditorNewLayoutSelectionActivity extends AppCompatActivity {
     private Spinner mSpinner;
     private ArrayAdapter mSpinnerAdapter;
 
-    private GridView mLayoutView;
+    private AutoFitRecyclerGridView mLayoutView;
     private LayoutGridAdapter mLayoutGridAdapter;
 
     private List<PageLayout> mPageLayoutList;
@@ -97,7 +98,6 @@ public class AlbumEditorNewLayoutSelectionActivity extends AppCompatActivity {
                     int newType = (int) mSpinner.getSelectedItem();
                     try {
                         mPageLayoutList = Page.getAllLayoutForType(newType);
-                        Log.v("tag", mPageLayoutList.get(0).getPath());
                         mLayoutGridAdapter.setPageLayoutList(mPageLayoutList);
                         mLayoutGridAdapter.setSelectedPosition(-1);
                         mLayoutGridAdapter.notifyDataSetChanged();
@@ -113,15 +113,8 @@ public class AlbumEditorNewLayoutSelectionActivity extends AppCompatActivity {
             });
 
             /* 레이아웃 그리드 */
-            mLayoutView = (GridView) findViewById(R.id.new_layout_grid_view);
+            mLayoutView = (AutoFitRecyclerGridView) findViewById(R.id.new_layout_grid_view);
             mLayoutGridAdapter = new LayoutGridAdapter(getApplicationContext(), mPageLayoutList);
-            mLayoutGridAdapter.setOnLayoutSelectListener(new LayoutGridAdapter.OnLayoutSelectListener() {
-                @Override
-                public void onSelect() {
-                    changeActionBar();
-                    mLayoutGridAdapter.notifyDataSetChanged();
-                }
-            });
             mLayoutView.setAdapter(mLayoutGridAdapter);
 
         } catch (LayoutNotFoundException e) {
@@ -157,10 +150,13 @@ public class AlbumEditorNewLayoutSelectionActivity extends AppCompatActivity {
 
             case R.id.action_new_layout_confirm:
                 Intent intent = new Intent(getApplicationContext(), AlbumEditorActivity.class);
+
+                /* 쩐송할 데이터 */
                 Bundle bundle = new Bundle();
                 bundle.putInt("currentSection", mCurrentSection);
                 bundle.putParcelable("currentPageLayout", mLayoutGridAdapter.getItem(mLayoutGridAdapter.getSelectedPosition()));
                 intent.putExtras(bundle);
+
                 setResult(Activity.RESULT_OK, intent);
                 finish();
                 return true;

@@ -30,7 +30,6 @@ public class AutoFitRecyclerGridView extends RecyclerView {
 
             array.recycle();
         }
-
         setLayoutManager(mLayoutManager);
     }
 

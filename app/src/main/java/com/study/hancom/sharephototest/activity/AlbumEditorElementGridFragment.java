@@ -2,8 +2,10 @@ package com.study.hancom.sharephototest.activity;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,8 +16,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -318,14 +322,40 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case R.id.action_confirm:
-                // @임시
-                new Thread(new Runnable() {
-                    public void run() {
-                        new EpubMaker(mAlbum, mParent).createFile("test");
+            case R.id.action_confirm: {
+                /* 빈 요소가 존재하는지 확인 작업 */
+                int emptyElementCount = 0;
+                int pageCount = mAlbum.getPageCount();
+                for (int i = 0; i < pageCount; i++) {
+                    Page page = mAlbum.getPage(i);
+                    int pictureCount = page.getPictureCount();
+                    for (int j = 0; j < pictureCount; j++) {
+                        if (page.getPicture(j) == null) {
+                            emptyElementCount++;
+                        }
                     }
-                }).start();
+                }
+
+                if (emptyElementCount != 0) {
+                    createDialog(getString(R.string.dialog_title_action_create_epub_empty), String.format(getResources().getString(R.string.dialog_message_action_create_epub_empty), emptyElementCount))
+                            .setPositiveButton(getString(R.string.dialog_button_continue), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    showSaveEPUBDialog();
+                                }
+                            })
+                            .setNeutralButton(getString(R.string.dialog_button_cancel), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .create().show();
+                } else {
+                    showSaveEPUBDialog();
+                }
                 return true;
+            }
             case R.id.action_single_edit:
                 return true;
             case R.id.action_single_move: {
@@ -539,7 +569,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                         })
                         .create().show();
                 return true;
-            case R.id.action_empty_set_picture:
+            case R.id.action_empty_set_picture: {
                 ArrayList<String> usedPicturePathList = new ArrayList<>();
                 int pageCount = mAlbum.getPageCount();
                 for (int i = 0; i < pageCount; i++) {
@@ -556,6 +586,7 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 intent.putStringArrayListExtra("InvalidPicturePathList", usedPicturePathList);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
+            }
             case R.id.action_empty_delete:
                 createDialog(getString(R.string.dialog_title_action_empty_delete), getString(R.string.dialog_message_action_empty_delete))
                         .setPositiveButton(getString(R.string.dialog_button_continue), new DialogInterface.OnClickListener() {
@@ -723,5 +754,64 @@ public class AlbumEditorElementGridFragment extends Fragment implements IObserva
                 return;
         }
         mParent.finish();
+    }
+
+    private void showSaveEPUBDialog() {
+        LayoutInflater layoutInflater = LayoutInflater.from(mParent);
+        View promptView = layoutInflater.inflate(R.layout.album_editor_save, null);
+
+        final EditText titleEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_title);
+        final EditText authorEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_author);
+        final EditText publisherEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_publisher);
+
+        createDialog(getString(R.string.dialog_title_action_create_epub), getString(R.string.dialog_message_action_create_epub))
+                .setView(promptView)
+
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.dialog_button_save), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (titleEdit.getText() != null && authorEdit.getText() != null && publisherEdit.getText() != null) {
+                            new createEpubTask().execute(titleEdit.getText().toString(), authorEdit.getText().toString(), publisherEdit.getText().toString());
+                        } else {
+                            Toast.makeText(mParent, getString(R.string.toast_action_save_epub_empty_data), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.dialog_button_cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        })
+
+                .create()
+                .show();
+    }
+
+    private class createEpubTask extends AsyncTask<String, Void, Void> {
+
+        ProgressDialog asyncDialog = new ProgressDialog(mParent);
+
+        @Override
+        protected void onPreExecute() {
+            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            asyncDialog.setMessage("저장중입니다..");
+
+            // show dialog
+            asyncDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(String... arg0) {
+            new EpubMaker(mAlbum, mParent).createFile(arg0[0], arg0[1], arg0[2]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            asyncDialog.dismiss();
+            super.onPostExecute(result);
+        }
     }
 }

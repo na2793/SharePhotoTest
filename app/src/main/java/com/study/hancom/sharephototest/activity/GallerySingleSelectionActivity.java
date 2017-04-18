@@ -22,7 +22,6 @@ import java.util.List;
 public class GallerySingleSelectionActivity extends AppCompatActivity {
     static final String STATE_PICTURE_PATH_LIST = "picturePathList";
     static final String STATE_INVALID_PICTURE_PATH_LIST = "invalidPicturePathList";
-    static final String STATE_GALLERY_ADAPTER_SELECTED_POSITION = "galleryAdapterSelectedPosition";
 
     private ArrayList<String> mPicturePathList;
     private ArrayList<String> mInvalidPicturePathList;
@@ -38,11 +37,9 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        int selectedPosition = -1;
         if (savedInstanceState != null) {
             mPicturePathList = savedInstanceState.getStringArrayList(STATE_PICTURE_PATH_LIST);
             mInvalidPicturePathList = savedInstanceState.getStringArrayList(STATE_INVALID_PICTURE_PATH_LIST);
-            selectedPosition = savedInstanceState.getInt(STATE_GALLERY_ADAPTER_SELECTED_POSITION);
         } else {
             Intent intent = getIntent();
             Bundle bundle = intent.getExtras();
@@ -53,7 +50,6 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
         mGalleryView = (GridView) findViewById(R.id.gallery_image_grid_view);
         mGalleryAdapter = new SingleSelectionGalleryAdapter(this, mPicturePathList);
         mGalleryAdapter.setInvalidPicturePathList(mInvalidPicturePathList);
-        mGalleryAdapter.setSelectedPosition(selectedPosition);
         mGalleryAdapter.setOnSingleItemSelectListener(new SingleSelectionGalleryAdapter.OnSingleItemSelectListener() {
             @Override
             public void onSelect(int position) {
@@ -129,7 +125,6 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putStringArrayList(STATE_PICTURE_PATH_LIST, mPicturePathList);
         outState.putStringArrayList(STATE_INVALID_PICTURE_PATH_LIST, mInvalidPicturePathList);
-        outState.putInt(STATE_GALLERY_ADAPTER_SELECTED_POSITION, mGalleryAdapter.getSelectedPosition());
         super.onSaveInstanceState(outState);
     }
 }

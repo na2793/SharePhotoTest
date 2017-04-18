@@ -12,6 +12,7 @@ import com.study.hancom.sharephototest.model.Picture;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 
 public class EpubMaker {
     private final static String HEAD = "</head>";
@@ -32,7 +33,7 @@ public class EpubMaker {
         mContext = context;
     }
 
-    public void createFile(String fileName) {
+    public boolean createFile(String fileName, String author, String publisher) {
         File dir;
         File file;
 
@@ -108,8 +109,10 @@ public class EpubMaker {
             FileUtil.createDirectory(imagePath + (i + 1)); //복사할 폴더
             for (int j = 0; j < mAlbum.getPage(i).getPictureCount(); j++) {
                 count++;
-
-                String originImagePath = mAlbum.getPage(i).getPicture(j).getPath();
+                String originImagePath = null;
+                if (mAlbum.getPage(i).getPicture(j) != null) {
+                    originImagePath = mAlbum.getPage(i).getPicture(j).getPath();
+                }
                 int lastIndex = originImagePath.lastIndexOf("/");
                 String realFileName = originImagePath.substring(lastIndex, originImagePath.length());
                 String realFilePath = originImagePath.substring(0, lastIndex);
@@ -120,10 +123,11 @@ public class EpubMaker {
                 file = FileUtil.createFile(dir, (realFilePath + realFileName));
                 FileUtil.copyFile(file, (imagePath + "/" + (i + 1) + "/" + ImageName));
             }
+
             count = 0;
         }
 
-        /* 페이지 별로 html 생성*/
+    /* 페이지 별로 html 생성*/
         // TODO :  페이지 스타일이 동일한 경우 createDirectory()를 자주하게 됨. 확인바람
         String cssPath = filePath + mContext.getResources().getString(R.string.epubData_path_css);
         FileUtil.createDirectory(cssPath);
@@ -135,7 +139,7 @@ public class EpubMaker {
             File originalLayoutFile = FileUtil.createDirectory(layoutPath);
 
             FileUtil.createFile(originalLayoutFile, originalLayoutFile.getPath());
-            FileUtil.copyFile(originalLayoutFile, cssPath + mAlbum.getPage(i).getLayout().getElementNum() + mContext.getResources().getString(R.string.epubData_extension_css));
+            FileUtil.copyFile(originalLayoutFile, cssPath + originalLayoutFile.getName());
 
             try {
                 inputStream = assetManager.open(mContext.getResources().getString(R.string.epubData_fileName_default_html));
@@ -143,7 +147,7 @@ public class EpubMaker {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            stringBuilder.insert(stringBuilder.indexOf(HEAD), String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_css), mAlbum.getPage(i).getLayout().getElementNum()));
+            stringBuilder.insert(stringBuilder.indexOf(HEAD), String.format(mContext.getResources().getString(R.string.epubData_xhtml_html_css), originalLayoutFile.getName()));
 
             Page page = mAlbum.getPage(i);
             int pictureCount = mAlbum.getPage(i).getPictureCount();
@@ -171,7 +175,9 @@ public class EpubMaker {
             stringBuilder.append(System.getProperty("line.separator"));
             stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_MANIFEST), mContext.getResources().getString(R.string.epubData_OEBPS_package_manifest_nav));
             stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_MANIFEST), mContext.getResources().getString(R.string.epubData_OEBPS_package_manifest_ncx));
-            stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_METADATA), mContext.getResources().getString(R.string.epubData_OEBPS_package_metaData));
+            stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_METADATA), String.format(mContext.getResources().getString(R.string.epubData_OEBPS_package_metaData),
+                    fileName, author, new SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()), publisher));
+
             for (int i = 0; i < pageCount; i++) {
                 stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_MANIFEST), String.format(mContext.getResources().getString(R.string.epubData_OEBPS_package_manifest_html), i + 1));
                 stringBuilder.insert(stringBuilder.indexOf(OEBPS_PACKAGE_SPINE), String.format(mContext.getResources().getString(R.string.epubData_OEBPS_package_spine), i + 1));
@@ -215,7 +221,9 @@ public class EpubMaker {
             FileUtil.deleteFolder(new File(filePath));
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
+        return true;
     }
 }
