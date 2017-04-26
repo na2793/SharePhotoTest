@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.study.hancom.sharephototest.view.AutoFitRecyclerView
+    <com.study.hancom.sharephototest.view.AutoFitRecyclerGridView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/album_overview_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="130dp"/>
+        android:columnWidth="120dp" />
 
 </LinearLayout>

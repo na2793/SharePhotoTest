@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="128dip">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/gallery_image"
         android:layout_width="match_parent"
-        android:layout_height="128dip"
+        android:layout_height="120dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop" />
 
@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:text="@string/button_scale" />
+        android:text="확대" />
 
     <CheckBox
         android:id="@+id/gallery_selected_image"

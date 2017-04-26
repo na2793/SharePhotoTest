@@ -11,16 +11,16 @@ import java.util.Set;
 
 public class Page implements Parcelable {
 
-    private static final PageLayoutManager mPageLayoutManager = PageLayoutManager.getInstance();
+    private static PageLayoutManager mPageLayoutManager = new PageLayoutManager();
 
     private PageLayout mLayout;
     private List<Picture> mPictureList = new ArrayList<>();
 
-    public Page(int layoutType) throws LayoutNotFoundException {
+    Page(int layoutType) throws LayoutNotFoundException {
         mLayout = mPageLayoutManager.getPageLayout(layoutType);
     }
 
-    public Page(PageLayout layout) {
+    Page(PageLayout layout) throws LayoutNotFoundException {
         mLayout = layout;
     }
 
@@ -41,20 +41,16 @@ public class Page implements Parcelable {
         }
     };
 
-    public static Set<Integer> getAllPageLayoutType() {
+    public static Set<Integer> getAllLayoutType() throws LayoutNotFoundException {
         return mPageLayoutManager.getAllType();
+    }
+
+    public static List<PageLayout> getAllLayoutForType(int type) throws LayoutNotFoundException{
+        return mPageLayoutManager.getAllPageLayoutForType(type);
     }
 
     public PageLayout getLayout() {
         return mLayout;
-    }
-
-    public void setLayout(int layoutType) throws LayoutNotFoundException {
-        mLayout = mPageLayoutManager.getPageLayout(layoutType);
-    }
-
-    public void setLayout(PageLayout layout) {
-        mLayout = layout;
     }
 
     public Picture getPicture(int position) {
@@ -65,24 +61,36 @@ public class Page implements Parcelable {
         return mPictureList.size();
     }
 
-    public void addPicture(Picture picture) {
+    void setLayout(int layoutType) throws LayoutNotFoundException {
+        mLayout = mPageLayoutManager.getPageLayout(layoutType);
+    }
+
+    void setLayout(PageLayout layout) {
+        mLayout = layout;
+    }
+
+    void addPicture(Picture picture) {
         mPictureList.add(picture);
     }
 
-    public void addPicture(int position, Picture picture) {
+    void addPicture(int position, Picture picture) {
         mPictureList.add(position, picture);
     }
 
-    public Picture removePicture(int position) {
+    Picture removePicture(int position) {
         return mPictureList.remove(position);
     }
 
-    public void reorderPicture(int fromPosition, int toPosition) {
+    void reorderPicture(int fromPosition, int toPosition) {
         Picture target = removePicture(fromPosition);
-        addPicture(toPosition, target);
+        if (toPosition < getPictureCount()) {
+            addPicture(toPosition, target);
+        } else {
+            addPicture(target);
+        }
     }
 
-    public void clear() {
+    void clear() {
         mLayout = null;
         mPictureList.clear();
     }

@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Picture implements Parcelable {
-    final private String mPath;
+    private final String mPath;
 
     public Picture(String path) {
         mPath = path;

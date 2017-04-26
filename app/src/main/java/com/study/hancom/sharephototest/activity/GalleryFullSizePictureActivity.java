@@ -1,102 +1,90 @@
 package com.study.hancom.sharephototest.activity;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Toast;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.view.TouchImageView;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
+    private ArrayList<String> mPicturePathList;
 
-    private ArrayList<String> mGalleryPicturePaths;
-    private ArrayList<Integer> mSelectedPicturePositions;
+    private ArrayList<String> mInvalidPicturePathList;
+    private Set<Integer> mSelectedIndexSet;
     private int mCurrentPictureIndex;
 
-    private TouchImageView mImageView;
+    private boolean mIsMultipleSelection;
+    private CheckBox mCheckBox;
+    private ImageView mImageView;
     private Button mButtonPrevious;
     private Button mButtonNext;
-    private CheckBox mCheckBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_full_size_picture_main);
-
-        /* 뒤로 가기 버튼 생성 */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         /* 데이터 파싱 */
+        /* 데이터 파싱 */
         Bundle bundle = getIntent().getExtras();
-        mGalleryPicturePaths = bundle.getStringArrayList("galleryPicturePaths");
-        mSelectedPicturePositions = bundle.getIntegerArrayList("selectedPicturePositions");
+        mIsMultipleSelection = bundle.getBoolean("isMultipleSelection");
+        mPicturePathList = bundle.getStringArrayList("picturePathList");
         mCurrentPictureIndex = bundle.getInt("currentPictureIndex");
+        if (mIsMultipleSelection) {
+            mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
+        } else {
+            mInvalidPicturePathList = new ArrayList<>(bundle.getStringArrayList("invalidPicturePathList"));
+        }
 
-        /* 이미지 */
-        mImageView = (TouchImageView) findViewById(R.id.show_image_view);
+        /* 이미지뷰 처리 */
+        mImageView = (ImageView) findViewById(R.id.show_image_view);
+        setImageView();
 
         /* 버튼 처리 */
-        mButtonPrevious = (Button) findViewById(R.id.button_previous_picture);
-        mButtonNext = (Button) findViewById(R.id.button_next_picture);
-
+        mButtonPrevious = (Button) findViewById(R.id.button_previous);
+        mButtonNext = (Button) findViewById(R.id.button_next);
         setButton();
-        setImage(mGalleryPicturePaths.get(mCurrentPictureIndex));
 
         mButtonPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentPictureIndex--;
+                setImageView();
                 setButton();
-                if (mSelectedPicturePositions.indexOf(mCurrentPictureIndex) > -1) {
-                    mCheckBox.setChecked(true);
-                } else {
-                    mCheckBox.setChecked(false);
-                }
-
-                mImageView.resetZoom();
-                String currentPicturePath = mGalleryPicturePaths.get(mCurrentPictureIndex);
-                setImage(currentPicturePath);
+                changeActionBar();
             }
         });
         mButtonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentPictureIndex++;
+                setImageView();
                 setButton();
-                if (mSelectedPicturePositions.indexOf(mCurrentPictureIndex) > -1) {
-                    mCheckBox.setChecked(true);
-                } else {
-                    mCheckBox.setChecked(false);
-                }
-                mImageView.resetZoom();
-                String currentPicturePath = mGalleryPicturePaths.get(mCurrentPictureIndex);
-                setImage(currentPicturePath);
+                changeActionBar();
             }
         });
+
+    }
+
+    private void setImageView() {
+        String picturePath = mPicturePathList.get(mCurrentPictureIndex);
+        Glide.with(this).load(picturePath).override(1000, 1000).fitCenter().into(mImageView);
     }
 
     private void setButton() {
-        int maxIndex = mGalleryPicturePaths.size() - 1;
+        int maxIndex = mPicturePathList.size() - 1;
         if (mCurrentPictureIndex <= 0) {
             mButtonPrevious.setVisibility(View.GONE);
         } else {
@@ -109,74 +97,77 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         }
     }
 
-    private void setImage(String picturePath) {
-        FileInputStream fileInputStream = null;
-        BufferedInputStream bufferedInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(picturePath);
-            bufferedInputStream = new BufferedInputStream(fileInputStream);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeStream(bufferedInputStream, null, options);
-            mImageView.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
-                }
-                if (bufferedInputStream != null) {
-                    bufferedInputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void changeActionBar() {
+        if (mIsMultipleSelection) {
+            setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedIndexSet.size(), mPicturePathList.size()));
+            if (mSelectedIndexSet.contains(mCurrentPictureIndex)) {
+                mCheckBox.setChecked(true);
+            } else {
+                mCheckBox.setChecked(false);
             }
+        } else {
+            setTitle(getResources().getString(R.string.title_gallery_single_full_size_main));
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        setTitle(R.string.title_gallery_full_size_picture_main);
-        inflater.inflate(R.menu.gallery_full_size_picture_main, menu);
 
-        mCheckBox = (CheckBox) menu.findItem(R.id.action_check).getActionView();
-        if (mSelectedPicturePositions.indexOf(mCurrentPictureIndex) > -1) {
-            mCheckBox.setChecked(true);
+        getMenuInflater().inflate(R.menu.gallery_full_size_picture_main, menu);
+        if (!mIsMultipleSelection) {
+            MenuItem registrar = menu.findItem(R.id.action_check);
+            registrar.setVisible(false);
         } else {
-            mCheckBox.setChecked(false);
-        }
-        mCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mSelectedPicturePositions.indexOf(mCurrentPictureIndex) > -1) {
-                    mSelectedPicturePositions.remove(mCurrentPictureIndex);
-                    mCheckBox.setChecked(false);
-                } else {
-                    mSelectedPicturePositions.add(mCurrentPictureIndex);
-                    mCheckBox.setChecked(true);
+            mCheckBox = (CheckBox) menu.findItem(R.id.action_check).getActionView();
+            mCheckBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSelectedIndexSet.remove(mCurrentPictureIndex)) {
+                        mSelectedIndexSet.add(mCurrentPictureIndex);
+                    }
+                    changeActionBar();
                 }
-            }
-        });
+            });
+            MenuItem registrar = menu.findItem(R.id.action_select);
+            registrar.setVisible(false);
+        }
+        changeActionBar();
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
-                intent.putIntegerArrayListExtra("selectedPicturePositions", mSelectedPicturePositions);
-                setResult(RESULT_OK, intent);
-                finish();
+                onBackPressed();
                 return true;
 
             case R.id.action_check:
                 return true;
 
+            case R.id.action_select:
+                if (!mIsMultipleSelection) {
+                    Intent intent = new Intent(getApplicationContext(), GallerySingleSelectionActivity.class);
+                    intent.putStringArrayListExtra("InvalidPicturePathList", new ArrayList<>(mInvalidPicturePathList));
+                    if (!mInvalidPicturePathList.contains(mPicturePathList.get(mCurrentPictureIndex))) {
+                        intent.putExtra("selectedImage", mCurrentPictureIndex);
+                    }
+                    setResult(RESULT_OK, intent);
+                }
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mIsMultipleSelection) {
+            Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
+            intent.putIntegerArrayListExtra("selectedPicturePositionList", new ArrayList<>(mSelectedIndexSet));
+            setResult(RESULT_OK, intent);
+        }
+        finish();
     }
 }

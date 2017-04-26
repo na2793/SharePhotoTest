@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -16,31 +14,28 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.study.hancom.sharephototest.R;
-import com.study.hancom.sharephototest.activity.AlbumEditorPageFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.activity.AlbumFullSizeWebViewActivity;
+import com.study.hancom.sharephototest.adapter.base.RecyclerClickableItemAdapter;
 import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.Page;
 import com.study.hancom.sharephototest.model.Picture;
-import com.study.hancom.sharephototest.util.MathUtil;
 import com.study.hancom.sharephototest.util.WebViewUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.ViewHolder> {
+public class AlbumGridAdapter extends RecyclerClickableItemAdapter<AlbumGridAdapter.ViewHolder> {
+
     private Context mContext;
     private Album mAlbum;
 
-    private WebViewUtil mWebViewUtil = new WebViewUtil();
-    private MathUtil mMathUtil = new MathUtil();
-
     private Set<Integer> mPinnedPositionSet = new HashSet<>();
+    private Set<View> mWebViewSet = new HashSet<>();
 
     public AlbumGridAdapter(Context context, Album album) {
-        this.mContext = context;
-        this.mAlbum = album;
+        mContext = context;
+        mAlbum = album;
     }
 
     @Override
@@ -83,26 +78,15 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
         });
 
        /* 웹뷰 처리 */
-        final GestureDetector webViewGestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
+        holder.webView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                Intent intent = new Intent(mContext, AlbumEditorPageFullSizeWebViewActivity.class);
-
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, AlbumFullSizeWebViewActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("album", mAlbum);
                 bundle.putInt("pageIndex", position);
                 intent.putExtras(bundle);
-
                 mContext.startActivity(intent);
-
-                return false;
-            }
-        });
-
-        holder.webView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return webViewGestureDetector.onTouchEvent(event);
             }
         });
 
@@ -111,83 +95,40 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             @Override
             public void onPageFinished(WebView view, String url) {
                 injectAll(position, view);
+                mWebViewSet.add(view);
             }
         });
 
-        injectAll(position, holder.webView);
+        if (mWebViewSet.contains(holder.webView)) {
+            injectAll(position, holder.webView);
+        }
+    }
+
+    public ArrayList<Integer> getPinnedPositionAll() {
+        return new ArrayList<>(mPinnedPositionSet);
+    }
+
+    public void addPinnedPosition(int position) {
+        mPinnedPositionSet.add(position);
+    }
+
+    public boolean removePinnedPosition(int position) {
+        return mPinnedPositionSet.remove(position);
     }
 
     private void injectAll(int position, WebView view) {
         final Page page = mAlbum.getPage(position);
         int pictureCount = page.getPictureCount();
-        mWebViewUtil.injectDivByScript(view, pictureCount);
+        WebViewUtil.injectDivByScript(view, pictureCount);
         // inject data
         for (int i = 0; i < pictureCount; i++) {
-            mWebViewUtil.injectStyleByScript(view, page.getLayout().getStylePath());
+            WebViewUtil.injectStyleByScript(view, page.getLayout().getPath());
             Picture eachPicture = page.getPicture(i);
             if (eachPicture != null) {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), eachPicture.getPath());
             } else {
-                mWebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
+                WebViewUtil.injectImageByScript(view, "_" + (i + 1), "");
             }
-        }
-    }
-
-    public void relayout() throws Exception {
-        Album backup = mAlbum.clone();
-
-        try {
-            List<Picture> pictureList = new ArrayList<>();
-            List<Page> pinnedPageList = new ArrayList<>();
-
-            /* 고정 페이지 추출 */
-            Integer[] sortedPinnedPositionArray = mPinnedPositionSet.toArray(new Integer[mPinnedPositionSet.size()]);
-            Arrays.sort(sortedPinnedPositionArray);
-
-            int offset = 0;
-            for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                pinnedPageList.add(mAlbum.removePage(eachPinnedPosition - offset));
-                offset++;
-            }
-
-            /* 모든 사진 추출 및 페이지 삭제 */
-            int oldPageCount = mAlbum.getPageCount();
-            Log.v("tag", oldPageCount + " ");
-            for (int i = 0; i < oldPageCount; i++) {
-                Page eachPage = mAlbum.removePage(0);
-                for (int j = 0; j < eachPage.getPictureCount(); j++) {
-                    Picture eachPicture = eachPage.getPicture(j);
-                    if (eachPicture != null) {
-                        pictureList.add(eachPicture);
-                    }
-                }
-            }
-
-            /* 새롭게 적재 */
-            List<Integer> usableElementNumList = new ArrayList<>(Page.getAllPageLayoutType());
-            List<Integer> composedElementNumList = mMathUtil.getRandomNumberList(usableElementNumList, pictureList.size());
-
-            for (int eachElementNum : composedElementNumList) {
-                Page newPage = new Page(eachElementNum);
-                mAlbum.addPage(newPage);
-                for (int i = 0; i < eachElementNum; i++) {
-                    newPage.addPicture(pictureList.remove(0));
-                }
-            }
-
-            for (int eachPinnedPosition : sortedPinnedPositionArray) {
-                int pageCount = mAlbum.getPageCount();
-                if (eachPinnedPosition < pageCount) {
-                    mAlbum.addPage(eachPinnedPosition, pinnedPageList.remove(0));
-                } else {
-                    mPinnedPositionSet.remove(eachPinnedPosition);
-                    mPinnedPositionSet.add(mAlbum.getPageCount());
-                    mAlbum.addPage(pinnedPageList.remove(0));
-                }
-            }
-        } catch (Exception e) {
-            mAlbum = backup;
-            throw e;
         }
     }
 
@@ -201,7 +142,7 @@ public class AlbumGridAdapter extends RecyclerView.Adapter<AlbumGridAdapter.View
             textView = (TextView) itemView.findViewById(R.id.page_header_text);
             checkBox = (CheckBox) itemView.findViewById(R.id.page_checkbox);
             webView = (WebView) itemView.findViewById(R.id.page_web_view);
-            webView.loadDataWithBaseURL("file:///android_asset/", mWebViewUtil.getDefaultHTMLData(), "text/html", "UTF-8", null);
+            webView.loadDataWithBaseURL("file:///android_asset/", WebViewUtil.getDefaultHTMLData(mContext), "text/html", "UTF-8", null);
         }
     }
 }
