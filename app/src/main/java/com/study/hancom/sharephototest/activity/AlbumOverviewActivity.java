@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,8 +22,11 @@ import com.study.hancom.sharephototest.model.Album;
 import com.study.hancom.sharephototest.model.AlbumManager;
 import com.study.hancom.sharephototest.model.Picture;
 import com.study.hancom.sharephototest.util.EpubMaker;
+import com.study.hancom.sharephototest.util.shareUtil.ShareManager;
+import com.study.hancom.sharephototest.util.shareUtil.WepublShareStrategy;
 import com.study.hancom.sharephototest.view.AutoFitRecyclerGridView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,8 +136,8 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                                 String title = titleEdit.getText().toString();
                                 String author = authorEdit.getText().toString();
                                 String publisher = publisherEdit.getText().toString();
-                                if (title.length() != 0 && author.length() != 0&& publisher.length() != 0) {
-                                    new createEpubTask().execute(title, author, publisher);
+                                if (title.length() != 0 && author.length() != 0 && publisher.length() != 0) {
+                                    new EpubTask().execute(title, author, publisher);
                                 } else {
                                     Toast.makeText(getApplicationContext(), getString(R.string.toast_action_save_epub_empty_data), Toast.LENGTH_SHORT).show();
                                 }
@@ -145,8 +149,6 @@ public class AlbumOverviewActivity extends AppCompatActivity {
                                         dialog.dismiss();
                                     }
                                 })
-
-                        .create()
                         .show();
                 return true;
 
@@ -163,8 +165,7 @@ public class AlbumOverviewActivity extends AppCompatActivity {
     }
 
 
-    private class createEpubTask extends AsyncTask<String, Void, Void> {
-
+    private class EpubTask extends AsyncTask<String, Void, File> {
         ProgressDialog asyncDialog = new ProgressDialog(AlbumOverviewActivity.this);
 
         @Override
@@ -178,16 +179,74 @@ public class AlbumOverviewActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(String... arg0) {
-            new EpubMaker(mAlbum, getApplicationContext()).createFile(arg0[0], arg0[1], arg0[2]);
-            return null;
+        protected File doInBackground(String... arg0) {
+            return new EpubMaker(mAlbum, getApplicationContext()).createFile(arg0[0], arg0[1], arg0[2]);
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(File result) {
             asyncDialog.dismiss();
             super.onPostExecute(result);
+            share(result);
         }
+    }
+
+    private void share(final File file) {
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View promptView = layoutInflater.inflate(R.layout.album_editor_save, null);
+
+        final EditText titleEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_title);
+        final EditText authorEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_author);
+        final EditText publisherEdit = (EditText) promptView.findViewById(R.id.save_epub_editText_publisher);
+
+        createDialog(getString(R.string.dialog_title_action_create_epub), getString(R.string.dialog_message_action_create_epub))
+                .setView(promptView)
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.dialog_button_save), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String title = titleEdit.getText().toString();
+                        String author = authorEdit.getText().toString();
+                        String publisher = publisherEdit.getText().toString();
+                        if (title.length() != 0 && author.length() != 0 && publisher.length() != 0) {
+                            WepublShareStrategy at = new WepublShareStrategy<Integer>() {
+                                ProgressDialog asyncDialog = new ProgressDialog(AlbumOverviewActivity.this);
+
+                                @Override
+                                protected void onPreExecute() {
+                                    super.onPreExecute();
+                                    asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                    asyncDialog.setMessage("실행중입니다..");
+                                    asyncDialog.show();
+                                }
+
+                                @Override
+                                protected void onCancelled() {
+                                    super.onCancelled();
+                                    Log.v("tag", "작업 취소");
+                                    asyncDialog.dismiss();
+                                }
+
+                                @Override
+                                protected void onPostExecute(String result) {
+                                    super.onPostExecute(result);
+                                    Log.v("tag", result);
+                                    asyncDialog.dismiss();
+                                }
+                            };
+
+                            ShareManager.share(file, null, at);
+                        } else {
+                            Toast.makeText(getApplicationContext(), getString(R.string.toast_action_save_epub_empty_data), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.dialog_button_cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        })
+                .show();
     }
 
     @Override

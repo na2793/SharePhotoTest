@@ -14,7 +14,7 @@
         <com.study.hancom.sharephototest.view.CustomWebView
             android:id="@+id/show_webview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:scaleType="centerInside"/>
     </com.study.hancom.sharephototest.view.ScalableLinearLayout>
 

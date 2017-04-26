@@ -3,10 +3,13 @@ package com.study.hancom.sharephototest.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import com.study.hancom.sharephototest.util.WebViewUtil;
 
 @SuppressLint({"SetJavaScriptEnabled"})
 public class CustomWebView extends WebView {
@@ -28,7 +31,6 @@ public class CustomWebView extends WebView {
             public boolean onDown(MotionEvent e) {
                 return true;
             }
-
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 return performClick();
@@ -46,6 +48,18 @@ public class CustomWebView extends WebView {
         setHorizontalScrollBarEnabled(false);
         setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         setInitialScale(1);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY) {
+            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY){
+                int width = MeasureSpec.getSize(widthMeasureSpec);
+                int height = WebViewUtil.getHeightByWidthForHD(width);
+                setMeasuredDimension(width, height);
+            }
+        }
     }
 
     @Override

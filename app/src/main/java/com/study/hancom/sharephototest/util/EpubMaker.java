@@ -33,7 +33,7 @@ public class EpubMaker {
         mContext = context;
     }
 
-    public boolean createFile(String fileName, String author, String publisher) {
+    public File createFile(String fileName, String author, String publisher) {
         File dir;
         File file;
 
@@ -221,9 +221,10 @@ public class EpubMaker {
             FileUtil.deleteFolder(new File(filePath));
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
 
-        return true;
+        return new File(saveEpubPath +
+                fileName + mContext.getResources().getString(R.string.epubData_extension_epub));
     }
 }
