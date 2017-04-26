@@ -55,16 +55,15 @@
             android:id="@+id/recent_project_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/recent_project"
+            android:text="@string/text_recent_project"
+            android:layout_marginLeft="30dp"
             android:textSize="@dimen/recent_project_text_size" />
 
-
-        <GridView
+        <com.study.hancom.sharephototest.view.AutoFitRecyclerGridView
             android:id="@+id/recent_project_grid_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:numColumns="auto_fit"
-            android:layout_gravity="center_horizontal" />
+            android:columnWidth="150dp"/>
 
     </LinearLayout>
 

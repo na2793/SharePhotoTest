@@ -21,7 +21,6 @@ class PageLayoutManager implements Parcelable {
             + File.separator + "SharePhoto" + File.separator + "layout" + File.separator;
 
     private Map<Integer, List<PageLayout>> mLayoutMap = new HashMap<>();    // <type, pageLayoutList>, type = 스타일 파일들을 분류하는 기준 (element count)
-    private MathUtil mMathUtil = new MathUtil();
 
     PageLayoutManager() {
         File layoutFolder = new File(LAYOUT_FOLDER_PATH);
@@ -80,13 +79,20 @@ class PageLayoutManager implements Parcelable {
         return layoutKeySet;
     }
 
+    List<PageLayout> getAllPageLayoutForType(int type) throws LayoutNotFoundException{
+        if(!mLayoutMap.containsKey(type)){
+            throw new LayoutNotFoundException("Layout Type " + type + " is Not Exist");
+        }
+        return mLayoutMap.get(type);
+    }
+
     PageLayout getPageLayout(int type) throws LayoutNotFoundException {
         if (!mLayoutMap.containsKey(type)) {
             throw new LayoutNotFoundException("Layout Type " + type + " is Not Exist");
         }
 
         List<PageLayout> pageLayoutList = mLayoutMap.get(type);
-        return pageLayoutList.get(mMathUtil.getRandomMath(pageLayoutList.size() - 1, 0));
+        return pageLayoutList.get(MathUtil.getRandomMath(pageLayoutList.size() - 1, 0));
     }
 
     @Override

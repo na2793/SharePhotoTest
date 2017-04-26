@@ -15,6 +15,9 @@ import com.study.hancom.sharephototest.util.ImageUtil;
 import java.util.ArrayList;
 
 public class GalleryMultipleSelectionActivity extends AppCompatActivity {
+    static final String STATE_PICTURE_PATH_LIST = "picturePathList";
+    static final String STATE_GALLERY_ADAPTER_ALL_SELECTED_POSITION = "galleryAdapterAllSelectedPosition";
+
     private ArrayList<String> mPicturePathList;
 
     private Menu mMenu;
@@ -28,9 +31,19 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mPicturePathList = ImageUtil.getMediaImage(this);
+        if (savedInstanceState != null) {
+            mPicturePathList = savedInstanceState.getStringArrayList(STATE_PICTURE_PATH_LIST);
+            mGalleryAdapter = new MultipleSelectionGalleryAdapter(this, mPicturePathList);
+            ArrayList<Integer> galleryAdapterAllSelectedPosition = savedInstanceState.getIntegerArrayList(STATE_GALLERY_ADAPTER_ALL_SELECTED_POSITION);
+            for (int eachPosition : galleryAdapterAllSelectedPosition) {
+                mGalleryAdapter.addSelectedPosition(eachPosition);
+            }
+        } else {
+            mPicturePathList = ImageUtil.getMediaImage(this);
+            mGalleryAdapter = new MultipleSelectionGalleryAdapter(this, mPicturePathList);
+        }
+
         mGalleryView = (GridView) findViewById(R.id.gallery_image_grid_view);
-        mGalleryAdapter = new MultipleSelectionGalleryAdapter(this, mPicturePathList);
         mGalleryAdapter.setOnMultipleItemSelectListener(new MultipleSelectionGalleryAdapter.OnMultipleItemSelectListener() {
             @Override
             public void onSelect() {
@@ -54,7 +67,7 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenu = menu;
         getMenuInflater().inflate(R.menu.gallery_multiple_select_main, menu);
-        setTitle(String.format(getResources().getString(R.string.title_gallery_main), mGalleryAdapter.getSelectedPositionCount(), mPicturePathList.size()));
+        changeActionBar();
 
         return true;
     }
@@ -69,11 +82,12 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
 
             case R.id.action_next:
                 ArrayList<String> selectedPicturePathList = new ArrayList<>();
-                Integer[] selectedPositionArray = mGalleryAdapter.getAllSelectedPosition();
-                for (int eachPosition : selectedPositionArray) {
+                ArrayList<Integer> selectedPositionList = mGalleryAdapter.getAllSelectedPosition();
+                for (int eachPosition : selectedPositionList) {
                     selectedPicturePathList.add(mGalleryAdapter.getItem(eachPosition));
                 }
                 Intent intent = new Intent(getApplicationContext(), AlbumOverviewActivity.class);
+
                 intent.putExtra("selectedPicturePathList", selectedPicturePathList);
                 startActivity(intent);
 
@@ -103,5 +117,12 @@ public class GalleryMultipleSelectionActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putStringArrayList(STATE_PICTURE_PATH_LIST, mPicturePathList);
+        outState.putIntegerArrayList(STATE_GALLERY_ADAPTER_ALL_SELECTED_POSITION, mGalleryAdapter.getAllSelectedPosition());
+        super.onSaveInstanceState(outState);
     }
 }

@@ -6,7 +6,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ViewTreeObserver;
 
 import com.study.hancom.sharephototest.R;
 
@@ -31,7 +30,6 @@ public class AutoFitRecyclerGridView extends RecyclerView {
 
             array.recycle();
         }
-
         setLayoutManager(mLayoutManager);
     }
 

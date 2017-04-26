@@ -20,11 +20,13 @@ import java.util.Set;
 
 public class GalleryFullSizePictureActivity extends AppCompatActivity {
     private ArrayList<String> mPicturePathList;
+
+    private ArrayList<String> mInvalidPicturePathList;
     private Set<Integer> mSelectedIndexSet;
     private int mCurrentPictureIndex;
 
+    private boolean mIsMultipleSelection;
     private CheckBox mCheckBox;
-
     private ImageView mImageView;
     private Button mButtonPrevious;
     private Button mButtonNext;
@@ -35,11 +37,16 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_full_size_picture_main);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         /* 데이터 파싱 */
+        /* 데이터 파싱 */
         Bundle bundle = getIntent().getExtras();
+        mIsMultipleSelection = bundle.getBoolean("isMultipleSelection");
         mPicturePathList = bundle.getStringArrayList("picturePathList");
-        mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
         mCurrentPictureIndex = bundle.getInt("currentPictureIndex");
+        if (mIsMultipleSelection) {
+            mSelectedIndexSet = new HashSet<>(bundle.getIntegerArrayList("selectedPicturePositionList"));
+        } else {
+            mInvalidPicturePathList = new ArrayList<>(bundle.getStringArrayList("invalidPicturePathList"));
+        }
 
         /* 이미지뷰 처리 */
         mImageView = (ImageView) findViewById(R.id.show_image_view);
@@ -68,11 +75,11 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
                 changeActionBar();
             }
         });
+
     }
 
     private void setImageView() {
         String picturePath = mPicturePathList.get(mCurrentPictureIndex);
-
         Glide.with(this).load(picturePath).override(1000, 1000).fitCenter().into(mImageView);
     }
 
@@ -91,31 +98,39 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
     }
 
     private void changeActionBar() {
-        setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedIndexSet.size(), mPicturePathList.size()));
-
-        if (mSelectedIndexSet.contains(mCurrentPictureIndex)) {
-            mCheckBox.setChecked(true);
+        if (mIsMultipleSelection) {
+            setTitle(String.format(getResources().getString(R.string.title_gallery_main), mSelectedIndexSet.size(), mPicturePathList.size()));
+            if (mSelectedIndexSet.contains(mCurrentPictureIndex)) {
+                mCheckBox.setChecked(true);
+            } else {
+                mCheckBox.setChecked(false);
+            }
         } else {
-            mCheckBox.setChecked(false);
+            setTitle(getResources().getString(R.string.title_gallery_single_full_size_main));
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.gallery_full_size_picture_main, menu);
-
-        mCheckBox = (CheckBox) menu.findItem(R.id.action_check).getActionView();
-        mCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mSelectedIndexSet.remove(mCurrentPictureIndex)) {
-                    mSelectedIndexSet.add(mCurrentPictureIndex);
+        if (!mIsMultipleSelection) {
+            MenuItem registrar = menu.findItem(R.id.action_check);
+            registrar.setVisible(false);
+        } else {
+            mCheckBox = (CheckBox) menu.findItem(R.id.action_check).getActionView();
+            mCheckBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSelectedIndexSet.remove(mCurrentPictureIndex)) {
+                        mSelectedIndexSet.add(mCurrentPictureIndex);
+                    }
+                    changeActionBar();
                 }
-
-                changeActionBar();
-            }
-        });
-
+            });
+            MenuItem registrar = menu.findItem(R.id.action_select);
+            registrar.setVisible(false);
+        }
         changeActionBar();
 
         return true;
@@ -125,17 +140,34 @@ public class GalleryFullSizePictureActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
-                intent.putIntegerArrayListExtra("selectedPicturePositionList", new ArrayList<>(mSelectedIndexSet));
-                setResult(RESULT_OK, intent);
-                finish();
+                onBackPressed();
                 return true;
 
             case R.id.action_check:
                 return true;
 
+            case R.id.action_select:
+                if (!mIsMultipleSelection) {
+                    Intent intent = new Intent(getApplicationContext(), GallerySingleSelectionActivity.class);
+                    intent.putStringArrayListExtra("InvalidPicturePathList", new ArrayList<>(mInvalidPicturePathList));
+                    if (!mInvalidPicturePathList.contains(mPicturePathList.get(mCurrentPictureIndex))) {
+                        intent.putExtra("selectedImage", mCurrentPictureIndex);
+                    }
+                    setResult(RESULT_OK, intent);
+                }
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mIsMultipleSelection) {
+            Intent intent = new Intent(getApplicationContext(), GalleryMultipleSelectionActivity.class);
+            intent.putIntegerArrayListExtra("selectedPicturePositionList", new ArrayList<>(mSelectedIndexSet));
+            setResult(RESULT_OK, intent);
+        }
+        finish();
     }
 }

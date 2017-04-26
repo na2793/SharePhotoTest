@@ -2,12 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="2dp"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/page_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:clickable="false"
+            android:focusable="false" />
 
         <TextView
             android:id="@+id/page_header_text"
@@ -15,26 +24,11 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:textSize="20sp" />
+    </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/page_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|top"
-            android:clickable="false"
-            android:focusable="false" />
-
-    </FrameLayout>
-
-    <com.study.hancom.sharephototest.view.HDSizeWebView
+    <com.study.hancom.sharephototest.view.CustomWebView
         android:id="@+id/page_web_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <ImageView
-        android:id="@+id/page_image_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

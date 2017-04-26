@@ -15,7 +15,7 @@ import com.study.hancom.sharephototest.R;
 
 import java.util.ArrayList;
 
-public class GalleryAdapter extends BaseAdapter {
+abstract public class GalleryAdapter extends BaseAdapter {
     protected Context mContext;
     protected ArrayList<String> mPicturePathList;
 
@@ -59,12 +59,16 @@ public class GalleryAdapter extends BaseAdapter {
         final String ImagePath = mPicturePathList.get(position);
         Glide.with(mContext).load(ImagePath).centerCrop().into(viewHolder.imageView);
 
+        bindView(viewHolder, position);
+
         return convertView;
     }
 
-    private static class ViewHolder {
-        ImageView imageView;
-        Button button;
-        CheckBox checkBox;
+    protected abstract void bindView(ViewHolder holder, final int position);
+
+    protected static class ViewHolder {
+        public ImageView imageView;
+        public Button button;
+        public CheckBox checkBox;
     }
 }

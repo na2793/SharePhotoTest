@@ -45,6 +45,10 @@ public class Page implements Parcelable {
         return mPageLayoutManager.getAllType();
     }
 
+    public static List<PageLayout> getAllLayoutForType(int type) throws LayoutNotFoundException{
+        return mPageLayoutManager.getAllPageLayoutForType(type);
+    }
+
     public PageLayout getLayout() {
         return mLayout;
     }

@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageUtil {
-
-    private static String TAG = ImageUtil.class.getName();
+    private static final String TAG = ImageUtil.class.getName();
 
     public static ArrayList<String> getMediaImage(Context context) {
         ArrayList<String> galleryPictures = new ArrayList<>();
@@ -23,16 +22,14 @@ public class ImageUtil {
                 MediaStore.Images.Media._ID, //The unique ID for a row.
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
         Cursor imageCursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy);
-        Log.v(TAG, "imageCursor.getCount() --->" + String.valueOf(imageCursor.getCount()));
 
-        for (int i = 0; i < imageCursor.getCount(); i++) {
+        int count = imageCursor.getCount();
+        for (int i = 0; i < count; i++) {
             imageCursor.moveToPosition(i);
 
-            //gets the zero-based ColumnIndex for the given column name
             int dataColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.DATA);
             int directoryColumnIndex = imageCursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
 
-            //get the value of the requested column from ColumnIndex as a String.
             String directoryName = imageCursor.getString(directoryColumnIndex);
             Log.v(TAG, "directoryName --->" + directoryName);
             String fileName = imageCursor.getString(dataColumnIndex);
@@ -44,13 +41,5 @@ public class ImageUtil {
         imageCursor.close();
 
         return galleryPictures;
-    }
-
-    public static Bitmap getViewScreenShot(View view) {
-        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        view.draw(canvas);
-
-        return bitmap;
     }
 }
