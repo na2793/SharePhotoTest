@@ -31,7 +31,7 @@ public abstract class WepublShareStrategy<T> extends AsyncTaskShareStrategy<T> i
 
     @Override
     protected final T sendRequest(File file, List params) throws IOException {
-        String boundary = "0000000000HnacomOffice";
+        String boundary = "0000000000HancomOffice";
 
         URL url = new URL("http://s-api.wepubl.com/api/bupload"); // s-api.wepubl.com/member/rlogin
         mHttpURLConnection = (HttpURLConnection) url.openConnection();
