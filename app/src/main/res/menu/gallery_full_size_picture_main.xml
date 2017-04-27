@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_check"
+        android:title="@string/action_gallery_full_size_select"
+        app:actionViewClass="android.widget.CheckBox"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_select"
+        android:title="@string/action_gallery_full_size_select"
+        app:showAsAction="always"/>
+
+</menu>

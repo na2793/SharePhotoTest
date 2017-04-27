@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">SharePhotoTest</string>
+
+    <string name="button_new_project">새 프로젝트</string>
+    <string name="button_load_project">불러오기</string>
+    <string name="text_recent_project">최근 프로젝트</string>
+
+    <string name="album_overview_section_header">%1$d페이지</string>
+    <string name="album_editor_section_header">%1$d페이지</string>
+
+    <string name="dialog_button_continue">계속</string>
+    <string name="dialog_button_confirm">확인</string>
+    <string name="dialog_button_cancel">취소</string>
+    <string name="dialog_button_save">저장</string>
+    <string name="dialog_button_remain">남기기</string>
+    <string name="dialog_button_remove">지우기</string>
+
+    <string name="dialog_title_action_single_move">사진 이동</string>
+    <string name="dialog_message_action_single_move">선택된 사진을 이동시킬 페이지를 선택해주세요.</string>
+
+    <string name="dialog_title_action_single_delete">사진 삭제</string>
+    <string name="dialog_message_action_single_delete">선택된 사진을 지웁니다. 레이아웃을 유지하도록 사진 틀은 남겨둘까요?</string>
+
+    <string name="dialog_title_action_multiple_delete">여러 사진 삭제</string>
+    <string name="dialog_message_action_multiple_delete">선택된 사진들을 지웁니다. 레이아웃을 유지하도록 사진 틀은 남겨둘까요?</string>
+
+    <string name="dialog_title_action_empty_delete">틀 삭제</string>
+    <string name="dialog_message_action_empty_delete">이 틀을 삭제하면 레이아웃이 자동으로 변경됩니다. 계속하시겠습니까?</string>
+
+    <string name="dialog_title_action_create_epub_empty">빈 요소</string>
+    <string name="dialog_message_action_create_epub_empty">빈 요소가 %1$d개 존재합니다.</string>
+
+    <string name="dialog_title_action_create_epub">프로젝트 저장</string>
+    <string name="dialog_message_action_create_epub">필요한 정보를 입력해주세요.</string>
+
+    <string name="title_gallery_main">사진 선택 (%1$d/%2$d)</string>
+    <string name="title_gallery_single_full_size_main">사진 미리보기</string>
+    <string name="title_album_overview_main">페이지 구성</string>
+    <string name="title_album_editor_main">페이지 편집</string>
+    <string name="title_album_editor_single_select">사진 선택</string>
+    <string name="title_album_editor_multiple_select">사진 선택 (%1$d/%2$d)</string>
+    <string name="title_album_editor_empty_picture">빈 틀 선택</string>
+    <string name="title_album_editor_page_full_size_webview_main">페이지 미리보기</string>
+    <string name="title_album_editor_new_layout_main">레이아웃 변경</string>
+
+    <string name="action_gallery_next">다음</string>
+    <string name="action_gallery_confirm">완료</string>
+
+    <string name="action_gallery_full_size_select">선택</string>
+
+    <string name="action_album_overview_confirm">완료</string>
+
+    <string name="action_album_overview_edit">편집</string>
+    <string name="action_album_overview_relayout">재구성</string>
+
+    <string name="action_album_editor_confirm">완료</string>
+
+    <string name="action_album_editor_single_edit">편집</string>
+    <string name="action_album_editor_single_move">이동</string>
+    <string name="action_album_editor_single_delete">삭제</string>
+
+    <string name="action_album_editor_multiple_select_all">전체선택</string>
+    <string name="action_album_editor_multiple_edit">편집</string>
+    <string name="action_album_editor_multiple_move">이동</string>
+    <string name="action_album_editor_multiple_delete">삭제</string>
+
+    <string name="action_album_editor_empty_set_picture">사진등록</string>
+
+    <string name="toast_action_picture_delete_fail">사진 삭제 실패</string>
+    <string name="toast_action_picture_single_move_fail">사진 이동 실패</string>
+    <string name="toast_action_save_epub_empty_data">모든 정보를 입력해주세요</string>
+</resources>

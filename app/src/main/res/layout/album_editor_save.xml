@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:stretchColumns="1">
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/save_epub_textView_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Title" />
+
+        <EditText
+            android:id="@+id/save_epub_editText_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Title here.."
+            android:layout_marginStart="10dp"/>
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/save_epub_textView_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Author"/>
+
+        <EditText
+            android:id="@+id/save_epub_editText_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Author Name here.."
+            android:layout_marginStart="10dp" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/save_epub_textView_publisher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Publisher" />
+
+        <EditText
+            android:id="@+id/save_epub_editText_publisher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Publisher here.."
+            android:layout_marginStart="10dp"/>
+    </TableRow>
+
+</TableLayout>

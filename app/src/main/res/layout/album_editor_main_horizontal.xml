@@ -22,7 +22,7 @@
             android:layout_width="50dp"
             android:layout_height="20dp"
             android:layout_gravity="bottom|center"
-            android:background="@color/colorAccent" />
+            android:background="@color/colorPrimary" />
 
         <LinearLayout
             android:id="@+id/page_list_fragment_container"
@@ -37,7 +37,7 @@
         <LinearLayout
             android:id="@+id/horizontal_page_list_fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="130dp"
             android:layout_gravity="bottom|center"
             android:orientation="vertical" />
     </LinearLayout>

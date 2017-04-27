@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" prefix="cc: http://creativecommons.org/ns# rendition: http://www.idpf.org/vocab/rendition/#" unique-identifier="uid" xml:lang="ko" version="3.0">
+	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:opf="http://www.idpf.org/2007/opf">
+		<dc:language>ko</dc:language>
+		<meta name="cover" content="coverimage" />
+		<meta name="application-version" content="1.0.0" />
+		<meta property="rendition:layout">pre-paginated</meta>
+		<meta property="rendition:spread">none</meta>
+	</metadata>
+	<manifest>
+	</manifest>
+	<spine toc="ncx">
+	</spine>
+</package>
