@@ -78,6 +78,7 @@ public class GallerySingleSelectionActivity extends AppCompatActivity {
         setTitle(getResources().getString(R.string.title_album_editor_single_select));
 
         changeActionBar();
+
         return true;
     }
 

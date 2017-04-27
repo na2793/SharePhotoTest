@@ -72,8 +72,6 @@ public abstract class WepublShareStrategy<T> extends AsyncTaskShareStrategy<T> i
 
             os.writeBytes("--" + boundary + "--\r\n");
             os.flush();
-
-            //mHttpURLConnection.connect();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
