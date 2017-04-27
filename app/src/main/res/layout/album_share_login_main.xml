@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:stretchColumns="1">
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/share_epub_textView_ID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="ID" />
+
+        <EditText
+            android:id="@+id/share_epub_editText_ID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="이메일주소"
+            android:layout_marginStart="10dp"/>
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/share_epub_textView_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Password"/>
+
+        <EditText
+            android:id="@+id/share_epub_editText_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호"
+            android:layout_marginStart="10dp" />
+    </TableRow>
+
+    <TableRow>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity=""
+            android:text="로그인"
+            android:background="@color/colorAccent"
+            android:id="@+id/share_epub_login_button"
+            android:layout_span="3"
+            android:layout_column="0" />
+    </TableRow>
+
+</TableLayout>
